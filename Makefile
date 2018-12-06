@@ -1,4 +1,4 @@
-SRC=lexer.ml
+SRC=util.ml lexer.ml parser.ml
 SRC_TEST=$(SRC) test.ml
 SRC_BUILD=$(SRC) toplevel.ml
 

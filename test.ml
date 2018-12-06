@@ -1,4 +1,7 @@
+open Type
+open Utils
 open Lexer
+open Parser
 
 let (compteur_de_test, test_valide) = ref 0, ref 0
 

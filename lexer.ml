@@ -1,3 +1,6 @@
+open Type
+open Utils
+
 let est_entier t(*exte*) b(*ase*) =
   let l(*ongueur*) = String.length t in
   let m(*aximum caractere *) = char_of_int (b + 48) in

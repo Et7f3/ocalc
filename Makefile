@@ -5,6 +5,8 @@ SRC_BUILD=$(SRC) toplevel.ml
 build: $(SRC_BUILD)
 	ocamlc $(SRC) -o build
 	./build
+	rm build
 test: $(SRC_TEST)
 	ocamlc $(SRC_TEST) -o test
 	./test
+	rm test

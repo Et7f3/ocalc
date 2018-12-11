@@ -30,8 +30,7 @@ let est_entier_base t(*exte*) =
     try
       String.index t '_'
     with Not_found -> -1
-  in
-      i > 0
+  in  i > 0
     &&
       let b = int_of_string (String.sub t (i + 1) (l - i - 1)) in
         0 <= b
@@ -50,7 +49,49 @@ let est_entier_base t(*exte*) =
         &&
           est_entier (String.sub t 0 i) b)
 
-let est_variable s = false
+let est_variable t(*exte*) =
+  let l(*ongueur*) = String.length t in
+  let rec est_variable i =
+      i = l
+    ||
+        'a' <= t.[i]
+      &&
+        t.[i] <= 'z'
+      &&
+        est_variable2 (i + 1)
+  and est_variable2 i =
+      i = l
+    ||
+        t.[i] = '_'
+      &&
+        i + 1 <> l
+      &&
+        est_variable2 (i + 1)
+    ||
+        ('a' <= t.[i]
+      &&
+        t.[i] <= 'z')
+      &&
+        est_variable2 (i + 1)
+    ||
+        ('A' <= t.[i]
+      &&
+        t.[i] <= 'Z')
+      &&
+        est_variable2 (i + 1)
+    ||
+        ('0' <= t.[i]
+      &&
+        t.[i] <= '9')
+      &&
+        est_variable2 (i + 1)
+    ||
+        t.[i] = '\''
+      &&
+        est_variable2 (i + 1)
+  in est_variable 0 (*Maybe add a match with *)
+
+let contient_texte t(*exte*) l(*iste à chercher*) = false
 
 (*
 let parenthese_correcte t(*exte*) =

@@ -74,15 +74,23 @@ let () = test_unitaire_assert (est_variable "pi") true
 let () = test_unitaire_assert (est_variable "pi2") true
 let () = test_unitaire_assert (est_variable "pi-2") false
 let () = test_unitaire_assert (est_variable "pi_t") true
-let () = test_unitaire_assert (est_variable "pi_2") true
-let () = test_unitaire_assert (est_variable "a_") false
-let () = test_unitaire_assert (est_variable "Ax") false (*Constante qui commence par une maj ? *)
-let () = test_unitaire_assert (est_variable "x'''''") true
+let () = test_unitaire_assert (est_variable "pi_2") true (*Va être confondu avec est_entier_base ?*)
+let () = test_unitaire_assert (est_variable "a_") false (*Termine par un _ *)
+let () = test_unitaire_assert (est_variable "Ax") false (*Constante qui commence par une maj ? Matrice ?*)
+let () = test_unitaire_assert (est_variable "x'''''") true (*apostrophe ok*)
 let () = test_unitaire_assert (est_variable "x'''''123") true
+let () = test_unitaire_assert (est_variable "xZE") true (*Majuscule pas à la première ok*)
 
 let () = fin_suite ()
 
+let () = init_suite "contient_texte"
 
+let () = test_unitaire_assert (contient_texte "123" ["+"]) false
+let () = test_unitaire_assert (contient_texte "123+456" ["+"]) true
+let () = test_unitaire_assert (contient_texte "123+456" ["-"]) false
+let () = test_unitaire_assert (contient_texte "123-456+789" ["-"; "+"]) true
+
+let () = fin_suite ()
 
 let () = Printf.printf "\n\n%3.2f %% des tests global passés\n" (100. *. float_of_int !test_valide_total /. float_of_int !test_total)
 let () = reinit_test_suite ()

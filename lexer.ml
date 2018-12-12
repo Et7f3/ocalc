@@ -91,7 +91,7 @@ let est_variable t(*exte*) =
         est_variable2 (i + 1)
   in est_variable 0 (*Maybe add a match with *)
 
-let contient_texte t(*exte*) l(*iste à chercher*) = false
+
 
 (*
 let parenthese_correcte t(*exte*) =

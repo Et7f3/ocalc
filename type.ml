@@ -1,2 +1,5 @@
-type expr = Variable
-          | TexteNonValide of string
+type grandentier = int * (int list)
+
+type expr = Variable of string
+          | Entier of grandentier
+          | Textenonvalide of string

@@ -5,3 +5,5 @@ let print_bool b =
     else
       "false"
   )
+
+let contient_texte t(*exte*) l(*iste à chercher*) = false

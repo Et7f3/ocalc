@@ -92,5 +92,18 @@ let () = test_unitaire_assert (contient_texte "123-456+789" ["-"; "+"]) true
 
 let () = fin_suite ()
 
+let () = init_suite "expr_de_texte"
+
+let parse = []
+let () = test_unitaire_assert (expr_de_texte parse "3445") (Textenonvalide  "3445")
+let () = test_unitaire_assert (expr_de_texte parse "x") (Textenonvalide  "x")
+let parse = (est_variable, variable_de_texte) :: parse;;
+let parse = ((fun t -> est_entier t 10), grandentier_de_texte) :: parse;;
+let () = test_unitaire_assert (expr_de_texte parse "3445") (Entier (1, [5; 4; 4; 3]))
+let () = test_unitaire_assert (expr_de_texte parse "-3445") (Entier (-1, [5; 4; 4; 3]))
+let () = test_unitaire_assert (expr_de_texte parse "x") (Variable ("x"))
+
+let () = fin_suite ()
+
 let () = Printf.printf "\n\n%3.2f %% des tests global passés\n" (100. *. float_of_int !test_valide_total /. float_of_int !test_total)
 let () = reinit_test_suite ()

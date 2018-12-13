@@ -27,6 +27,3 @@ let rec expr_de_texte fxs(*list of function*) t(*exte*) =
     | e :: l -> b l
     | []  -> Textenonvalide t
   in b fxs
-
-
-let a = expr_de_texte [] "3445";

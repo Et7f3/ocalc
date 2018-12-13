@@ -24,6 +24,8 @@ let est_entier t(*exte*) b(*ase*) =
       &&
         est_entier 0
 
+let est_entier10 t = est_entier t 10
+
 let est_entier_base t(*exte*) =
   let l(*ongueur*) = String.length t in
   let i =
@@ -91,7 +93,7 @@ let est_variable t(*exte*) =
         est_variable2 (i + 1)
   in est_variable 0 (*Maybe add a match with *)
 
-
+let contient_texte t(*exte*) l(*iste à chercher*) = false
 
 (*
 let parenthese_correcte t(*exte*) =
@@ -105,7 +107,6 @@ let parenthese_correcte t(*exte*) =
 *)
 
 
-;;
 
 
 
@@ -135,4 +136,3 @@ let is_int_base s =
     with Not_found -> 0
   in i != 0 && 5 <= l && s.[0] = '(' && s.[i - 2] = ')' && is_int (String.sub s 1 (l - i + 2)) (int_of_string (String.sub s i (l - i)))
 *)
-

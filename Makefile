@@ -4,14 +4,14 @@ SRC_BUILD=$(SRC) toplevel.ml
 SRC_INTERPRETE=$(SRC) interprete.ml
 
 build: $(SRC_BUILD)
-	ocamlc $(SRC) -o build
-	./build
-	rm build
+	ocamlc $^ -o $@
+	./$@
+	rm $@
 
 test: $(SRC_TEST)
-	ocamlc $(SRC_TEST) -o test
-	./test
-	rm test
+	ocamlc $^ -o $@
+	./$@
+	rm $@
 
 #-u -s option may speed up a little
 
@@ -22,8 +22,7 @@ eval:
 	(sed -r 's/open (.*)/;;\n#use "\L\1.ml";;/g' $(SRC_INTERPRETE); echo \;\;) | ocaml
 
 clean:
-	rm *.cm*
-	rm *.html
+	rm -f *.cm* *.html
 #*.css we will have our special stylesheet so don't remove it
 
 doc_build: build

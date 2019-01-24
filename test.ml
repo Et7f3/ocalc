@@ -2,6 +2,7 @@ open Type
 open Utils
 open Lexer
 open Parser
+open GrandEntier
 
 let (compteur_de_test, test_valide, numero_de_test, sous_test, sous_test_valide) = ref 0, ref 0, ref 0, ref 0, ref 0
 
@@ -111,6 +112,24 @@ let parse = (est_entier10, grandentier_de_texte) :: parse;;
 let () = test_unitaire_assert (expr_de_texte parse "3445") (Entier (1, [5; 4; 4; 3]))
 let () = test_unitaire_assert (expr_de_texte parse "-3445") (Entier (-1, [5; 4; 4; 3]))
 let () = test_unitaire_assert (expr_de_texte parse "x") (Variable ("x"))
+
+let () = fin_suite ()
+
+let () = init_suite "grandentier_depuis_texte"
+
+let () = test_unitaire_assert (grandentier_depuis_texte "3445") (false, [5; 4; 4; 3])
+let () = test_unitaire_assert (grandentier_depuis_texte "-3445") (true, [5; 4; 4; 3])
+let () = test_unitaire_assert (grandentier_depuis_texte "0") (false, [])
+let () = test_unitaire_assert (grandentier_depuis_texte "-0") (false, [])
+
+let () = fin_suite ()
+
+let () = init_suite "texte_depuis_grandentier"
+
+let () = test_unitaire_assert (texte_depuis_grandentier (false, [5; 4; 4; 3])) "3445"
+let () = test_unitaire_assert (texte_depuis_grandentier (true, [5; 4; 4; 3])) "-3445"
+let () = test_unitaire_assert (texte_depuis_grandentier (false, [])) "0"
+let () = test_unitaire_assert (texte_depuis_grandentier (true, [])) "0"
 
 let () = fin_suite ()
 

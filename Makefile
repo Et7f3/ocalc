@@ -1,4 +1,4 @@
-SRC=type.ml utils.ml lexer.ml parser.ml
+SRC=type.ml utils.ml lexer.ml parser.ml grandEntier.mli grandEntier.ml
 SRC_TEST=$(SRC) test.ml
 SRC_BUILD=$(SRC) toplevel.ml
 SRC_INTERPRETE=$(SRC) interprete.ml

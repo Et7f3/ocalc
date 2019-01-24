@@ -23,3 +23,8 @@ eval:
 
 clean:
 	rm *.cm*
+	rm *.html
+#*.css we will have our special stylesheet so don't remove it
+
+doc_build: build
+	ocamldoc -html -all-params -colorize-code -charset utf-8 $(SRC_BUILD)

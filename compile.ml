@@ -1,9 +1,11 @@
-let faire_dossier name =
-  if Sys.file_exists name then
-    if not (Sys.is_directory name) then
-      failwith (name ^ " existe déjà et n'est pas un dossier")
-  else
-    Unix.mkdir name 777
+  let faire_dossier name =
+    if Sys.file_exists name then
+      if not (Sys.is_directory name) then
+        failwith (name ^ " existe déjà et n'est pas un dossier")
+      else
+        ()
+    else
+      Unix.mkdir name 777
 
 let faire_dossiers =
   let rec faire_un_dossier = function

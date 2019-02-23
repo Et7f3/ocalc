@@ -32,6 +32,46 @@ type valeur_de_retour =
   | Argument_non_renonnu of string
 
 let rec gestionnaire_construire i argc argv =
+  let (i, cible) =
+    if i < argc && argv.(i) = "-cible" then
+      let i = i + 1 in
+      if i < argc then
+        match argv.(i) with
+          ("final" | "debug") as cible -> (i + 1, cible)
+        | _ -> failwith "cible non prise en charge"
+      else
+        failwith "Cible non défini"
+    else
+      (i, "final")
+  in let () = faire_dossiers [["obj"; "header"]; ["obj"; "on"]; ["obj"; "off"]; ["obj"; "interface"]; ["bin"; cible]] in
+  let command_line nom actif =
+    let actif = if actif then "on/" else "off/" in
+    "ocamlc -c unix.cma -I +threads src/" ^ actif ^ nom ^ ".mli -o obj/header/" ^ nom ^ ".cmi && " ^
+    "ocamlc -c unix.cma -I +threads -I obj/header src/" ^ actif ^ nom ^ ".ml -o obj/" ^ actif ^ nom ^ ".cmo"
+  in let modules = [
+    "grandEntier", true;
+    (*"matrice", true;*)
+    "serveur", false;
+  ] in
+  let rec consommer_argument i modules =
+    if i < argc && argv.(i) <> "--" then
+      let arg = argv.(i) in
+      let i = i + 1 in
+      let valeur = match String.get arg 0 with
+          '+' -> true
+        | '-' -> false
+        | _ -> failwith ("argument " ^ arg ^ " non compris")
+      in let clef = String.sub arg 1 (String.length arg - 1) in
+      consommer_argument i (modifie_valeur_dico clef valeur modules)
+    else
+      i, modules
+  in let (i, modules) = consommer_argument i modules in
+  let rec l = function
+      [] -> ()
+    | (nom, actif) :: liste ->
+      let _ = Sys.command (command_line nom actif) in
+      l liste
+  in let () = l modules in
   i, Bien_fini
 
 and gestionnaire_tester i argc argv =
@@ -72,7 +112,7 @@ and gestionnaire_aide i argc argv =
     i, Bien_fini
 
 and liste_de_sous_commande = [
-  "-c", "construire", gestionnaire_construire, "Construit OCalc", "[target={final|debug}]";
+  "-c", "construire", gestionnaire_construire, "Construit OCalc", "[-cible {final|debug}]";
   "-a", "aider", gestionnaire_aide, "Affiche l'aide sur toute les fonctions", "[caterogie={toute|nom_de_sous_commande}]";
   "-t", "tester", gestionnaire_tester, "Lance la série de test unitaire", "";
   "-n", "nettoyer", gestionnaire_nettoyer, "Nettoie tout les fichiers intermédiaires", ""];;

@@ -33,12 +33,15 @@ type valeur_de_retour =
 
 let construire_objet nom_source nom_dest options source dest =
   let ligne_de_commande = "ocamlc -c " ^ options ^ " " ^ source ^ nom_source ^ " -o " ^ dest ^ nom_dest
-  in let ret = Sys.command ligne_de_commande in
-    if ret <> 0 then
-      let () = Printf.printf "Cette ligne de commande à échoué:\r\n\r\n\t%s\r\n\r\net a retourné le code %d\r\n" ligne_de_commande ret in
-      failwith "Impossible de continuer"
+  in let () = print_endline ligne_de_commande in
+  let ret = Sys.command ligne_de_commande in
+  if ret <> 0 then
+    let () = Printf.printf "Cette ligne de commande à échoué:\r\n\r\n\t%s\r\n\r\net a retourné le code %d\r\n" ligne_de_commande ret in
+    failwith "Impossible de continuer"
 
-let s = construire_objet "type.mli" "type.cmi" "unix.cma -I +threads" "src/header/" "obj/header/"
+(*let s = construire_objet "type.mli" "type.cmi" "unix.cma -I +threads" "src/header/" "obj/header/"
+*)
+
 
 let rec gestionnaire_construire i argc argv =
   let (i, cible) =
@@ -62,10 +65,20 @@ let rec gestionnaire_construire i argc argv =
   ] in
   let command_line nom actif =
     let actif = if actif then "on/" else "off/" in
-    "ocamlc -c unix.cma -I +threads src/" ^ actif ^ nom ^ ".mli -o obj/header/" ^ nom ^ ".cmi && " ^
-    "ocamlc -c unix.cma -I +threads -I obj/header src/" ^ actif ^ nom ^ ".ml -o obj/" ^ actif ^ nom ^ ".cmo"
+    "echo ocamlc -c unix.cma -I +threads src/" ^ actif ^ nom ^ ".mli -o obj/header/" ^ nom ^ ".cmi && " ^
+    "echo ocamlc -c unix.cma -I +threads -I obj/header src/" ^ actif ^ nom ^ ".ml -o obj/" ^ actif ^ nom ^ ".cmo"
   in let module_principaux = ["type"; "utils"; "lexer"; "parser"]
-  in let modules = [
+  in let construire_principaux options source_suffix dest_suffix chemin_source chemin_dest =
+    let rec construire_principaux = function
+        [] -> ()
+      | e :: l ->
+        let (nom_source, nom_dest) = (e ^ source_suffix, e ^ dest_suffix) in
+        let () = construire_objet nom_source nom_dest options chemin_source chemin_dest in
+        construire_principaux l
+        in construire_principaux
+  in let () = construire_principaux "unix.cma -I +threads -I obj/noyau" ".mli" ".cmi" "src/noyau/" "obj/noyau/" module_principaux in
+  let () = construire_principaux "unix.cma -I +threads -I obj/noyau" ".ml" ".cmo" "src/noyau/" "obj/noyau/" module_principaux in
+  let modules = [
   "grandEntier", true;
   (*"matrice", true;*)
     "serveur", false;
@@ -98,6 +111,7 @@ and gestionnaire_tester i argc argv =
   i, Bien_fini
 
 and gestionnaire_nettoyer i argc argv =
+  let _ = Sys.command "del /S /Q *.cm*" in
   i, Bien_fini
 
 and gestionnaire_aide i argc argv =

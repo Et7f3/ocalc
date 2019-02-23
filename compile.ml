@@ -31,6 +31,15 @@ type valeur_de_retour =
   | Argument_manquant of string
   | Argument_non_renonnu of string
 
+let construire_objet nom_source nom_dest options source dest =
+  let ligne_de_commande = "ocamlc -c " ^ options ^ " " ^ source ^ nom_source ^ " -o " ^ dest ^ nom_dest
+  in let ret = Sys.command ligne_de_commande in
+    if ret <> 0 then
+      let () = Printf.printf "Cette ligne de commande à échoué:\r\n\r\n\t%s\r\n\r\net a retourné le code %d\r\n" ligne_de_commande ret in
+      failwith "Impossible de continuer"
+
+let s = construire_objet "type.mli" "type.cmi" "unix.cma -I +threads" "src/header/" "obj/header/"
+
 let rec gestionnaire_construire i argc argv =
   let (i, cible) =
     if i < argc && argv.(i) = "-cible" then
@@ -43,14 +52,22 @@ let rec gestionnaire_construire i argc argv =
         failwith "Cible non défini"
     else
       (i, "final")
-  in let () = faire_dossiers [["obj"; "header"]; ["obj"; "on"]; ["obj"; "off"]; ["obj"; "interface"]; ["bin"; cible]] in
+  in let () = faire_dossiers [
+    ["obj"; "noyau"];
+    ["obj"; "header"];
+    ["obj"; "on"];
+    ["obj"; "off"];
+    ["obj"; "interface"];
+    ["bin"; cible]
+  ] in
   let command_line nom actif =
     let actif = if actif then "on/" else "off/" in
     "ocamlc -c unix.cma -I +threads src/" ^ actif ^ nom ^ ".mli -o obj/header/" ^ nom ^ ".cmi && " ^
     "ocamlc -c unix.cma -I +threads -I obj/header src/" ^ actif ^ nom ^ ".ml -o obj/" ^ actif ^ nom ^ ".cmo"
+  in let module_principaux = ["type"; "utils"; "lexer"; "parser"]
   in let modules = [
-    "grandEntier", true;
-    (*"matrice", true;*)
+  "grandEntier", true;
+  (*"matrice", true;*)
     "serveur", false;
   ] in
   let rec consommer_argument i modules =
@@ -62,7 +79,10 @@ let rec gestionnaire_construire i argc argv =
         | '-' -> false
         | _ -> failwith ("argument " ^ arg ^ " non compris")
       in let clef = String.sub arg 1 (String.length arg - 1) in
-      consommer_argument i (modifie_valeur_dico clef valeur modules)
+      if List.exists (fun nom -> nom = clef) module_principaux then
+        failwith (clef ^ " est un module principal")
+      else
+        consommer_argument i (modifie_valeur_dico clef valeur modules)
     else
       i, modules
   in let (i, modules) = consommer_argument i modules in

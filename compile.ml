@@ -16,6 +16,16 @@ let faire_dossiers =
   | e :: l -> faire_un_dossier e; faire_dossiers l
   in faire_dossiers
 
+let modifie_valeur_dico clef valeur =
+  let rec ajout acc = function
+      [] -> acc
+    | e :: l -> ajout (e :: acc) l
+  in let rec l acc = function
+      [] -> failwith "Composant non trouvé"
+    | (cl, _) :: liste when cl = clef -> ajout ((cl, valeur) :: liste) acc
+    | e :: liste -> l (e :: acc) liste
+  in l []
+
 type valeur_de_retour =
     Bien_fini
   | Argument_manquant of string

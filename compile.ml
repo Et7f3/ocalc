@@ -22,6 +22,7 @@ let faire_dossiers =
   in faire_dossiers
 
 let executer_commande ligne_commande =
+  let () = if debug_mode then print_endline ligne_commande in
   let ret = Sys.command ligne_commande in
   if ret <> 0 then
     let () =
@@ -45,8 +46,8 @@ type valeur_de_retour =
   | Argument_non_renonnu of string
 
 let construire_objet nom_source nom_dest options source dest =
-  let ligne_de_commande = "ocamlc -c " ^ options ^ " " ^ source ^ nom_source ^ " -o " ^ dest ^ nom_dest
-  in let () = if debug_mode then print_endline ligne_de_commande in
+  let ligne_de_commande = "ocamlc -g -c " ^ options ^ " " ^ source ^ nom_source ^ " -o " ^ dest ^ nom_dest
+  in
   executer_commande ligne_de_commande
 
 (*let s = construire_objet "type.mli" "type.cmi" "unix.cma -I +threads" "src/header/" "obj/header/"
@@ -75,9 +76,9 @@ let rec gestionnaire_construire i argc argv =
       ["bin"; cible]
     ]
   in let command_line nom actif =
-       let actif = if actif then "on/" else "off/" in
+       ""(*let actif = if actif then "on/" else "off/" in
        "echo ocamlc -c unix.cma -I +threads src/" ^ actif ^ nom ^ ".mli -o obj/header/" ^ nom ^ ".cmi && " ^
-       "echo ocamlc -c unix.cma -I +threads -I obj/header src/" ^ actif ^ nom ^ ".ml -o obj/" ^ actif ^ nom ^ ".cmo"
+       "echo ocamlc -c unix.cma -I +threads -I obj/header src/" ^ actif ^ nom ^ ".ml -o obj/" ^ actif ^ nom ^ ".cmo"*)
   in let module_principaux = ["type"; "utils"; "lexer"; "parser"] in
   let construire_principaux options source_suffix dest_suffix chemin_source chemin_dest =
     let rec construire_principaux = function
@@ -87,8 +88,8 @@ let rec gestionnaire_construire i argc argv =
         let () = construire_objet nom_source nom_dest options chemin_source chemin_dest in
         construire_principaux l
     in construire_principaux
-  in let () = construire_principaux "unix.cma -safe-string -I +threads -I obj/noyau" ".mli" ".cmi" "src/noyau/" "obj/noyau/" module_principaux in
-  let () = construire_principaux "unix.cma -safe-string -I +threads -I obj/noyau" ".ml" ".cmo" "src/noyau/" "obj/noyau/" module_principaux in
+  in let () = construire_principaux "-g unix.cma -safe-string -I +threads -I obj/noyau" ".mli" ".cmi" "src/noyau/" "obj/noyau/" module_principaux in
+  let () = construire_principaux "-g unix.cma -safe-string -I +threads -I obj/noyau" ".ml" ".cmo" "src/noyau/" "obj/noyau/" module_principaux in
   let interfaces = ["topCmd"] in
   let modules_interfaces = [
     "topCmd", true
@@ -130,13 +131,15 @@ let rec gestionnaire_construire i argc argv =
   in let ligne_finale = string_join (fun e -> " obj/noyau/" ^ e ^ ".cmo") "" module_principaux in
   let ligne_finale = string_join (fun (e, actif) ->
       let chemin = "interface/" ^ (if actif then "on/" else "off/") in
-      let () = construire_principaux "unix.cma -safe-string -I +threads -I obj/noyau" ".ml" ".cmo" ("src/" ^ chemin) ("obj/" ^ chemin) [e] in
+      let () = construire_principaux "-g unix.cma -safe-string -I +threads -I obj/noyau" ".ml" ".cmo" ("src/" ^ chemin) ("obj/" ^ chemin) [e] in
       " obj/" ^ chemin ^ e ^ ".cmo") ligne_finale modules_interfaces in
   let rec l = function
       [] -> ()
     | (nom, actif) :: liste -> ()
   in let () = l modules_interfaces in
-  let () = executer_commande ("ocamlc -o bin/" ^ cible ^ "/main.exe" ^ ligne_finale) in
+  let ligne_finale = "ocamlc -g -o bin/" ^ cible ^ "/main.exe" ^ ligne_finale in
+  let () = executer_commande ligne_finale in
+  let () = print_endline ("tout est fini mon ami fais bin/" ^ cible ^ "/main.exe") in
   i, Bien_fini
 
 and gestionnaire_tester i argc argv =

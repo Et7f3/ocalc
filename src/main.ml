@@ -9,7 +9,9 @@ let toplevels = [
   *)
 ]
 in let rec l = function
-    [] -> List.iter Thread.join (!toplevel_handlers)
-  |  e :: liste -> let () = toplevel_handlers := (Thread.create e (argc, argv)) :: !toplevel_handlers
-    in l liste
+      [] -> List.iter Thread.join (!toplevel_handlers)
+    |  e :: liste ->
+      let () = print_endline "on a un lancé un processus léger" in
+      let () = toplevel_handlers := (Thread.create e (argc, argv)) :: !toplevel_handlers in
+      l liste
 in l toplevels

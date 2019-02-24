@@ -76,8 +76,8 @@ let rec gestionnaire_construire i argc argv =
         let () = construire_objet nom_source nom_dest options chemin_source chemin_dest in
         construire_principaux l
         in construire_principaux
-  in let () = construire_principaux "unix.cma -I +threads -I obj/noyau" ".mli" ".cmi" "src/noyau/" "obj/noyau/" module_principaux in
-  let () = construire_principaux "unix.cma -I +threads -I obj/noyau" ".ml" ".cmo" "src/noyau/" "obj/noyau/" module_principaux in
+  in let () = construire_principaux "unix.cma -safe-string -I +threads -I obj/noyau" ".mli" ".cmi" "src/noyau/" "obj/noyau/" module_principaux in
+  let () = construire_principaux "unix.cma -safe-string -I +threads -I obj/noyau" ".ml" ".cmo" "src/noyau/" "obj/noyau/" module_principaux in
   let modules = [
   "grandEntier", true;
   (*"matrice", true;*)

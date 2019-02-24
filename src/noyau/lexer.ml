@@ -38,18 +38,18 @@ let est_entier_base t(*exte*) =
         0 <= b
       &&
         b < 11
-    &&
-          (t.[0] = '('
-        &&
-          t.[i - 1] = ')'
-        &&
-          est_entier (String.sub t 1 (i - 2)) b)
-      ||
-          (t.[0] != '('
-        &&
-          t.[i - 1] != ')'
-        &&
-          est_entier (String.sub t 0 i) b)
+      &&
+            ((t.[0] = '('
+          &&
+            t.[i - 1] = ')'
+          &&
+            est_entier (String.sub t 1 (i - 2)) b)
+        ||
+            (t.[0] != '('
+          &&
+            t.[i - 1] != ')'
+          &&
+            est_entier (String.sub t 0 i) b))
 
 let est_variable t(*exte*) =
   let l(*ongueur*) = String.length t in

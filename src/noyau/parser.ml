@@ -10,10 +10,10 @@ let grandentier_de_texte t(*exte*) =
     | '+' -> 1, String.sub t 1 (l - 1), l - 1
     | _ -> 1, t, l
   in let rec b(*oucle*) i acc =
-    if i = -1 then
-      List.rev acc
-    else
-      b (i - 1) ((int_of_char t.[i] - 48) :: acc)
+       if i = -1 then
+         List.rev acc
+       else
+         b (i - 1) ((int_of_char t.[i] - 48) :: acc)
   in Entier (s, b (l - 1) [])
 
 let grandentier_base_de_texte t(*exte*) = Textenonvalide t

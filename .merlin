@@ -1,0 +1,5 @@
+S src
+S src/noyau
+B obj
+B obj/noyau
+B +threads

@@ -1,3 +1,8 @@
+let debug_mode =
+  match Sys.getenv_opt "debug" with
+    None -> false
+  | Some x -> true
+
 let faire_dossier name =
   if Sys.file_exists name then
     if not (Sys.is_directory name) then
@@ -33,7 +38,7 @@ type valeur_de_retour =
 
 let construire_objet nom_source nom_dest options source dest =
   let ligne_de_commande = "ocamlc -c " ^ options ^ " " ^ source ^ nom_source ^ " -o " ^ dest ^ nom_dest
-  in let () = print_endline ligne_de_commande in
+  in let () = if debug_mode then print_endline ligne_de_commande in
   let ret = Sys.command ligne_de_commande in
   if ret <> 0 then
     let () = Printf.printf "Cette ligne de commande à échoué:\r\n\r\n\t%s\r\n\r\net a retourné le code %d\r\n" ligne_de_commande ret in

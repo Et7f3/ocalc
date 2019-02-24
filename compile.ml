@@ -70,7 +70,8 @@ let rec gestionnaire_construire i argc argv =
       ["obj"; "header"];
       ["obj"; "on"];
       ["obj"; "off"];
-      ["obj"; "interface"];
+      ["obj"; "interface"; "on"];
+      ["obj"; "interface"; "off"];
       ["bin"; cible]
     ]
   in let command_line nom actif =
@@ -88,12 +89,16 @@ let rec gestionnaire_construire i argc argv =
     in construire_principaux
   in let () = construire_principaux "unix.cma -safe-string -I +threads -I obj/noyau" ".mli" ".cmi" "src/noyau/" "obj/noyau/" module_principaux in
   let () = construire_principaux "unix.cma -safe-string -I +threads -I obj/noyau" ".ml" ".cmo" "src/noyau/" "obj/noyau/" module_principaux in
-  let modules = [
+  let interfaces = ["topCmd"] in
+  let modules_interfaces = [
+    "topCmd", true
+  ]
+  in let modules = [
     "grandEntier", true;
     (*"matrice", true;*)
     "serveur", false;
   ]
-  in let rec consommer_argument i modules =
+  in let rec consommer_argument i modules modules_interfaces =
        if i < argc && argv.(i) <> "--" then
          let arg = argv.(i) in
          let i = i + 1 in
@@ -104,11 +109,13 @@ let rec gestionnaire_construire i argc argv =
          in let clef = String.sub arg 1 (String.length arg - 1) in
          if List.exists (fun nom -> nom = clef) module_principaux then
            failwith (clef ^ " est un module principal")
-         else
-           consommer_argument i (modifie_valeur_dico clef valeur modules)
+         else if List.exists (fun nom -> nom = clef) interfaces then
+           consommer_argument i modules (modifie_valeur_dico clef valeur modules_interfaces)
+        else
+           consommer_argument i (modifie_valeur_dico clef valeur modules) modules_interfaces
        else
-         i, modules
-  in let (i, modules) = consommer_argument i modules in
+         i, modules, modules_interfaces
+  in let (i, modules, modules_interfaces) = consommer_argument i modules modules_interfaces in
   let rec l = function
       [] -> ()
     | (nom, actif) :: liste ->
@@ -119,8 +126,16 @@ let rec gestionnaire_construire i argc argv =
     let rec string_join acc = function
         [] -> acc
       | e :: l -> string_join (acc ^ (traiter e)) l
-    in string_join ""
-  in let ligne_finale = string_join (fun e -> " obj/noyau/" ^ e ^ ".cmo") module_principaux in
+    in string_join
+  in let ligne_finale = string_join (fun e -> " obj/noyau/" ^ e ^ ".cmo") "" module_principaux in
+  let ligne_finale = string_join (fun (e, actif) ->
+      let chemin = "interface/" ^ (if actif then "on/" else "off/") in
+      let () = construire_principaux "unix.cma -safe-string -I +threads -I obj/noyau" ".ml" ".cmo" ("src/" ^ chemin) ("obj/" ^ chemin) [e] in
+      " obj/" ^ chemin ^ e ^ ".cmo") ligne_finale modules_interfaces in
+  let rec l = function
+      [] -> ()
+    | (nom, actif) :: liste -> ()
+  in let () = l modules_interfaces in
   let () = executer_commande ("ocamlc -o bin/" ^ cible ^ "/main.exe" ^ ligne_finale) in
   i, Bien_fini
 

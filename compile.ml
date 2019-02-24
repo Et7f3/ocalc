@@ -110,6 +110,13 @@ let rec gestionnaire_construire i argc argv =
       let _ = Sys.command (command_line nom actif) in
       l liste
   in let () = l modules in
+  let string_join traiter =
+    let rec string_join acc = function
+        [] -> acc
+      | e :: l -> string_join (acc ^ (traiter e)) l
+    in string_join ""
+  in let ligne_finale = string_join (fun e -> " obj/noyau/" ^ e ^ ".cmo") module_principaux in
+  let _ = Sys.command ("ocamlc -o bin/" ^ cible ^ "/main.exe" ^ ligne_finale) in
   i, Bien_fini
 
 and gestionnaire_tester i argc argv =

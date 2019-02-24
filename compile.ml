@@ -10,7 +10,7 @@ let faire_dossier name =
     else
       ()
   else
-    Unix.mkdir name 777
+    Unix.mkdir name (Unix.stat "..").st_perm;;
 
 let faire_dossiers =
   let rec faire_un_dossier = function
@@ -20,6 +20,14 @@ let faire_dossiers =
     [] -> ()
   | e :: l -> faire_un_dossier e; faire_dossiers l
   in faire_dossiers
+
+let executer_commande ligne_commande =
+  let ret = Sys.command ligne_commande in
+  if ret <> 0 then
+    let () =
+      Printf.printf "Cette ligne de commande à échoué:\r\n\r\n\t%s" ligne_commande in
+    let () = Printf.printf "\r\n\r\net a retourné le code %d\r\n" ret in
+    failwith "Impossible de continuer"
 
 let modifie_valeur_dico clef valeur =
   let rec ajout acc = function
@@ -39,10 +47,7 @@ type valeur_de_retour =
 let construire_objet nom_source nom_dest options source dest =
   let ligne_de_commande = "ocamlc -c " ^ options ^ " " ^ source ^ nom_source ^ " -o " ^ dest ^ nom_dest
   in let () = if debug_mode then print_endline ligne_de_commande in
-  let ret = Sys.command ligne_de_commande in
-  if ret <> 0 then
-    let () = Printf.printf "Cette ligne de commande à échoué:\r\n\r\n\t%s\r\n\r\net a retourné le code %d\r\n" ligne_de_commande ret in
-    failwith "Impossible de continuer"
+  executer_commande ligne_de_commande
 
 (*let s = construire_objet "type.mli" "type.cmi" "unix.cma -I +threads" "src/header/" "obj/header/"
 *)
@@ -107,7 +112,7 @@ let rec gestionnaire_construire i argc argv =
   let rec l = function
       [] -> ()
     | (nom, actif) :: liste ->
-      let _ = Sys.command (command_line nom actif) in
+      let _ = executer_commande (command_line nom actif) in
       l liste
   in let () = l modules in
   let string_join traiter =
@@ -116,14 +121,14 @@ let rec gestionnaire_construire i argc argv =
       | e :: l -> string_join (acc ^ (traiter e)) l
     in string_join ""
   in let ligne_finale = string_join (fun e -> " obj/noyau/" ^ e ^ ".cmo") module_principaux in
-  let _ = Sys.command ("ocamlc -o bin/" ^ cible ^ "/main.exe" ^ ligne_finale) in
+  let () = executer_commande ("ocamlc -o bin/" ^ cible ^ "/main.exe" ^ ligne_finale) in
   i, Bien_fini
 
 and gestionnaire_tester i argc argv =
   i, Bien_fini
 
 and gestionnaire_nettoyer i argc argv =
-  let _ = Sys.command "del /S /Q *.cm*" in
+  let () = executer_commande "del /S /Q *.cm*" in
   i, Bien_fini
 
 and gestionnaire_aide i argc argv =

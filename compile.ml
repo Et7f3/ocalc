@@ -137,7 +137,7 @@ let rec gestionnaire_construire i argc argv =
       [] -> ()
     | (nom, actif) :: liste -> ()
   in let () = l modules_interfaces in
-  let ligne_finale = "ocamlc -g -o bin/" ^ cible ^ "/main.exe" ^ ligne_finale in
+  let ligne_finale = "ocamlc -g -safe-string -I +threads unix.cma threads.cma -I obj/noyau -I obj/interface/on -I obj/interface/off -o bin/" ^ cible ^ "/main.exe" ^ ligne_finale ^ " src/main.ml" in
   let () = executer_commande ligne_finale in
   let () = print_endline ("tout est fini mon ami fais bin/" ^ cible ^ "/main.exe") in
   i, Bien_fini

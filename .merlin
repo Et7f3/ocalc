@@ -1,0 +1,9 @@
+S src
+S src/noyau
+S src/interface/on
+S src/interface/off
+B obj
+B obj/noyau
+B obj/interface/on
+B obj/interface/off
+B +threads

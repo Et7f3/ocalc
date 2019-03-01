@@ -45,18 +45,20 @@ let rec est_clef_dico clef = function
     [] -> false
   | (e, _) :: l -> e = clef || est_clef_dico clef l
 
-let construire_objet vraiment compilateur options source dest deps =
-  let analasye_dep e =
-    (*Sys.file_exists e && *)
-    ((Unix.stat e).st_mtime > (Unix.stat dest).st_mtime)
-  in let rec analasye_deps = function
-        [] -> false
-      | e :: l -> analasye_dep e || analasye_deps l
-  in let besoin_reconstruire =
-       not (Sys.file_exists dest) || analasye_deps deps
-  in if besoin_reconstruire then
-    executer_commande (compilateur ^ options ^ " " ^ source ^ " -o " ^ dest) vraiment
-
+let construire_objet vraiment compilateur options =
+  let ligne_commande = compilateur ^ " " ^ options ^ " " in
+  let construire_objet source dest deps =
+    let analasye_dep e =
+      (*Sys.file_exists e && *)
+      ((Unix.stat e).st_mtime > (Unix.stat dest).st_mtime)
+    in let rec analasye_deps = function
+          [] -> false
+        | e :: l -> analasye_dep e || analasye_deps l
+    in let besoin_reconstruire =
+         not (Sys.file_exists dest) || analasye_deps deps
+    in if besoin_reconstruire then
+      executer_commande (ligne_commande ^ source ^ " -o " ^ dest) vraiment
+  in construire_objet
 
 type valeur_de_retour =
     Bien_fini
@@ -120,11 +122,17 @@ let rec gestionnaire_construire i argc argv =
            | arg -> i, Argument_non_renonnu arg
          else
            i, Bien_fini
-    in let construire_objet = construire_objet !vraiment in
+    in let options =
+         "-c unix.cma -safe-string -I +threads" ^ if !cible  = "final" then
+           " -g"
+         else
+           ""
+    in let construire_objet = construire_objet !vraiment "ocamlc" options in
     let i, ret = consommer_argument i in
     let () = faire_dossiers [
         ["bin"; !cible];
-        ["obj"; "noyau"]
+        ["obj"; "noyau"];
+        ["obj"; "module"];
       ] in
     if ret = Bien_fini then
       i, Bien_fini

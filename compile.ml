@@ -41,6 +41,10 @@ let modifie_valeur_dico clef f =
       | e :: liste -> l (e :: acc) liste
   in l []
 
+let rec est_clef_dico clef = function
+    [] -> false
+  | (e, _) :: l -> e = clef || est_clef_dico clef l
+
 let construire_objet vraiment compilateur options source dest deps =
   let analasye_dep e =
     (*Sys.file_exists e && *)
@@ -75,32 +79,57 @@ let rec gestionnaire_construire i argc argv =
             let () = cible := e in
             let i = i + 1 in
             consommer_argument i
-          | arg -> i, Valeur_non_renonnu arg
+          | arg -> if arg.[0] = '-' then
+              i, Argument_manquant "-cible"
+            else
+              i, Valeur_non_renonnu arg
         else
           i, Argument_manquant "-cible"
       | "-n" ->
         let () = vraiment := not !vraiment in
         let i = i + 1 in
         consommer_argument i
-      | arg -> i, Argument_non_renonnu arg
+      | arg -> i, Bien_fini (*Argument_non_renonnu arg*)
     else
       i, Bien_fini
   in let i, ret = consommer_argument i in
   if ret = Bien_fini then
     let modules = ref [
-
+        "grandEntier", true; (* calcul avec des entier de précision infini *)
+      ]
+    in let interfaces = ref [
+        "topCmd", true; (* lis simplement l'entrée standard et l'évalue *)
       ]
     in let rec consommer_argument i =
          if i < argc then
            match argv.(i) with
              "--" -> i, Bien_fini
            | name when name.[0] = '+' || name.[0] = '-' ->
-             i, Bien_fini
+             let clef = String.sub name 1 (String.length name - 1) in
+             let i = i + 1 in
+             let (i, ret) =
+               if est_clef_dico clef !interfaces then
+                 let () = interfaces := modifie_valeur_dico clef (fun (_) -> name.[0] = '+') !interfaces
+                 in consommer_argument i
+               else if est_clef_dico clef !modules then
+                 let () = modules := modifie_valeur_dico clef (fun (_) -> name.[0] = '+') !modules
+                 in consommer_argument i
+               else
+                 failwith (clef ^ " n'est ni un module ni une interface")
+             in i, ret
            | arg -> i, Argument_non_renonnu arg
          else
            i, Bien_fini
     in let construire_objet = construire_objet !vraiment in
-    i, ret
+    let i, ret = consommer_argument i in
+    let () = faire_dossiers [
+        ["bin"; !cible];
+        ["obj"; "noyau"]
+      ] in
+    if ret = Bien_fini then
+      i, Bien_fini
+    else
+      i, ret
   else
     i, ret
 

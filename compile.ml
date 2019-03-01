@@ -12,6 +12,15 @@ let faire_dossier name =
   else
     Unix.mkdir name (Unix.stat "..").st_perm
 
+let faire_dossiers =
+  let rec faire_un_dossier = function
+      [] -> ()
+    | e :: l -> faire_dossier e; Unix.chdir e; faire_un_dossier l; Unix.chdir ".."
+  in let rec faire_dossiers = function
+        [] -> ()
+      | e :: l -> faire_un_dossier e; faire_dossiers l
+  in faire_dossiers
+
 let executer_commande ligne_commande vraiment =
   let () = if debug_mode then print_endline ligne_commande in
   if vraiment then
@@ -64,19 +73,36 @@ let rec gestionnaire_construire i argc argv =
           match argv.(i) with
             "final" | "debug" as e ->
             let () = cible := e in
+            let i = i + 1 in
             consommer_argument i
           | arg -> i, Valeur_non_renonnu arg
         else
-          i, Bien_fini
+          i, Argument_manquant "-cible"
       | "-n" ->
         let () = vraiment := not !vraiment in
+        let i = i + 1 in
         consommer_argument i
       | arg -> i, Argument_non_renonnu arg
     else
       i, Bien_fini
   in let i, ret = consommer_argument i in
-  let construire_objet = construire_objet !vraiment in
-  i, ret
+  if ret = Bien_fini then
+    let modules = ref [
+
+      ]
+    in let rec consommer_argument i =
+         if i < argc then
+           match argv.(i) with
+             "--" -> i, Bien_fini
+           | name when name.[0] = '+' || name.[0] = '-' ->
+             i, Bien_fini
+           | arg -> i, Argument_non_renonnu arg
+         else
+           i, Bien_fini
+    in let construire_objet = construire_objet !vraiment in
+    i, ret
+  else
+    i, ret
 
 and gestionnaire_tester i argc argv =
   i, Bien_fini
@@ -94,14 +120,16 @@ and liste_de_sous_commande = [
   "-n", "nettoyer", gestionnaire_nettoyer, "Nettoie tout les fichiers intermédiaires", ""]
 
 exception Commande_non_trouve of string
-
+exception Erreur_Sous_Module of valeur_de_retour
 let main argc argv =
   let rec switch i = function
       [] -> raise (Commande_non_trouve argv.(i))
     | (alias, nom, gestionnaire, _, _) :: _ when nom = argv.(i) || alias = argv.(i) ->
-      let (i, _) = gestionnaire (i + 1) argc argv in
+      let (i, ret) = gestionnaire (i + 1) argc argv in
       (*let i = i + 1 in*)
-      if i < argc then
+      if ret <> Bien_fini then
+        raise (Erreur_Sous_Module ret)
+      else if i < argc then
         if argv.(i) = "--" then
           switch (i + 1) liste_de_sous_commande
         else

@@ -3,14 +3,14 @@ let debug_mode =
     None -> false
   | Some x -> true
 
-let faire_dossier name =
-  if Sys.file_exists name then
-    if not (Sys.is_directory name) then
-      failwith (name ^ " existe déjà et n'est pas un dossier")
+let faire_dossier nom =
+  if Sys.file_exists nom then
+    if not (Sys.is_directory nom) then
+      failwith (nom ^ " existe déjà et n'est pas un dossier")
     else
       ()
   else
-    Unix.mkdir name (Unix.stat "..").st_perm
+    Unix.mkdir nom (Unix.stat "..").st_perm
 
 let faire_dossiers =
   let rec faire_un_dossier = function
@@ -22,7 +22,7 @@ let faire_dossiers =
   in faire_dossiers
 
 let executer_commande ligne_commande vraiment =
-  let () = if debug_mode then print_endline ligne_commande in
+  let () = if debug_mode || not vraiment then print_endline ligne_commande in
   if vraiment then
     let ret = Sys.command ligne_commande in
     if ret <> 0 then
@@ -106,15 +106,15 @@ let rec gestionnaire_construire i argc argv =
          if i < argc then
            match argv.(i) with
              "--" -> i, Bien_fini
-           | name when name.[0] = '+' || name.[0] = '-' ->
-             let clef = String.sub name 1 (String.length name - 1) in
+           | nom when nom.[0] = '+' || nom.[0] = '-' ->
+             let clef = String.sub nom 1 (String.length nom - 1) in
              let i = i + 1 in
              let (i, ret) =
                if est_clef_dico clef !interfaces then
-                 let () = interfaces := modifie_valeur_dico clef (fun (_) -> name.[0] = '+') !interfaces
+                 let () = interfaces := modifie_valeur_dico clef (fun (_) -> nom.[0] = '+') !interfaces
                  in consommer_argument i
                else if est_clef_dico clef !modules then
-                 let () = modules := modifie_valeur_dico clef (fun (_) -> name.[0] = '+') !modules
+                 let () = modules := modifie_valeur_dico clef (fun (_) -> nom.[0] = '+') !modules
                  in consommer_argument i
                else
                  failwith (clef ^ " n'est ni un module ni une interface")
@@ -122,18 +122,66 @@ let rec gestionnaire_construire i argc argv =
            | arg -> i, Argument_non_renonnu arg
          else
            i, Bien_fini
-    in let options =
-         "-c unix.cma -safe-string -I +threads" ^ if !cible  = "final" then
-           " -g"
-         else
-           ""
-    in let construire_objet = construire_objet !vraiment "ocamlc" options in
+    in
     let i, ret = consommer_argument i in
     let () = faire_dossiers [
         ["bin"; !cible];
         ["obj"; "noyau"];
-        ["obj"; "module"];
-      ] in
+        ["obj"; "modules"];
+        ["obj"; "interfaces"];
+      ]
+    in let options =
+         let otpt =  "-c unix.cma -safe-string -I obj/modules"
+         in if !cible  = "debug" then
+           otpt ^ " -g"
+         else
+           otpt
+    in let construire_objet1 = construire_objet !vraiment "ocamlc" options in
+    let options = options ^ " -I obj/noyau -I obj/interfaces" in
+    let construire_objet2 = construire_objet !vraiment "ocamlc" options in
+    let construire_objet3 = construire_objet !vraiment "ocamlc" (options ^ " -I +threads threads.cma -I obj") in
+    let fichiers = ref "" in
+    let fichier = open_out "obj/lien.ml" in
+    let lier nom actif =
+      let nom =
+        match nom.[0] with
+        'a' .. 'z' ->
+          let nom = Bytes.of_string nom in
+          let nom = Bytes.capitalize_ascii nom in
+          let nom = Bytes.to_string nom in
+          nom
+        | _ -> nom
+      in
+      Printf.fprintf fichier "module %s = %s\n" nom (nom ^ if actif then "_on" else "_off")
+    in
+    let rec boucle = function
+        [] -> ()
+      | (nom, actif) :: liste ->
+        let () = lier nom actif in
+        let src = "src/modules/" ^ nom ^ if actif then "_on.ml" else "_off.ml" in
+        let dst = "obj/modules/" ^ nom ^ if actif then "_on.cm" else "_off.cm" in
+        let dest_o = dst ^ "o" in
+        let () = fichiers := !fichiers ^  dest_o ^ " " in
+        let () = construire_objet1 (src ^ "i") (dst ^ "i") [] in
+        let () = construire_objet2 src dest_o [] in
+        boucle liste
+    in let () = boucle !modules in
+    let rec boucle = function
+        [] -> ()
+      | (nom, actif) :: liste ->
+        let () = lier nom actif in
+        let src = "src/interfaces/" ^ nom ^ (if actif then "_on.ml" else "_off.ml") in
+        let dst = "obj/interfaces/" ^ nom ^ (if actif then "_on.cm" else "_off.cm") in
+        let dest_o = dst ^ "o" in
+        let () = fichiers := !fichiers ^ dest_o ^ " " in
+        let () = construire_objet2 (src ^ "i") (dst ^ "i") [] in
+        let () = construire_objet2 src dest_o [] in
+        boucle liste
+    in let () = boucle !interfaces in
+    let () = construire_objet3 "obj/lien.ml" "obj/lien.cmi" [] in
+    let () = construire_objet3 "obj/lien.ml" "obj/lien.cmo" [] in
+    (*let () = construire_objet3 (!fichiers ^ "obj/lien.cmo src/main.ml") ("bin/" ^ !cible ^ "/final.exe") [] in*)
+    let () = close_out fichier in
     if ret = Bien_fini then
       i, Bien_fini
     else

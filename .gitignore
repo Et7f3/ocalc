@@ -2,3 +2,7 @@ build
 test
 *.cm*
 *~
+src2
+obj/lien.ml
+a.out
+compile.ml2

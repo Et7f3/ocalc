@@ -45,6 +45,14 @@ let rec est_clef_dico clef = function
     [] -> false
   | (e, _) :: l -> e = clef || est_clef_dico clef l
 
+let rec valeur_clef_dico clef = function
+    [] -> failwith "Composant non trouvé"
+  | (e, _) as elt :: l ->
+    if e = clef then
+      elt
+    else
+      valeur_clef_dico clef l
+
 let construire_objet vraiment compilateur options =
   let ligne_commande = compilateur ^ " " ^ options ^ " " in
   let construire_objet source dest deps =
@@ -196,21 +204,80 @@ and gestionnaire_tester i argc argv =
 and gestionnaire_nettoyer i argc argv =
   i, Bien_fini
 
-and gestionnaire_aide i argc argv =
-  i, Bien_fini
+and gestionnaire_aider i argc argv =
+  let afficher_utilisation (nom, (alias, _, help_msg, usage_msg)) =
+    let () = print_string "Utilisations: " in
+    let () = print_string argv.(0) in
+    let () = print_char ' ' in
+    let () = print_string nom in
+    let () =
+      if usage_msg <> "" then
+        let () = print_char ' ' in
+        print_string usage_msg
+    in let () = print_string "\r\n\t" in
+    print_endline help_msg
+  in let rec afficher_utilisations = function
+        [] -> ()
+      | e :: l ->
+        let () = afficher_utilisation e in
+        afficher_utilisations l
+  in let derniere_fonction = ref [] in
+  let rec consommer_argument i =
+    if i = argc then
+      i, Bien_fini
+    else
+      match argv.(i) with
+        "--" -> i, Bien_fini
+      | nom when est_clef_dico nom liste_de_sous_commande ->
+        let i = i + 1 in
+        let () = derniere_fonction := valeur_clef_dico nom liste_de_sous_commande :: !derniere_fonction in
+        consommer_argument i
+      | arg -> i, Valeur_non_renonnu arg
+  in let i, ret = consommer_argument i in
+  if ret = Bien_fini then
+    if !derniere_fonction = [] then
+      let () = afficher_utilisations liste_de_sous_commande in
+      i, Bien_fini
+    else
+      let () = afficher_utilisations !derniere_fonction in
+      i, ret
+  else
+    let () = afficher_utilisation (valeur_clef_dico "aider" liste_de_sous_commande) in
+    i, ret
+(*if i < argc && argv.(i) <> "--" then
+  let caterogie = argv.(i) in
+  let i = i + 1 in
+  let rec l = function
+  [] -> Argument_non_renonnu caterogie
+  | (alias, nom, _, help_msg, usage_msg) as f :: _
+  when nom = caterogie ->
+  let () = afficher_utilisation f in
+  Bien_fini
+  | _ :: liste -> l liste
+  in i, (l liste_de_sous_commande)
+  else
+  let rec l = function
+  [] -> ()
+  | (_, nom, _, help_msg, _) :: liste ->
+  Printf.printf "%-20s %s\n" nom help_msg;
+  l liste
+  in let () = l liste_de_sous_commande in
+  let () = print_string "\r\n" in
+  i, Bien_fini*)
 
 and liste_de_sous_commande = [
-  "-c", "construire", gestionnaire_construire, "Construit OCalc", "[-cible {final|debug}]";
-  "-a", "aider", gestionnaire_aide, "Affiche l'aide sur toute les fonctions", "[caterogie={toute|nom_de_sous_commande}]";
-  "-t", "tester", gestionnaire_tester, "Lance la série de test unitaire", "";
-  "-n", "nettoyer", gestionnaire_nettoyer, "Nettoie tout les fichiers intermédiaires", ""]
+  "construire", ("-c", gestionnaire_construire, "Construit OCalc", "[-n] [-cible {final|debug}] {+moduleActif|-moduleInactif} ...");
+  "aider", ("-a", gestionnaire_aider, "Affiche l'aide sur toute les fonctions", "[(nom_sous_commande ...)]");
+  "tester", ("-t", gestionnaire_tester, "Lance la série de test unitaire", "");
+  "nettoyer", ("-n", gestionnaire_nettoyer, "Nettoie tout les fichiers intermédiaires", "")]
 
 exception Commande_non_trouve of string
 exception Erreur_Sous_Module of valeur_de_retour
+
 let main argc argv =
   let rec switch i = function
       [] -> raise (Commande_non_trouve argv.(i))
-    | (alias, nom, gestionnaire, _, _) :: _ when nom = argv.(i) || alias = argv.(i) ->
+    | (nom, (alias, gestionnaire, _, _)) :: _ when nom = argv.(i) || alias = argv.(i) ->
       let (i, ret) = gestionnaire (i + 1) argc argv in
       (*let i = i + 1 in*)
       if ret <> Bien_fini then

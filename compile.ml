@@ -122,7 +122,8 @@ let rec gestionnaire_construire i argc argv =
         "topCmd", true; (* lis simplement l'entrée standard et l'évalue *)
       ]
     in let modules_noyau = [
-        "type"
+        "type";
+        "utils";
       ]
     in let rec consommer_argument i =
          if i < argc then

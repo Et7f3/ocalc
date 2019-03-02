@@ -149,7 +149,9 @@ let rec gestionnaire_construire i argc argv =
     let construire_objet2 = construire_objet !vraiment "ocamlc" options in
     let options = options ^ " -I +threads threads.cma -I obj" in
     let construire_objet3 = construire_objet !vraiment "ocamlc" options in
+    let construire_objet4 = construire_objet !vraiment "ocamlc" (String.sub options 3 (String.length options - 3)) in
     let fichiers = ref "" in
+
     let fichier = open_out "obj/lien.ml" in
     let lier nom actif =
       let nom =
@@ -190,7 +192,7 @@ let rec gestionnaire_construire i argc argv =
     let () = close_out fichier in
     let () = construire_objet3 "obj/lien.ml" "obj/lien.cmi" [] in
     let () = construire_objet3 "obj/lien.ml" "obj/lien.cmo" [] in
-    let () = construire_objet3 (!fichiers ^ "obj/lien.cmo src/main.ml") ("bin/" ^ !cible ^ "/final.exe") [] in
+    let () = construire_objet4 (!fichiers ^ "obj/lien.cmo src/main.ml") ("bin/" ^ !cible ^ "/final.exe") [] in
     if ret = Bien_fini then
       i, Bien_fini
     else

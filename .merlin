@@ -1,9 +1,10 @@
 S src
 S src/noyau
-S src/interface/on
-S src/interface/off
+S src/modules
+S src/interfaces
+S obj
 B obj
 B obj/noyau
-B obj/interface/on
-B obj/interface/off
+B obj/modules
+B obj/interfaces
 B +threads

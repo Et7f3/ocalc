@@ -192,7 +192,9 @@ let rec gestionnaire_construire i argc argv =
     let () = close_out fichier in
     let () = construire_objet3 "obj/lien.ml" "obj/lien.cmi" [] in
     let () = construire_objet3 "obj/lien.ml" "obj/lien.cmo" [] in
-    let () = construire_objet4 (!fichiers ^ "obj/lien.cmo src/main.ml") ("bin/" ^ !cible ^ "/final.exe") [] in
+    let nom_final = "bin/" ^ !cible ^ "/final.exe" in
+    let () = construire_objet4 (!fichiers ^ "obj/lien.cmo src/main.ml") nom_final [] in
+    let () = print_endline ("L'executable a été généré avec succès ici: " ^ nom_final) in
     if ret = Bien_fini then
       i, Bien_fini
     else
@@ -282,7 +284,6 @@ let main argc argv =
       [] -> raise (Commande_non_trouve argv.(i))
     | (nom, (alias, gestionnaire, _, _)) :: _ when nom = argv.(i) || alias = argv.(i) ->
       let (i, ret) = gestionnaire (i + 1) argc argv in
-      (*let i = i + 1 in*)
       if ret <> Bien_fini then
         raise (Erreur_Sous_Module ret)
       else if i < argc then

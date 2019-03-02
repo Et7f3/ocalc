@@ -163,10 +163,8 @@ let rec gestionnaire_construire i argc argv =
     let construire_objet2 = construire_objet !vraiment "ocamlc" (options ^ " -I obj obj/lien.cmo -open Lien") in (* noyau *)
     let options = options ^ " -I obj/interfaces" in
     let construire_objet3 = construire_objet !vraiment "ocamlc" options in (* interfaces *)
-    let options = options ^ " unix.cma -I +threads threads.cma" in
-    let construire_objet4 = construire_objet !vraiment "ocamlc" options in
-    let options = options ^ " -I obj" in
-    let construire_objet5 = construire_objet !vraiment "ocamlc" (String.sub options 3 (String.length options - 3)) in
+    let options = options ^ " unix.cma -I +threads threads.cma -I obj " in
+    let construire_objet4 = construire_objet !vraiment "ocamlc" (String.sub options 3 (String.length options - 3)) in
     let fichiers = ref "" in
     let fichier = open_out "obj/lien.ml" in
     let lier ?fichier_o nom actif =
@@ -226,11 +224,12 @@ let rec gestionnaire_construire i argc argv =
     let () = construire_objet3 "obj/lien_intf.ml" "obj/lien_intf.cmi" [] in
     let () = construire_objet3 "obj/lien_intf.ml" "obj/lien_intf.cmo" [] in
     let nom_final = "bin/" ^ !cible ^ "/final.exe" in
-    let () = construire_objet5 (!fichiers ^ "  -open Lien_intf obj/lien_intf.cmo src/main.ml") nom_final [] in
+    let () = construire_objet4 (!fichiers ^ "  -open Lien_intf obj/lien_intf.cmo src/main.ml") nom_final [] in
     let () = executer_commandes () in
-    let _ = input_line stdin in
-    let () = print_endline ("L'executable a été généré avec succès ici: " ^ nom_final) in
-    if ret = Bien_fini then
+    let () =
+      if !vraiment then
+        print_endline ("L'executable a été généré avec succès ici: " ^ nom_final)
+    in if ret = Bien_fini then
       i, Bien_fini
     else
       i, ret

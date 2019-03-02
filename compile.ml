@@ -206,17 +206,17 @@ and gestionnaire_tester i argc argv =
 and gestionnaire_nettoyer i argc argv =
   let rec boucle_dossiers dossier =
     let dossiers = Sys.readdir dossier in
-    let len = Array.length dossiers in
     let () = Sys.chdir dossier in
     let rec boucle_dossiers_rec i =
-      if i < len then
+      if i > 0 then
+        let i = i - 1 in
         let () =
           if Sys.is_directory dossiers.(i) then
             boucle_dossiers dossiers.(i)
           else
             Sys.remove dossiers.(i)
-        in boucle_dossiers_rec (i + 1)
-    in let () = boucle_dossiers_rec 0 in
+        in boucle_dossiers_rec i
+    in let () = boucle_dossiers_rec (Array.length dossiers) in
     Sys.chdir ".."
   in let () = boucle_dossiers "obj" in
   let () = boucle_dossiers "bin" in

@@ -204,6 +204,22 @@ and gestionnaire_tester i argc argv =
   i, Bien_fini
 
 and gestionnaire_nettoyer i argc argv =
+  let rec boucle_dossiers dossier =
+    let dossiers = Sys.readdir dossier in
+    let len = Array.length dossiers in
+    let () = Sys.chdir dossier in
+    let rec boucle_dossiers_rec i =
+      if i < len then
+        let () =
+          if Sys.is_directory dossiers.(i) then
+            boucle_dossiers dossiers.(i)
+          else
+            Sys.remove dossiers.(i)
+        in boucle_dossiers_rec (i + 1)
+    in let () = boucle_dossiers_rec 0 in
+    Sys.chdir ".."
+  in let () = boucle_dossiers "obj" in
+  let () = boucle_dossiers "bin" in
   i, Bien_fini
 
 and gestionnaire_aider i argc argv =
@@ -230,16 +246,16 @@ and gestionnaire_aider i argc argv =
       let () = Printf.eprintf "%-20s %s\n" nom help_msg
       in aide_generale liste
   in let rec consommer_argument i =
-    if i = argc then
-      i, Bien_fini
-    else
-      match argv.(i) with
-        "--" -> i, Bien_fini
-      | nom when est_clef_dico nom liste_de_sous_commande ->
-        let i = i + 1 in
-        let () = derniere_fonction := valeur_clef_dico nom liste_de_sous_commande :: !derniere_fonction in
-        consommer_argument i
-      | arg -> i, Valeur_non_renonnu arg
+       if i = argc then
+         i, Bien_fini
+       else
+         match argv.(i) with
+           "--" -> i, Bien_fini
+         | nom when est_clef_dico nom liste_de_sous_commande ->
+           let i = i + 1 in
+           let () = derniere_fonction := valeur_clef_dico nom liste_de_sous_commande :: !derniere_fonction in
+           consommer_argument i
+         | arg -> i, Valeur_non_renonnu arg
   in let i, ret = consommer_argument i in
   if ret = Bien_fini then
     if !derniere_fonction = [] then
@@ -251,26 +267,6 @@ and gestionnaire_aider i argc argv =
   else
     let () = aide_generale liste_de_sous_commande in
     i, ret
-(*if i < argc && argv.(i) <> "--" then
-  let caterogie = argv.(i) in
-  let i = i + 1 in
-  let rec l = function
-  [] -> Argument_non_renonnu caterogie
-  | (alias, nom, _, help_msg, usage_msg) as f :: _
-  when nom = caterogie ->
-  let () = afficher_utilisation f in
-  Bien_fini
-  | _ :: liste -> l liste
-  in i, (l liste_de_sous_commande)
-  else
-  let rec l = function
-  [] -> ()
-  | (_, nom, _, help_msg, _) :: liste ->
-  Printf.printf "%-20s %s\n" nom help_msg;
-  l liste
-  in let () = l liste_de_sous_commande in
-  let () = print_string "\r\n" in
-  i, Bien_fini*)
 
 and liste_de_sous_commande = [
   "construire", ("-c", gestionnaire_construire, "Construit OCalc", "[-n] [-cible {final|debug}] {+moduleActif|-moduleInactif} ...");

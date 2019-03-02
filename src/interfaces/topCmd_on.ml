@@ -8,6 +8,14 @@ let main (argc, argv) =
     let ligne = read_line () in
     if ligne <> "exit" && ligne <> "quit" then
       let () =
-        contient_texte ligne ['+'] |> print_bool
+        if contient_texte ligne ['+'] then
+          let rec boucle = function
+              [] -> ()
+            | e :: l ->
+              let () = print_endline e
+              in boucle l
+          in boucle (couper_texte ligne ['+'])
+        else
+          print_endline ligne
       in l () in
   l ()

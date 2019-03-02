@@ -222,7 +222,12 @@ and gestionnaire_aider i argc argv =
         let () = afficher_utilisation e in
         afficher_utilisations l
   in let derniere_fonction = ref [] in
-  let rec consommer_argument i =
+  let rec aide_generale = function
+      [] -> ()
+    | (nom, (_, _, help_msg, _)) :: liste ->
+      let () = Printf.eprintf "%-20s %s\n" nom help_msg
+      in aide_generale liste
+  in let rec consommer_argument i =
     if i = argc then
       i, Bien_fini
     else
@@ -236,13 +241,13 @@ and gestionnaire_aider i argc argv =
   in let i, ret = consommer_argument i in
   if ret = Bien_fini then
     if !derniere_fonction = [] then
-      let () = afficher_utilisations liste_de_sous_commande in
+      let () = aide_generale liste_de_sous_commande in
       i, Bien_fini
     else
       let () = afficher_utilisations !derniere_fonction in
-      i, ret
+      i, Bien_fini
   else
-    let () = afficher_utilisation (valeur_clef_dico "aider" liste_de_sous_commande) in
+    let () = aide_generale liste_de_sous_commande in
     i, ret
 (*if i < argc && argv.(i) <> "--" then
   let caterogie = argv.(i) in

@@ -2,6 +2,14 @@ open Utils
 open Lexer
 open Type
 
+let detect_print e =
+  if est_entier10 e then
+    Printf.printf "int: %s\n" e
+  else if est_variable e then
+    Printf.printf "variable: %s\n" e
+  else
+    print_endline e
+
 let main (argc, argv) =
   let () = print_endline "hello world" in
   let () = print_endline "type exit to exit" in
@@ -15,17 +23,11 @@ let main (argc, argv) =
           let rec boucle = function
               [] -> ()
             | e :: l ->
-              let () =
-                if est_entier10 e then
-                  Printf.printf "int: %s\n" e
-                else
-                  print_endline e
-              in boucle l
+              let () = detect_print e in
+              boucle l
           in boucle (couper_texte ligne ['+'; '-'])
-        else if est_entier10 ligne then
-            Printf.printf "int: %s\n" ligne
-          else
-            print_endline ligne
+        else
+          detect_print ligne
         else
           print_endline "vérifiez vos parenthèses !!!"
       in l () in

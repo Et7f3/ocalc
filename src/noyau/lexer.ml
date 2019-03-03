@@ -47,7 +47,7 @@ let est_variable t(*exte*) =
     || match t.[i] with
     '_' -> i + 1 <> l && est_variable2 (i + 1)
     | c when 'a' <= c && c <= 'z' -> est_variable2 (i + 1)
-    | c when 'A' <= c && c <= '2' -> est_variable2 (i + 1)
+    | c when 'A' <= c && c <= 'Z' -> est_variable2 (i + 1)
     | c when '0' <= c && c <= '9' -> est_variable2 (i + 1)
     | '\'' -> est_variable2 (i + 1)
     | _ -> false

@@ -18,5 +18,5 @@ let variable_de_texte t(*texte*) = Variable t
 
 let texte_de_expr = function
       Variable nom -> nom
-  | Entier ga -> "" (*GrandEntier.texte_depuis_grandentier ga*)
+  | Entier ga -> GrandEntier.texte_depuis_grandentier ga
   | Textenonvalide s -> s

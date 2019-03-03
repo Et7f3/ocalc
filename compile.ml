@@ -166,7 +166,7 @@ let rec gestionnaire_construire i argc argv =
     let construire_objet2 = construire_objet !vraiment "ocamlc" (options ^ " -I obj obj/lien.cmo -open Lien") in (* noyau *)
     let options = options ^ " -I obj/interfaces" in
     let construire_objet3 = construire_objet !vraiment "ocamlc" options in (* interfaces *)
-    let options = options ^ " unix.cma -I +threads threads.cma -I obj " in
+    let options = options ^ " unix.cma -I +threads threads.cma -I obj" in
     let construire_objet4 = construire_objet !vraiment "ocamlc" (String.sub options 3 (String.length options - 3)) in
     let fichiers = ref "" in
     let fichier = open_out "obj/lien.ml" in
@@ -199,6 +199,7 @@ let rec gestionnaire_construire i argc argv =
     let () = close_out fichier in
     let () = construire_objet3 "obj/lien.ml" "obj/lien.cmi" [] in
     let () = construire_objet3 "obj/lien.ml" "obj/lien.cmo" [] in
+    let () = fichiers := !fichiers ^ "obj/lien.cmo " in
     let fichier = open_out "obj/lien_intf.ml" in
     let rec boucle = function
         [] -> ()

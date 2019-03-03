@@ -1,3 +1,4 @@
+open Lien
 open Lien_intf
 
 let () =

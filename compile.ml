@@ -125,6 +125,7 @@ let rec gestionnaire_construire i argc argv =
         "type";
         "utils";
         "lexer";
+        "parser";
       ]
     in let rec consommer_argument i =
          if i < argc then
@@ -226,7 +227,7 @@ let rec gestionnaire_construire i argc argv =
     let () = construire_objet3 "obj/lien_intf.ml" "obj/lien_intf.cmi" [] in
     let () = construire_objet3 "obj/lien_intf.ml" "obj/lien_intf.cmo" [] in
     let nom_final = "bin/" ^ !cible ^ "/final.exe" in
-    let () = construire_objet4 (!fichiers ^ "  -open Lien_intf obj/lien_intf.cmo src/main.ml") nom_final [] in
+    let () = construire_objet4 (!fichiers ^ "-open Lien_intf obj/lien_intf.cmo src/main.ml") nom_final [] in
     let () = executer_commandes () in
     let () =
       if !vraiment then

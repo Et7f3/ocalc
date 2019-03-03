@@ -1,4 +1,6 @@
 open Utils
+open Lexer
+open Type
 
 let main (argc, argv) =
   let () = print_endline "hello world" in

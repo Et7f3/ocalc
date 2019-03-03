@@ -124,6 +124,7 @@ let rec gestionnaire_construire i argc argv =
     in let modules_noyau = [
         "type";
         "utils";
+        "lexer";
       ]
     in let rec consommer_argument i =
          if i < argc then

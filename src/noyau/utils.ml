@@ -33,8 +33,7 @@ let couper_texte  t(*exte*) l(*iste à chercher*) =
         []-> false
       | e :: l -> c = e || boucle l
     in boucle l
-  in
-  let len = String.length t in
+  in let len = String.length t in
   let start = ref 0 in
   let rec boucle p(*arenthèses*) c(*rochets*) a(*ccolades*) i acc =
     if i < len then

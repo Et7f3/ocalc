@@ -1,4 +1,4 @@
-open Lien
+open Lien_intf
 
 let () =
   let argv = Sys.argv in

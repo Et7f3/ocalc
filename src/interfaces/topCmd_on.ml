@@ -10,7 +10,8 @@ let main (argc, argv) =
     let ligne = read_line () in
     if ligne <> "exit" && ligne <> "quit" then
       let () =
-        if contient_texte ligne ['+'] then
+        if parenthese_correcte ligne then
+          if contient_texte ligne ['+'] then
           let rec boucle = function
               [] -> ()
             | e :: l ->
@@ -19,5 +20,7 @@ let main (argc, argv) =
           in boucle (couper_texte ligne ['+'])
         else
           print_endline ligne
+        else
+          print_endline "vérifiez vos parenthèses !!!"
       in l () in
   l ()

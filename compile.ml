@@ -1,3 +1,4 @@
+#!ocaml unix.cma
 let debug_mode =
   match Sys.getenv_opt "debug" with
     None -> false

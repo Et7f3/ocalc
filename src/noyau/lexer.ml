@@ -51,4 +51,4 @@ let est_variable t(*exte*) =
     | c when '0' <= c && c <= '9' -> est_variable2 (i + 1)
     | '\'' -> est_variable2 (i + 1)
     | _ -> false
-  in est_variable 0
+  in l > 0 && est_variable 0

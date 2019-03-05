@@ -260,8 +260,11 @@ and gestionnaire_nettoyer i argc argv =
         in boucle_dossiers_rec i
     in let () = boucle_dossiers_rec (Array.length dossiers) in
     Sys.chdir ".."
-  in let () = boucle_dossiers "obj" in
-  let () = boucle_dossiers "bin" in
+  in let () = List.iter (
+      function doss ->
+        if Sys.file_exists doss && Sys.is_directory doss then
+          boucle_dossiers doss
+    ) ["obj"; "bin"] in
   i, Bien_fini
 
 and gestionnaire_aider i argc argv =

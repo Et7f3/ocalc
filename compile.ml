@@ -1,8 +1,9 @@
 #!ocaml unix.cma
 let debug_mode =
-  match Sys.getenv_opt "debug" with
-    None -> false
-  | Some x -> true
+  try
+    let _ = Sys.getenv "debug"
+    in true
+  with Not_found -> false
 
 let faire_dossier nom =
   if Sys.file_exists nom then
@@ -11,7 +12,7 @@ let faire_dossier nom =
     else
       ()
   else
-    Unix.mkdir nom (Unix.stat "..").st_perm
+    Unix.(Unix.mkdir nom (Unix.stat "..").st_perm)
 
 let faire_dossiers =
   let rec faire_un_dossier = function
@@ -70,7 +71,7 @@ let construire_objet vraiment compilateur options =
   let construire_objet source dest deps =
     let analasye_dep e =
       (*Sys.file_exists e && *)
-      ((Unix.stat e).st_mtime > (Unix.stat dest).st_mtime)
+      Unix.((Unix.stat e).st_mtime > (Unix.stat dest).st_mtime)
     in let rec analasye_deps = function
           [] -> false
         | e :: l -> analasye_dep e || analasye_deps l

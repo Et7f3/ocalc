@@ -122,6 +122,7 @@ let rec gestionnaire_construire i argc argv =
       ]
     in let interfaces = ref [
         "topCmd", true; (* lis simplement l'entrée standard et l'évalue *)
+        "topTest", true; (* effectetue une batterie de tests *)
       ]
     in let modules_noyau = [
         "type";

@@ -6,6 +6,7 @@ let () =
   let toplevel_handlers = ref [] in
   let toplevels = [
     TopCmd.main; (* read evale print loop *)
+    TopTest.main; (* launch tests *)
     (* TopFile.main; (* read all files as arguments and procede file by file *)
        TopGui.main; (* show a beautiful graphical user interface *)
        TopServeur.main (* launch a serveur that liste on specific port passed *)

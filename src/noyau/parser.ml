@@ -3,22 +3,17 @@ open Type
 open Utils
 open Lexer
 
-let variable_de_entier t(*exte*) = Entier (GrandEntier.grandentier_depuis_texte t)
+let variable_de_entier _ t(*exte*) = Entier (GrandEntier.grandentier_depuis_texte t)
 
-(*let grandentier_base_de_texte t(*exte*) = Textenonvalide t*)
+let variable_de_texte _ t(*texte*) = Variable t
 
-let variable_de_texte t(*texte*) = Variable t
-
-(*let rec expr_de_texte fxs(*list of function*) t(*exte*) =
+let rec expr_de_texte fxs(*list of function*) t(*exte*) =
   let f = expr_de_texte fxs in
   let rec b(*oucle*) = function
-      (p(*redicat*), c(*onvertisseur*)) :: l when p t -> c t
+      (p(*redicat*), c(*onvertisseur*)) :: l when p t -> c f t
     | e :: l -> b l
     | []  -> Textenonvalide t
   in b fxs
-*)
-
-let rec expr_de_texte _ _ = Textenonvalide ""
 
 let texte_de_expr = function
       Variable nom -> nom

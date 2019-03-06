@@ -22,6 +22,7 @@ let rec expr_de_texte fxs(*list of function*) t(*exte*) =
 let rec texte_de_expr ?paren = function
     Variable nom -> nom
   | Entier ga -> GrandEntier.texte_depuis_grandentier ga
+  | Neg e -> "-" ^ texte_de_expr e
   | Textenonvalide s -> s
   | Operation (op, []) -> failwith "une operation sain operateur"
   | Operation (op, e :: []) -> texte_de_expr e

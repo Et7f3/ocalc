@@ -104,6 +104,10 @@ let main (argc, argv) =
   let () = init_suite "texte_de_expr" in
 
   let () = test_unitaire_assert (texte_de_expr (Variable "x")) "x" in
+  let () = test_unitaire_assert (texte_de_expr (Operation ("+", [Variable "x"]))) "x" in
+  let () = test_unitaire_assert (texte_de_expr (Operation ("+", [Variable "x"; Variable "y"]))) "(x+y)" in
+  let () = test_unitaire_assert (texte_de_expr (Operation ("*", [Operation ("+", [Variable "x"; Variable "y"])]))) "(x+y)" in
+  let () = test_unitaire_assert (texte_de_expr (Operation ("*", [Variable "z"; Operation ("+", [Variable "x"; Variable "y"])]))) "(z*(x+y))" in
 
   let () = fin_suite () in
 
@@ -124,19 +128,19 @@ let main (argc, argv) =
 
   (*let () = init_suite "grandentier_depuis_texte" in
 
-  let () = test_unitaire_assert (grandentier_depuis_texte "3445") (false, [5; 4; 4; 3]) in
-  let () = test_unitaire_assert (grandentier_depuis_texte "-3445") (true, [5; 4; 4; 3]) in
-  let () = test_unitaire_assert (grandentier_depuis_texte "0") (false, []) in
-  let () = test_unitaire_assert (grandentier_depuis_texte "-0") (false, []) in
+    let () = test_unitaire_assert (grandentier_depuis_texte "3445") (false, [5; 4; 4; 3]) in
+    let () = test_unitaire_assert (grandentier_depuis_texte "-3445") (true, [5; 4; 4; 3]) in
+    let () = test_unitaire_assert (grandentier_depuis_texte "0") (false, []) in
+    let () = test_unitaire_assert (grandentier_depuis_texte "-0") (false, []) in
 
-  let () = fin_suite () in
+    let () = fin_suite () in
 
-  let () = init_suite "texte_depuis_grandentier" in
+    let () = init_suite "texte_depuis_grandentier" in
 
-  let () = test_unitaire_assert (texte_depuis_grandentier (false, [5; 4; 4; 3])) "3445" in
-  let () = test_unitaire_assert (texte_depuis_grandentier (true, [5; 4; 4; 3])) "-3445" in
-  let () = test_unitaire_assert (texte_depuis_grandentier (false, [])) "0" in
-  let () = test_unitaire_assert (texte_depuis_grandentier (true, [])) "0" in
+    let () = test_unitaire_assert (texte_depuis_grandentier (false, [5; 4; 4; 3])) "3445" in
+    let () = test_unitaire_assert (texte_depuis_grandentier (true, [5; 4; 4; 3])) "-3445" in
+    let () = test_unitaire_assert (texte_depuis_grandentier (false, [])) "0" in
+    let () = test_unitaire_assert (texte_depuis_grandentier (true, [])) "0" in
 
     let () = fin_suite () in*)
 

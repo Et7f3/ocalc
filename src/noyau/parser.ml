@@ -15,7 +15,15 @@ let rec expr_de_texte fxs(*list of function*) t(*exte*) =
     | []  -> Textenonvalide t
   in b fxs
 
-let texte_de_expr = function
-      Variable nom -> nom
+let rec texte_de_expr ?paren = function
+    Variable nom -> nom
   | Entier ga -> GrandEntier.texte_depuis_grandentier ga
   | Textenonvalide s -> s
+  | Operation (op, []) -> failwith "une operation sain operateur"
+  | Operation (op, e :: []) -> texte_de_expr e
+  | Operation (op, e :: l) ->
+    let s =
+      texte_de_expr e ^ op ^ (texte_de_expr ?paren:(Some false) (Operation (op, l))) in
+    match paren with
+      None | Some true -> "(" ^ s ^ ")"
+    | Some false -> s

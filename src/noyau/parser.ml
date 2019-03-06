@@ -3,7 +3,9 @@ open Type
 open Utils
 open Lexer
 
-let grandentier_base_de_texte t(*exte*) = Textenonvalide t
+let variable_de_entier t(*exte*) = Entier (GrandEntier.grandentier_depuis_texte t)
+
+(*let grandentier_base_de_texte t(*exte*) = Textenonvalide t*)
 
 let variable_de_texte t(*texte*) = Variable t
 
@@ -15,6 +17,8 @@ let variable_de_texte t(*texte*) = Variable t
     | []  -> Textenonvalide t
   in b fxs
 *)
+
+let rec expr_de_texte _ _ = Textenonvalide ""
 
 let texte_de_expr = function
       Variable nom -> nom

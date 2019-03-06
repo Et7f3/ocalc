@@ -1,3 +1,5 @@
+val ge: Lien.GrandEntier.grandentier
+
 val variable_de_entier : (string -> Type.expr) -> string -> Type.expr
 
 val variable_de_texte : (string -> Type.expr) -> string -> Type.expr

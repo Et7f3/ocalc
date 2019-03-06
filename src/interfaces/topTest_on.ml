@@ -114,14 +114,13 @@ let main (argc, argv) =
   let () = init_suite "expr_de_texte" in
 
   let parse = [] in
+  let ge = Parser.ge in
   let () = test_unitaire_assert (expr_de_texte parse "3445") (Textenonvalide  "3445") in
   let () = test_unitaire_assert (expr_de_texte parse "x") (Textenonvalide  "x") in
   let parse = (est_variable, variable_de_texte) :: parse in
   let parse = (est_entier10, variable_de_entier) :: parse in
-  (*
-  let () = test_unitaire_assert (expr_de_texte parse "3445") (Entier ((false, [5; 4; 4; 3]): GrandEntier_on.grandentier)) in
-  let () = test_unitaire_assert (expr_de_texte parse "-3445") (Entier (true, [5; 4; 4; 3])) in
-  *)
+  let () = test_unitaire_assert (expr_de_texte parse "3445") (Entier ge) in
+  let () = test_unitaire_assert (expr_de_texte parse "-3445") (Entier ge) in
   let () = test_unitaire_assert (expr_de_texte parse "x") (Variable ("x")) in
 
   let () = fin_suite () in

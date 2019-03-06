@@ -97,7 +97,7 @@ let main (argc, argv) =
   let () = test_unitaire_assert (couper_texte "123" ['+']) ["123"] in
   let () = test_unitaire_assert (couper_texte "123+456" ['+']) ["123"; "+"; "456"] in
   let () = test_unitaire_assert (couper_texte "123+456" ['-']) ["123+456"] in
-  let () = test_unitaire_assert (couper_texte "123-456+789" ['-'; '+']) ["123"; "+"; "456"] in
+  let () = test_unitaire_assert (couper_texte "123-456+789" ['-'; '+']) ["123"; "-"; "456"; "+"; "789"] in
 
   let () = fin_suite () in
 

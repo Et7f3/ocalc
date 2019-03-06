@@ -45,7 +45,7 @@ let couper_texte  t(*exte*) l(*iste à chercher*) =
       | ']' -> boucle p (c - 1) a (i + 1) acc
       | '}' -> boucle p c (a - 1) (i + 1) acc
       | lettre -> if p = 0 && c = 0 && a = 0 && car_dans_liste lettre then
-          let acc = String.sub t !start (i - !start) :: acc in
+          let acc = String.sub t i 1 :: String.sub t !start (i - !start) :: acc in
           let () = start := i + 1 in
           boucle p c a (i + 1) acc
         else

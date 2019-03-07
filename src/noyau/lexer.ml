@@ -52,3 +52,6 @@ let est_variable t(*exte*) =
     | '\'' -> est_variable2 (i + 1)
     | _ -> false
   in l > 0 && est_variable 0
+
+let est_addition_soustraction t(*exte*) =
+  contient_texte t ['+'; '-']

@@ -117,10 +117,18 @@ let main (argc, argv) =
   let ge = Parser.ge in
   let () = test_unitaire_assert (expr_de_texte parse "3445") (Textenonvalide  "3445") in
   let () = test_unitaire_assert (expr_de_texte parse "x") (Textenonvalide  "x") in
-  let parse = (est_variable, variable_de_texte) :: parse in
-  let parse = (est_entier10, variable_de_entier) :: parse in
+  let parse =
+    let parse = (est_addition_soustraction, variable_de_addition_soustraction) :: parse in
+    let parse = (est_variable, variable_de_texte) :: parse in
+    let parse = (est_entier10, variable_de_entier) :: parse in
+    parse in
   let () = test_unitaire_assert (expr_de_texte parse "3445") (Entier ge) in
+  let () = test_unitaire_assert (expr_de_texte parse "+3445") (Entier ge) in
   let () = test_unitaire_assert (expr_de_texte parse "-3445") (Entier ge) in
+  let () = test_unitaire_assert (expr_de_texte parse "x+3445") (Operation ("+", [Variable "x"; Entier ge])) in
+  let () = test_unitaire_assert (expr_de_texte parse "x+3445-y") (Operation ("+", [Variable "x"; Entier ge; Neg (Variable "y")])) in
+  let () = test_unitaire_assert (expr_de_texte parse "-z") (Operation ("+", [Neg (Variable "z")])) in
+  let () = test_unitaire_assert (expr_de_texte parse "+alexandre") (Operation ("+", [Variable "alexandre"])) in
   let () = test_unitaire_assert (expr_de_texte parse "x") (Variable ("x")) in
 
   let () = fin_suite () in

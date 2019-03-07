@@ -27,7 +27,10 @@ let variable_de_addition_soustraction compile t(*texte*) =
     | "-" :: e :: liste -> boucle (Neg (compile e) :: acc) liste
     |_-> failwith "error"
 
-  in Operation ("+", boucle premier l)
+  in match boucle premier l with
+    [] ->  failwith "chut OCaml"
+  | [e] -> e (* l'addition d'un terme est le terme lui même *)
+  | l -> Operation ("+", l)
 let rec expr_de_texte fxs(*list of function*) t(*exte*) =
   let f = expr_de_texte fxs in
   let rec b(*oucle*) = function

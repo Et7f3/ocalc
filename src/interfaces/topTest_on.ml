@@ -127,8 +127,8 @@ let main (argc, argv) =
   let () = test_unitaire_assert (expr_de_texte parse "-3445") (Entier ge) in
   let () = test_unitaire_assert (expr_de_texte parse "x+3445") (Operation ("+", [Variable "x"; Entier ge])) in
   let () = test_unitaire_assert (expr_de_texte parse "x+3445-y") (Operation ("+", [Variable "x"; Entier ge; Neg (Variable "y")])) in
-  let () = test_unitaire_assert (expr_de_texte parse "-z") (Operation ("+", [Neg (Variable "z")])) in
-  let () = test_unitaire_assert (expr_de_texte parse "+alexandre") (Operation ("+", [Variable "alexandre"])) in
+  let () = test_unitaire_assert (expr_de_texte parse "-z") (Neg (Variable "z")) in
+  let () = test_unitaire_assert (expr_de_texte parse "+alexandre") (Variable "alexandre") in
   let () = test_unitaire_assert (expr_de_texte parse "x") (Variable ("x")) in
 
   let () = fin_suite () in

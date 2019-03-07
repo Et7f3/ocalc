@@ -31,20 +31,29 @@ let variable_de_addition_soustraction compile t(*texte*) =
     [] ->  failwith "chut OCaml"
   | [e] -> e (* l'addition d'un terme est le terme lui même *)
   | l -> Operation ("+", l)
-let rec expr_de_texte fxs(*list of function*) t(*exte*) =
-  let f = expr_de_texte fxs in
+
+let parse =
+  let parse = (est_addition_soustraction, variable_de_addition_soustraction) :: [] in
+  let parse = (est_variable, variable_de_texte) :: parse in
+  let parse = (est_entier10, variable_de_entier) :: parse in
+  parse
+
+let rec expr_de_texte_etend fxs(*list of function*) t(*exte*) =
+  let f = expr_de_texte_etend fxs in
   let rec b(*oucle*) = function
       (p(*redicat*), c(*onvertisseur*)) :: l when p t -> c f t
     | e :: l -> b l
     | []  -> Textenonvalide t
   in b fxs
 
+let expr_de_texte = expr_de_texte_etend parse
+
 let rec texte_de_expr ?paren = function
     Variable nom -> nom
   | Entier ga -> GrandEntier.texte_depuis_grandentier ga
   | Neg e -> "-" ^ texte_de_expr e
   | Textenonvalide s -> s
-  | Operation (op, []) -> failwith "une operation sain operateur"
+  | Operation (op, []) -> failwith "On a une operation sans operande"
   | Operation (op, e :: []) -> texte_de_expr e
   | Operation (op, e :: l) ->
     let s =

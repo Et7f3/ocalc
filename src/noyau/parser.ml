@@ -51,7 +51,7 @@ let expr_de_texte = expr_de_texte_etend parse
 let rec texte_de_expr ?paren = function
     Variable nom -> nom
   | Entier ga -> GrandEntier.texte_depuis_grandentier ga
-  | Neg e -> "-" ^ texte_de_expr e
+  | Neg e -> "(-" ^ texte_de_expr e ^ ")"
   | Textenonvalide s -> s
   | Operation (op, []) -> failwith "On a une operation sans operande"
   | Operation (op, e :: []) -> texte_de_expr e

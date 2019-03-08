@@ -123,6 +123,7 @@ let rec gestionnaire_construire i argc argv =
     in let interfaces = ref [
         "topCmd", true; (* lis simplement l'entrée standard et l'évalue *)
         "topTest", true; (* effectetue une batterie de tests *)
+        "topGui", true; (* lis simplement un champ et l'évalue *)
       ]
     in let modules_noyau = [
         "type";
@@ -168,7 +169,7 @@ let rec gestionnaire_construire i argc argv =
     in let construire_objet1 = construire_objet !vraiment "ocamlc" options in (* modules *)
     let options = options ^ " -I obj/noyau" in
     let construire_objet2 = construire_objet !vraiment "ocamlc" (options ^ " -I obj obj/lien.cmo -open Lien") in (* noyau *)
-    let options = options ^ " -I obj/interfaces" in
+    let options = options ^ " -I obj/interfaces -I +lablgtk2 lablgtk.cma" in
     let construire_objet3 = construire_objet !vraiment "ocamlc" options in (* interfaces *)
     let options = options ^ " unix.cma -I +threads threads.cma -I obj" in
     let construire_objet4 = construire_objet !vraiment "ocamlc" (String.sub options 3 (String.length options - 3)) in

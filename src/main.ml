@@ -7,8 +7,8 @@ let () =
   let toplevels = [
     TopCmd.main; (* read evale print loop *)
     TopTest.main; (* launch tests *)
+    TopGui.main; (* show a beautiful graphical user interface *)
     (* TopFile.main; (* read all files as arguments and procede file by file *)
-       TopGui.main; (* show a beautiful graphical user interface *)
        TopServeur.main (* launch a serveur that liste on specific port passed *)
     *)
   ]

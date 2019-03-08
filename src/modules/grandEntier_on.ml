@@ -30,5 +30,18 @@ let diviser ga gb = ((false, []), (false, []))
 let grandentier_depuis_texte sa = (false, [])
 (** renvoie le grandentier à partir de sa représentation textuelle *)
 
-let texte_depuis_grandentier ga = ""
+let textedechiffre =
+	let rec tdc = function
+	    [] -> ""
+	  | e :: ga -> (string_of_int e) ^ tdc ga
+	in tdc
+	(* mauvais prototype c'ets int list pas string list... *)
+(*Convertit basiquement le nombre*)
+
+let texte_depuis_grandentier ga =
+  let (a, b) = ga in
+	if a = true then
+	  "-" ^ textedechiffre b
+	else
+    textedechiffre b
 (** renvoie la représentation textuelle d'un grandentier *)

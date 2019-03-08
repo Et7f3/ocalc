@@ -2,10 +2,11 @@ open Utils
 open Lexer
 open Type
 open Parser
+open Moteur
 
 let detect_print e =
   if true then
-    print_endline (texte_de_expr (expr_de_texte e))
+    print_endline (texte_de_expr (eval (expr_de_texte e)))
   else
   if est_entier10 e then
     Printf.printf "int: %s\n" e

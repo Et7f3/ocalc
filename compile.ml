@@ -129,6 +129,7 @@ let rec gestionnaire_construire i argc argv =
         "utils";
         "lexer";
         "parser";
+        "moteur";
       ]
     in let rec consommer_argument i =
          if i < argc then

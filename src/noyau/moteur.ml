@@ -6,6 +6,7 @@ let rec additionner = function
   | acc, [] -> List.rev acc
   | e :: acc, (a :: l) ->
     match e, a with
+    | Entier a, Variable e ->additionner (Variable e :: acc, Entier a :: l)
     | Entier e, Entier a ->
       let res = Entier (GrandEntier.additionner e a)
       in additionner (res :: acc, l)

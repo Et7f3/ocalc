@@ -221,19 +221,18 @@ in
 (sign a,convert a);;
 (** renvoie le grandentier à partir de sa représentation textuelle *)
 
-let textedechiffre ga =
-	let rec tdc ga = match ga with
-	| (_,[]) -> ""
-	| (_,e::ga) -> e ^ tdc (false,ga)
-	in
-	tdc ga ;;
+let textedechiffre =
+	let rec tdc = function
+	    [] -> ""
+	  | e :: ga -> (string_of_int e) ^ tdc ga
+	in tdc;;
 	(* mauvais prototype c'ets int list pas string list... *)
 (*Convertit basiquement le nombre*)
 
 let texte_depuis_grandentier ga =
 	let (a,b) = ga in
 	if a = true
-	then "-" ^ textedechiffre ga
-	else textedechiffre ga ;;
+	then "-" ^ textedechiffre b
+	else textedechiffre b;;
 
 (** renvoie la représentation textuelle d'un grandentier *)

@@ -23,26 +23,15 @@ let faire_dossiers =
       | e :: l -> faire_un_dossier e; faire_dossiers l
   in faire_dossiers
 
-let commande_en_attentes = ref []
-
 let executer_commande ligne_commande vraiment =
   let () = if debug_mode || not vraiment then print_endline ligne_commande in
   if vraiment then
-    commande_en_attentes := ligne_commande :: !commande_en_attentes
-
-let executer_commandes () =
-  let rec boucle = function
-      [] -> commande_en_attentes := []
-    | ligne_commande :: liste ->
-      let ret = Sys.command ligne_commande in
+    let ret = Sys.command ligne_commande in
+    if ret <> 0 then
       let () =
-        if ret <> 0 then
-          let () =
-            Printf.printf "Cette ligne de commande à échoué:\r\n\r\n\t%s" ligne_commande in
-          let () = Printf.printf "\r\n\r\net a retourné le code %d\r\n" ret in
-          failwith "Impossible de continuer"
-      in boucle liste
-  in boucle (List.rev !commande_en_attentes)
+        Printf.printf "Cette ligne de commande à échoué:\r\n\r\n\t%s" ligne_commande in
+      let () = Printf.printf "\r\n\r\net a retourné le code %d\r\n" ret in
+      failwith "Impossible de continuer"
 
 let modifie_valeur_dico clef f =
   let rec ajout acc = function
@@ -171,7 +160,8 @@ let rec gestionnaire_construire i argc argv =
     let construire_objet2 = construire_objet !vraiment "ocamlc" (options ^ " -I obj obj/lien.cmo -open Lien") in (* noyau *)
     let options = options ^ " -I obj/interfaces -I +lablgtk2 lablgtk.cma" in
     let construire_objet3 = construire_objet !vraiment "ocamlc" options in (* interfaces *)
-    let options = options ^ " unix.cma -I +threads threads.cma -I obj obj/interfaces/commune.cmo -open Commune" in
+    (* unix.cma -I +threads threads.cma *)
+    let options = options ^ " -I obj obj/interfaces/commune.cmo -open Commune" in
     let construire_objet4 = construire_objet !vraiment "ocamlc" (String.sub options 3 (String.length options - 3)) in
     let fichiers = ref "" in
     let fichier = open_out "obj/lien.ml" in
@@ -236,8 +226,7 @@ let rec gestionnaire_construire i argc argv =
         boucle liste
     in let () = boucle !interfaces in
     (*let nom_final = "bin/" ^ !cible ^ "/final.exe" in
-      let () = construire_objet4 (!fichiers ^ " src/main.ml") nom_final [] in
-    *)let () = executer_commandes () in
+      let () = construire_objet4 (!fichiers ^ " src/main.ml") nom_final [] in*)
     if ret = Bien_fini then
       i, Bien_fini
     else

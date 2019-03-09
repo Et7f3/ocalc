@@ -15,7 +15,7 @@ let detect_print e =
   else
     print_endline e
 
-let main (argc, argv) =
+let () =
   let () = print_endline "hello world" in
   let () = print_endline "type exit to exit" in
   let rec l () =

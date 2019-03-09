@@ -2,7 +2,7 @@ open Parser
 open Moteur
 
 (*boucle principal de l'interface initi� par GMain.main*)
-let main (_, _) =
+let () =
   let _ = GMain.init () in
   (*La fen�tre principale*)
   let window = GWindow.window

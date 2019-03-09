@@ -4,7 +4,7 @@ open Lexer
 open Parser
 open GrandEntier_on
 
-let main (argc, argv) =
+let () =
   (*numéro de *)
   let (test_total, test_valide_total, suite, test, test_valide) = ref 0, ref 0, ref 0, ref 0, ref 0 in
 

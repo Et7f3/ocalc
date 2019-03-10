@@ -1,4 +1,3 @@
-#!ocaml unix.cma
 let debug_mode =
   try
     let _ = Sys.getenv "debug"
@@ -55,20 +54,32 @@ let rec valeur_clef_dico clef = function
     else
       valeur_clef_dico clef l
 
+module Constructeur_d'objet  :
+sig
+  val construire_objet :
+    bool -> string -> string -> string -> string -> string list -> unit
+end
+= struct
+  let fichier_reconstruit = ref []
+
 let construire_objet vraiment compilateur options =
   let ligne_commande = compilateur ^ " " ^ options ^ " " in
   let construire_objet source dest deps =
     let analasye_dep e =
-      (*Sys.file_exists e && *)
-      Unix.((Unix.stat e).st_mtime > (Unix.stat dest).st_mtime)
+      not (Sys.file_exists e)
+      || List.exists (fun x -> x = e) !fichier_reconstruit
+      || Unix.((Unix.stat e).st_mtime > (Unix.stat dest).st_mtime)
     in let rec analasye_deps = function
           [] -> false
         | e :: l -> analasye_dep e || analasye_deps l
     in let besoin_reconstruire =
          not (Sys.file_exists dest) || analasye_deps deps
     in if besoin_reconstruire then
+      let () = fichier_reconstruit := dest :: !fichier_reconstruit in
       executer_commande (ligne_commande ^ source ^ " -o " ^ dest) vraiment
   in construire_objet
+end
+open Constructeur_d'objet
 
 type valeur_de_retour =
     Bien_fini
@@ -162,8 +173,9 @@ let rec gestionnaire_construire i argc argv =
     let construire_objet3 = construire_objet !vraiment "ocamlc" options in (* interfaces *)
     (* unix.cma -I +threads threads.cma *)
     let options = options ^ " -I obj obj/interfaces/commune.cmo -open Commune" in
-    let construire_objet4 = construire_objet !vraiment "ocamlc" (String.sub options 3 (String.length options - 3)) in
+    let options = String.sub options 3 (String.length options - 3) in
     let fichiers = ref "" in
+    let deps_fichiers = ref [] in
     let fichier = open_out "obj/lien.ml" in
     let lier ?fichier_o nom actif =
       let nom =
@@ -185,29 +197,38 @@ let rec gestionnaire_construire i argc argv =
         let () = lier nom actif in
         let src = "src/modules/" ^ nom ^ if actif then "_on.ml" else "_off.ml" in
         let dst = "obj/modules/" ^ nom ^ if actif then "_on.cm" else "_off.cm" in
+        let src_i = src ^ "i" in
+        let dest_i = dst ^ "i" in
         let dest_o = dst ^ "o" in
-        let () = fichiers := !fichiers ^  dest_o ^ " " in
-        let () = construire_objet1 (src ^ "i") (dst ^ "i") [] in
-        let () = construire_objet1 src dest_o [] in
+        (*let () = fichiers := !fichiers ^ dest_o ^ " " in*)
+        let () = deps_fichiers := dest_o :: !deps_fichiers in
+        let () = construire_objet1 src_i dest_i [src_i] in
+        let () = construire_objet1 src dest_o [src; dest_i] in
         boucle liste
     in let () = boucle !modules in
     let () = close_out fichier in
-    let () = construire_objet3 "obj/lien.ml" "obj/lien.cmi" [] in
-    let () = construire_objet3 "obj/lien.ml" "obj/lien.cmo" [] in
-    let () = fichiers := !fichiers ^ "obj/lien.cmo " in
+    let () = construire_objet1 "obj/lien.ml" "obj/lien.cmi" !deps_fichiers in
+    let () = construire_objet1 "obj/lien.ml" "obj/lien.cmo" !deps_fichiers in
+    (*let () = fichiers := !fichiers ^ "obj/lien.cmo " in*)
+    let () = deps_fichiers := "obj/lien.cmo" :: !deps_fichiers in
     let rec boucle = function
         [] -> ()
       | nom :: liste ->
         let src = "src/noyau/" ^ nom ^ ".ml" in
         let dst = "obj/noyau/" ^ nom ^ ".cm" in
+        let src_i = src ^ "i" in
+        let dest_i = dst ^ "i" in
         let dest_o = dst ^ "o" in
-        let () = fichiers := !fichiers ^ dest_o ^ " " in
-        let () = construire_objet2 (src ^ "i") (dst ^ "i") [] in
-        let () = construire_objet2 src dest_o [] in
+        (*let () = fichiers := !fichiers ^ dest_o ^ " " in*)
+        let () = deps_fichiers := dest_o :: !deps_fichiers in
+        let () = construire_objet2 src_i dest_i ["obj/lien.cmo"; src_i] in
+        let () = construire_objet2 src dest_o ["obj/lien.cmo"; src; dest_i] in
         boucle liste
     in let () = boucle modules_noyau in
-    let () = construire_objet3 "src/interfaces/commune.ml" "obj/interfaces/commune.cmi" [] in
-    let () = construire_objet3 "src/interfaces/commune.ml" "obj/interfaces/commune.cmo" [] in
+    let () = construire_objet3 "src/interfaces/commune.ml" "obj/interfaces/commune.cmi" ["obj/lien.cmo"] in
+    let () = construire_objet3 "src/interfaces/commune.ml" "obj/interfaces/commune.cmo" ["obj/lien.cmo"] in
+    let options = options ^ (List.fold_left (fun a b -> a ^ ( " " ^ b)) "" (List.rev !deps_fichiers))in
+    let construire_objet4 = construire_objet !vraiment "ocamlc" options in
     let rec boucle = function
         [] -> ()
       | (nom, actif) :: liste ->
@@ -215,11 +236,13 @@ let rec gestionnaire_construire i argc argv =
           if actif then
             let src = "src/interfaces/" ^ nom ^ ".ml" in
             let dst = "obj/interfaces/" ^ nom ^ ".cm" in
+            let src_i = src ^ "i" in
+            let dest_i = dst ^ "i" in
             let dest_o = dst ^ "o" in
-            let () = construire_objet3 (src ^ "i") (dst ^ "i") [] in
-            let () = construire_objet3 src dest_o [] in
+            let () = construire_objet3 src_i dest_i ["obj/lien.cmo"; src_i] in
+            let () = construire_objet3 src dest_o ["obj/lien.cmo"; src; dest_i] in
             let nom_final = "bin/" ^ !cible ^ "/" ^ nom ^ ".exe" in
-            let () = construire_objet4 (!fichiers ^ dest_o) nom_final [] in
+            let () = construire_objet4 (!fichiers ^ dest_o) nom_final ["obj/interfaces/commune.cmo"] in
             if !vraiment then
               print_endline ("L'executable a été généré avec succès ici: " ^ nom_final)
         in

@@ -2,3 +2,10 @@ build
 test
 *.cm*
 *~
+src2
+obj/lien.ml
+bin
+a.out
+deps
+ftp*
+http*

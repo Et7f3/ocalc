@@ -1,0 +1,11 @@
+S src
+S src/noyau
+S src/modules
+S src/interfaces
+S obj
+B obj
+B obj/noyau
+B obj/modules
+B obj/interfaces
+B +threads
+B +lablgtk2

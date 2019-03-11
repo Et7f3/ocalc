@@ -1,6 +1,5 @@
 type grandentier = bool * int list
 (** grandentier est un tuple [(signe négatif, \[unité, dizaine, centaine, ...\])]
-
 [-123] correspond à [(true, \[3; 2; 1\])] *)
 
 let signe = function x -> false
@@ -33,44 +32,22 @@ let grandentier_depuis_texte sa = (false, [])
 let texte_depuis_grandentier ga = ""
 (** renvoie la représentation textuelle d'un grandentier *)
 
+type grandentier = bool * int list
+(** grandentier est un tuple [(signe négatif, \[unité, dizaine, centaine, ...\])]
+[-123] correspond à [(true, \[3; 2; 1\])] *)
 
-let abs n =
-	if n < 0
-	then -n
-	else n;;
+(*let signe = function x -> false*)
+let signe ga = match ga with
+| (true,_) -> true
+| _ -> false ;;
+(** renvoie [grandentier < 0] *)
 
+(*let comparer ga gb = 0*)
 
 let rec length = function
     [] -> 0
   | _::l -> 1 + length l ;;
 
-
-let convert grandentier =
-	let a = abs grandentier
-in
-let rec convert_rec  a = match a with
-| a when (a < 10) -> a :: []
-| _ -> (a mod 10) :: convert_rec(a / 10)
-in
-convert_rec a;;
-
-
-let sign grandentier =  if grandentier > 0
-then false
-else true;;
-
-(*
-type grandentier = (sign grandentier,convert grandentier);;
-*)
-(** grandentier est un tuple [(signe négatif, \[unité, dizaine, centaine, ...\])]
-[-123] correspond à [(true, \[3; 2; 1\])] *)
-
-(*let signe = function x -> false*)
-(** renvoie [grandentier < 0] *);;
-
-let rec search_pos x = function
-    [] -> failwith "search_pos: not found"
-  | e :: l -> (if e = x then 0 else 1) + search_pos x l ;;
 
 let nth n l =
   if n < 0 then
@@ -83,38 +60,30 @@ let nth n l =
     in
       nth_rec (l, n) ;;
 
-let comparer_nbr_pos ga gb =
-	let rec cnbr i = function
+let comparer_nbr_abs ga gb =
+	let rec cna i = function
 |(ga,gb) when length ga > length gb -> -1
 |(ga,gb) when length ga < length gb -> 1
-|_ -> if i = (length ga) then 0
-else if (nth ((length ga) - i) (* of what *)) < (nth ((length gb) - i) (* of what *)) then 1
-else if (nth ((length ga) - i) (* of what *)) > (nth ((length gb) - i) (* of what *))  then -1
-else cnbr (i+1) (ga,gb)
+|_ -> 
+if i = (length ga) then 
+	0
+else if (nth ((length ga) - i) ga < (nth ((length gb) - i) gb)) then 
+	1
+else if (nth ((length ga) - i) ga > (nth ((length gb) - i) gb))  then 
+	-1
+else 
+	cna (i+1) (ga,gb)
 in
-cnbr 1 (ga,gb);;
-
-(*let comparer_nbr_neg ga gb =
-	let rec cnbr ga gb i = function
-|(ga,gb) when length ga < length gb -> -1
-|(ga,gb) when length ga > length gb -> 1
-|_ -> if i = length then 0
-else if (nth (length ga - i)) > (nth length (gb - i)) then 1
-else if (nth (length ga - i)) < (nth length (gb - i))  then -1
-else cnbr ga gb (i+1)
-in
-cnbr ga gb 1;;
-*)
-
-
+cna 1 (ga,gb);;
 
 let comparer ga gb = match ga, gb with
 | (true,_),(false,_) -> 1
 | (false,_),(true,_) -> (-1)
-|((false,b),(false,d)) -> comparer_nbr_pos b d
-|((true,b),(true,d)) -> - comparer_nbr_pos b d;;
+|((false,b),(false,d)) -> comparer_nbr_abs b d
+|((true,b),(true,d)) -> - comparer_nbr_abs b d;;
 
 (** 1 si ga < gb sinon 0 si ga = gb sinon -1 *)
+
 let bigint_sum big1 big2 =
   let rec add = function
       ([], r) | (r, []) -> r
@@ -127,27 +96,58 @@ let bigint_sum big1 big2 =
   in
     add (big1, big2) ;;
 
-let soustraction a b = if comparer_nbr_pos a b = 1 then
-let rec sous = function
+let rec sous (a,b) = match (a,b) with (* On preferera a>b en abs*)
       ([], r) | (r, []) -> r
     | (d1::r1, d2::r2) ->
         let s = d1 - d2 in
          if s > 0 then
            s :: sous(a,b)
        else
-          (10 + d1 - d2) :: sous (r1,(bigint_sum [1] r2))
-      in sous (a,b)
-  else
-  let rec sous = function
-      ([], r) | (r, []) -> r
-    | (d1::r1, d2::r2) ->
-        let s = d1 - d2 in
-         if s > 0 then
-           s :: sous(a,b)
-       else
-          (10 + d1 - d2) :: sous (r1,(bigint_sum [1] r2))
-      in sous (b,a);;
+          (10 + s) :: sous (r1,(bigint_sum [1] r2))
 
+
+(** 1 si ga < gb sinon 0 si ga = gb sinon -1 *)
+(* 1 : gb > ga
+   0 : ga = gb
+  -1 : ga > gb*)
+
+let additionner ga gb = match (ga,gb) with
+| ((a,b),(c,d)) when a = c -> (a,bigint_sum b d)
+| ((true,b),(false,d)) -> 
+	if comparer_nbr_abs b d = -1 then
+		(true,sous (a,b))
+	else
+		(false,sous (b,a))
+| ((false,b),(true,d)) -> 
+	if comparer_nbr_abs b d = -1
+		(false,sous (a,b))
+	else
+		(true,sous (b,a))
+
+(** renvoie ga + gb *)
+(** 1 si ga < gb sinon 0 si ga = gb sinon -1 *)
+(* 1 : gb > ga
+   0 : ga = gb
+  -1 : ga > gb*)
+
+
+let soustraire ga gb = match (ga,gb) with
+| ((true ,b),(false,d)) -> (true,bigint_sum b d)
+| ((false,b),(true ,d)) -> (false,bigint_sum b d)
+| ((true ,b),(true ,d)) -> 
+	if comparer_nbr_abs b d = -1 then
+		(true,sous b d)
+	else
+		(false,sous d b)
+| ((false,b),(true ,d)) ->
+	if comparer_nbr_abs b d = -1 then
+		(false,sous b d)
+	else
+		(true,sous d b)
+
+
+let multiplier ga gb = (false, [])
+(** renvoie ga * gb *)
 
 let bigint_mult big n =
   if n < 0 then
@@ -175,57 +175,63 @@ let bigint_times big1 big2 =
   in
     mult (big1, big2) ;;
 
-let additionner ga gb = function
-|((a,b),(c,d)) when a = c -> (a,bigint_sum b d)
-(* et les patates ? *)
-
-
-(** 1 si ga < gb sinon 0 si ga = gb sinon -1 *)
-(** renvoie ga + gb *)
-
-let soustraire ga gb = function
-|((a,b),(c,d)) when a = false && c = true -> (false,bigint_sum b d)
-|((a,b),(c,d)) when a = true && c = false -> (true,bigint_sum b d)
-|((a,b),(c,d)) when a = c -> if (comparer_nbr_pos b d) = -1 (* il verifie pour le signe a renvoyer,ici ga > gb*)
-							then (a,soustraction b d)
-							else (not a, soustraction b d);;
-(* et les patates ? *)
-
-(** renvoie ga - gb *)
-
-let multiplier ga gb = function
+let multiplier ga gb = match ga,gb with
 |((a,b),(c,d)) when a = c -> (false,bigint_times b d)
 |((a,b),(c,d)) -> (true,bigint_times b d)
-(** renvoie ga * gb *)
 
 let pgcd ga gb = (false, [])
 (** renvoie pgcd(ga, gb) *)
 
-let diviser_multiple ga gb =
-	let rec d_m ga gb d = if (comparer ga (true, (bigint_mult gb d))) =  1 then (d-1) else d_m ga gb (d+1) in d_m ga gb 1
+let diviser_multiple ga gb = (false, [])
 (** renvoie ga / gb où ga est multiple de gb *)
+let diviser_multiple_abs a b =
+	let rec d_m a b e = 
+	if (comparer_nbr_abs a ((bigint_mult b e))) =  1 then 
+		(e-1) 
+	else 
+		d_m a b (e+1) 
+	in d_m a b 1
 
-(** 1 si ga < gb sinon 0 si ga = gb sinon -1 *)
-
-(*
-let diviser ga gb = let d = diviser_multiple ga gb and (a,b) =
-et le frommage ... syntaxe error mec c'est pas complet
-*)
+let diviser_multiple ga gb = match (ga,gb) with
+| ((a,b),(c,d)) when a = c -> (false,diviser_multiple_abs b d)
+| ((a,b),(c,d)) -> (true,diviser_multiple_abs b d)
 
 
-(** renvoie (nominateur, dénominateur) de la fraction ga / gb *)
+let diviser ga gb = match (ga,gb) with
+|
+|
+|
+|
 
-let grandentier_depuis_texte sa =
-	let a = int_of_string sa
-in
-(sign a,convert a);;
+
+
+
+let grandentier_depuis_texte sa = (false, [])
 (** renvoie le grandentier à partir de sa représentation textuelle *)
+let cse_rec a n = 
+	let rec abc a i = match i with
+	| i when i = n-1 -> []
+	| _ -> (int_of_char a.[i]) -48 :: abc a (i-1)
+	in
+	abc a (String.length a - 1);;
 
-let textedechiffre =
+let grandentier_depuis_texte sa = 
+if sa.[0] = '-' then 
+	(true,cse_rec sa 1)
+else if sa.[0] = '+' then
+	(false,cse_rec sa 1)
+else
+	(false, cse_rec sa 0)
+grandentier_depuis_texte "-47436987436984376893768327692"
+
+let texte_depuis_grandentier ga = ""
+(** renvoie la représentation textuelle d'un grandentier *)
+
+let textedechiffre ga =
 	let rec tdc = function
 	    [] -> ""
-	  | e :: ga -> (string_of_int e) ^ tdc ga
-	in tdc;;
+	  | e :: ga -> tdc ga ^ (string_of_int e) 
+	in tdc ga;;
 	(* mauvais prototype c'ets int list pas string list... *)
 (*Convertit basiquement le nombre*)
 

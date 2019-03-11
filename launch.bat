@@ -1,4 +1,4 @@
-@set PATH=%PATH%;%cd%\deps\lib;%cd%\deps\bin
+@set PATH=%cd%\deps\lib;%cd%\deps\bin;%PATH%
 @start XWin.exe -multiwindow
 @set DISPLAY=:0
 @timeout 2

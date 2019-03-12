@@ -5,33 +5,37 @@ let rec additionner = function
     [], _ -> failwith "Chut OCaml"
   | acc, [] -> List.rev acc
   | e :: acc, (a :: l) ->
-    match e, a with
+    match eval e, eval a with
     | Entier a, Variable e -> additionner (Variable e :: acc, Entier a :: l)
     | Entier e, Entier a ->
       let res = Entier (GrandEntier.additionner e a)
       in additionner (res :: acc, l)
-    | _ -> additionner (a :: e :: acc, l)
+    | e, a -> additionner (a :: e :: acc, l)
 
-let rec multiplier = function
+and multiplier = function
     [], _ -> failwith "Chut OCaml"
   | acc, [] -> List.rev acc
   | e :: acc, (a :: l) ->
-    match e, a with
+    match eval e, eval a with
     | Entier a, Variable e -> multiplier (Variable e :: acc, Entier a :: l)
     | Entier e, Entier a ->
       let res = Entier (GrandEntier.multiplier e a)
       in multiplier (res :: acc, l)
-    | _ -> multiplier (a :: e :: acc, l)
+    | e, a -> multiplier (a :: e :: acc, l)
 
-let rec eval = function
+and eval = function
     Operation ("+", []) -> failwith "euh il y a un problème"
   | Operation ("+", [e]) -> eval e
   | Operation ("+", e :: l) ->
     let acc = [eval e] in
-    Operation ("+", additionner (acc, l))
+    (match additionner (acc, l) with
+       [e] -> e
+     |l -> Operation ("+", l))
   | Operation ("*", []) -> failwith "euh il y a un problème"
   | Operation ("*", [e]) -> eval e
   | Operation ("*", e :: l) ->
     let acc = [eval e] in
-    Operation ("*", multiplier (acc, l))
+    (match multiplier (acc, l) with
+       [e] -> e
+     |l -> Operation ("*", l))
   | a -> a

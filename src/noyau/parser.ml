@@ -54,7 +54,8 @@ let variable_de_multiplication_division compile t(*texte*) =
   | l -> Operation ("*", l)
 
 let parse =
-  let parse = (est_multiplication_division, variable_de_multiplication_division) :: [] in
+  let parse = [] in
+  let parse = (est_multiplication_division, variable_de_multiplication_division) :: parse in
   let parse = (est_addition_soustraction, variable_de_addition_soustraction) :: parse in
   let parse = (est_variable, variable_de_texte) :: parse in
   let parse = (est_entier10, variable_de_entier) :: parse in

@@ -135,9 +135,27 @@ let () = test_unitaire_assert (expr_de_texte_etend parse "x") (Variable ("x"))
 
 let () = fin_suite ()
 
+(** test sur les Grand Entiers *)
+let grandentier_depuis_texte a = Obj.magic grandentier_depuis_texte a
+let texte_depuis_grandentier a = Obj.magic texte_depuis_grandentier a
+let a = grandentier_depuis_texte "-5"
+let b = grandentier_depuis_texte "-50"
+let c = grandentier_depuis_texte "5"
+let d = grandentier_depuis_texte "0"
+let e = grandentier_depuis_texte "-0"
+
+let () = init_suite "est_negatif"
+
+let () = test_unitaire_assert (est_negatif a) true
+let () = test_unitaire_assert (est_negatif b) true
+let () = test_unitaire_assert (est_negatif c) false
+let () = test_unitaire_assert (est_negatif d) false
+let () = test_unitaire_assert (est_negatif e) false
+
+let () = fin_suite ()
+
 let () = init_suite "grandentier_depuis_texte"
 
-let grandentier_depuis_texte a = Obj.magic grandentier_depuis_texte a
 let () = test_unitaire_assert (grandentier_depuis_texte "3445") (false, [5; 4; 4; 3])
 let () = test_unitaire_assert (grandentier_depuis_texte "-3445") (true, [5; 4; 4; 3])
 let () = test_unitaire_assert (grandentier_depuis_texte "0") (false, [])
@@ -147,7 +165,6 @@ let () = fin_suite ()
 
 let () = init_suite "texte_depuis_grandentier"
 
-let texte_depuis_grandentier a = Obj.magic texte_depuis_grandentier a
 let () = test_unitaire_assert (texte_depuis_grandentier (false, [5; 4; 4; 3])) "3445"
 let () = test_unitaire_assert (texte_depuis_grandentier (true, [5; 4; 4; 3])) "-3445"
 let () = test_unitaire_assert (texte_depuis_grandentier (false, [])) "0"

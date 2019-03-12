@@ -6,6 +6,9 @@ type grandentier = int
 let est_negatif x = x < 0
 (** renvoie [grandentier < 0] *)
 
+let neg = (~-)
+(** renvoie l'oposé *)
+
 let comparer ga gb =
   if ga < gb then
     1

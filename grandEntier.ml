@@ -5,6 +5,11 @@ type grandentier = bool * int list
 let est_negatif (signe, _) = signe
 (** renvoie [grandentier < 0] *)
 
+let neg (a, b) =
+  match b with
+    [] -> false, []
+  | _ -> not a, b
+(** renvoie l'oposé *)
 
 let rec length = function
     [] -> 0

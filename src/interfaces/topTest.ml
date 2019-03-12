@@ -193,6 +193,18 @@ let () = test_unitaire_assert (soustraire a a) d
 
 let () = fin_suite ()
 
+let () = init_suite "multiplier"
+
+let () = test_unitaire_assert (multiplier a b) (grandentier_depuis_texte "250")
+let () = test_unitaire_assert (multiplier b a) (grandentier_depuis_texte "250")
+let () = test_unitaire_assert (multiplier c a) (grandentier_depuis_texte "-25")
+let () = test_unitaire_assert (multiplier a c) (grandentier_depuis_texte "-25")
+let () = test_unitaire_assert (multiplier a d) d
+let () = test_unitaire_assert (multiplier d e) d
+let () = test_unitaire_assert (multiplier a a) (grandentier_depuis_texte "25")
+
+let () = fin_suite ()
+
 let () = init_suite "grandentier_depuis_texte"
 
 let () = test_unitaire_assert (grandentier_depuis_texte "3445") (false, [5; 4; 4; 3])

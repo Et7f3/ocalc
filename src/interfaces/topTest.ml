@@ -154,6 +154,17 @@ let () = test_unitaire_assert (est_negatif e) false
 
 let () = fin_suite ()
 
+let () = init_suite "comparer"
+
+let () = test_unitaire_assert (comparer a b) ~-1
+let () = test_unitaire_assert (comparer b a) 1
+let () = test_unitaire_assert (comparer c a) ~-1
+let () = test_unitaire_assert (comparer a c) 1
+let () = test_unitaire_assert (comparer a d) 1
+let () = test_unitaire_assert (comparer d e) 0
+
+let () = fin_suite ()
+
 let () = init_suite "grandentier_depuis_texte"
 
 let () = test_unitaire_assert (grandentier_depuis_texte "3445") (false, [5; 4; 4; 3])

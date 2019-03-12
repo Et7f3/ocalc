@@ -55,3 +55,6 @@ let est_variable t(*exte*) =
 
 let est_addition_soustraction t(*exte*) =
   contient_texte t ['+'; '-']
+
+let est_multiplication_division t(*exte*) =
+  contient_texte t ['*'; '/']

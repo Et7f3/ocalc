@@ -1,4 +1,4 @@
-val ge: Lien.GrandEntier.grandentier
+val ge: string -> Lien.GrandEntier.grandentier
 
 val variable_de_entier : (string -> Type.expr) -> string -> Type.expr
 

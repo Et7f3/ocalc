@@ -4,7 +4,7 @@ open Utils
 open Lexer
 
 (** only for test purpose *)
-let ge = (Obj.magic (false, []) : Lien.GrandEntier.grandentier)
+let ge t = (Obj.magic (GrandEntier.grandentier_depuis_texte t) : Lien.GrandEntier.grandentier)
 (** only for test purpose *)
 
 let variable_de_entier _ t(*exte*) = Entier (GrandEntier.grandentier_depuis_texte t)

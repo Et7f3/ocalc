@@ -38,4 +38,5 @@ and eval = function
     (match multiplier (acc, l) with
        [e] -> e
      |l -> Operation ("*", l))
+  | Neg (Neg e) -> eval e
   | a -> a

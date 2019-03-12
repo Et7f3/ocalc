@@ -32,8 +32,30 @@ let variable_de_addition_soustraction compile t(*texte*) =
   | [e] -> e (* l'addition d'un terme est le terme lui même *)
   | l -> Operation ("+", l)
 
+let variable_de_multiplication_division compile t(*texte*) =
+  let l = couper_texte t ['*'; '/'] in
+  let premier_el = function
+      [] | [_] | [_; _] -> failwith "chut OCaml"
+    | "" :: "/" :: e :: liste -> [Inv (compile e)], liste
+    | "" :: "*" :: e :: liste -> [compile e], liste
+    | e :: liste -> [compile e], liste
+  in
+  let (premier, l) = premier_el l in
+  let rec boucle acc = function
+      [_] ->  failwith "chut OCaml"
+    | [] -> List.rev acc
+    | "*" :: e :: liste -> boucle (compile e :: acc) liste
+    | "/" :: e :: liste -> boucle (Inv (compile e) :: acc) liste
+    |_-> failwith "error"
+
+  in match boucle premier l with
+    [] ->  failwith "chut OCaml"
+  | [e] -> e (* l'addition d'un terme est le terme lui même *)
+  | l -> Operation ("*", l)
+
 let parse =
   let parse = (est_addition_soustraction, variable_de_addition_soustraction) :: [] in
+  let parse = (est_multiplication_division, variable_de_multiplication_division) :: parse in
   let parse = (est_variable, variable_de_texte) :: parse in
   let parse = (est_entier10, variable_de_entier) :: parse in
   parse
@@ -52,6 +74,7 @@ let rec texte_de_expr ?paren = function
     Variable nom -> nom
   | Entier ga -> GrandEntier.texte_depuis_grandentier ga
   | Neg e -> "(-" ^ texte_de_expr e ^ ")"
+  | Inv e -> "(1/" ^ texte_de_expr e ^ ")"
   | Textenonvalide s -> s
   | Operation (op, []) -> failwith "On a une operation sans operande"
   | Operation (op, e :: []) -> texte_de_expr e

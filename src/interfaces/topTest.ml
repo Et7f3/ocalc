@@ -144,6 +144,7 @@ let b = grandentier_depuis_texte "-50"
 let c = grandentier_depuis_texte "5"
 let d = grandentier_depuis_texte "0"
 let e = grandentier_depuis_texte "-0"
+let f = grandentier_depuis_texte "-45"
 
 let () = init_suite "est_negatif"
 
@@ -174,7 +175,21 @@ let () = test_unitaire_assert (additionner c a) d
 let () = test_unitaire_assert (additionner a c) d
 let () = if mechant then
     test_unitaire_assert (additionner a d) a
-let () = test_unitaire_assert (additionner d e) (grandentier_depuis_texte "0")
+let () = test_unitaire_assert (additionner d e) d
+
+let () = fin_suite ()
+
+let () = init_suite "soustraire"
+
+let () = if mechant then
+    test_unitaire_assert (soustraire a b) (grandentier_depuis_texte "45")
+let () = if mechant then
+    test_unitaire_assert (soustraire b a) (grandentier_depuis_texte "-45")
+let () = test_unitaire_assert (soustraire c a) (grandentier_depuis_texte "10")
+let () = test_unitaire_assert (soustraire a c) (grandentier_depuis_texte "-10")
+let () = test_unitaire_assert (soustraire a d) a
+let () = test_unitaire_assert (soustraire d e) d
+let () = test_unitaire_assert (soustraire a a) d
 
 let () = fin_suite ()
 

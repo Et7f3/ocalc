@@ -4,6 +4,7 @@ open Lexer
 open Parser
 open GrandEntier_on
 
+let mechant = false
 
 (*numéro de *)
 let (test_total, test_valide_total, suite, test, test_valide) = ref 0, ref 0, ref 0, ref 0, ref 0
@@ -162,6 +163,18 @@ let () = test_unitaire_assert (comparer c a) ~-1
 let () = test_unitaire_assert (comparer a c) 1
 let () = test_unitaire_assert (comparer a d) 1
 let () = test_unitaire_assert (comparer d e) 0
+
+let () = fin_suite ()
+
+let () = init_suite "additionner"
+
+let () = test_unitaire_assert (additionner a b) (grandentier_depuis_texte "-55")
+let () = test_unitaire_assert (additionner b a) (grandentier_depuis_texte "-55")
+let () = test_unitaire_assert (additionner c a) d
+let () = test_unitaire_assert (additionner a c) d
+let () = if mechant then
+    test_unitaire_assert (additionner a d) a
+let () = test_unitaire_assert (additionner d e) (grandentier_depuis_texte "0")
 
 let () = fin_suite ()
 

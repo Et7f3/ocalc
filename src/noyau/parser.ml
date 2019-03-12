@@ -12,7 +12,7 @@ let variable_de_entier _ t(*exte*) = Entier (GrandEntier.grandentier_depuis_text
 let variable_de_texte _ t(*texte*) = Variable t
 
 let neg = function
-    Entier e -> Entier (GrandEntier.soustraire (GrandEntier.grandentier_depuis_texte "0") e)
+    Entier e -> Entier (GrandEntier.neg e)
   | a -> Neg a
 
 let variable_de_addition_soustraction compile t(*texte*) =

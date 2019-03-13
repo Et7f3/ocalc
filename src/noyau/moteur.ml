@@ -8,8 +8,8 @@ let rec additionner = function
     match eval e, eval a with
     | Entier a, Variable e -> additionner (Variable e :: acc, Entier a :: l)
     | Entier e, Entier a ->
-      let res = Entier (GrandEntier.additionner e a)
-      in additionner (res :: acc, l)
+      let res = Entier (GrandEntier.additionner e a) in
+      additionner (res :: acc, l)
     | e, a -> additionner (a :: e :: acc, l)
 
 and multiplier = function
@@ -22,9 +22,6 @@ and multiplier = function
       let res = Entier (GrandEntier.multiplier e a)
       in multiplier (res :: acc, l)
     | Entier e, Inv (Entier a) | Inv (Entier a), Entier e ->
-      (*let (ga, gb) = GrandEntier.diviser e a in
-      let res = Entier q in
-      multiplier (res :: acc, l)*)
       (match GrandEntier.diviser e a with
           e, x when x = GrandEntier.unit -> multiplier ((Entier e) :: acc, l)
         | e, a -> multiplier ((Entier e) :: Inv (Entier a) :: acc, l))

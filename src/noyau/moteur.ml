@@ -2,7 +2,8 @@ open Lien
 open Type
 
 let rec additionner = function
-    [], _ -> failwith "Chut OCaml"
+    [], [] -> failwith "Chut OCaml: additioner rien du tout ?"
+  | [], e :: l -> additionner ([e], l)
   | acc, [] -> List.rev acc
   | e :: acc, (a :: l) ->
     match eval e, eval a with
@@ -13,8 +14,11 @@ let rec additionner = function
     | e, a -> additionner (a :: e :: acc, l)
 
 and multiplier = function
-    [], _ -> failwith "Chut OCaml"
+    [], [] -> failwith "Chut OCaml: multiplier rien du tout ?"
+  | [], e :: l -> multiplier ([e], l)
   | acc, [] -> List.rev acc
+  | e :: acc, Inv a :: l when (match e with Inv _ -> false | _ -> true) ->
+    multiplier (acc, Inv a :: e :: l)
   | e :: acc, (a :: l) ->
     match eval e, eval a with
     | Entier a, Variable e -> multiplier (Variable e :: acc, Entier a :: l)

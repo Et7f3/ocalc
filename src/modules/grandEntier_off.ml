@@ -1,7 +1,10 @@
 type grandentier = int
 (** grandentier est un tuple [(signe négatif, \[unité, dizaine, centaine, ...\])]
-
     [-123] correspond à [(true, \[3; 2; 1\])] *)
+
+let zero = 0
+
+let unit = 1
 
 let est_negatif x = x < 0
 (** renvoie [grandentier < 0] *)

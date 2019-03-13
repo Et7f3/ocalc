@@ -37,7 +37,7 @@ let rec pgcd ga gb =
     pgcd (gb mod ga) ga
 (** renvoie pgcd(ga, gb) *)
 
-let diviser_multiple ga gb = 0
+let diviser_multiple ga gb = ga / gb
 (** renvoie ga / gb où ga est multiple de gb *)
 
 let diviser ga gb = 0, 0

@@ -40,7 +40,9 @@ let rec pgcd ga gb =
 let diviser_multiple ga gb = ga / gb
 (** renvoie ga / gb où ga est multiple de gb *)
 
-let diviser ga gb = 0, 0
+let diviser ga gb =
+  let pgcd = pgcd ga gb in
+  ga / pgcd, gb / pgcd
 (** renvoie (nominateur, dénominateur) de la fraction ga / gb *)
 
 let grandentier_depuis_texte sa = int_of_string sa

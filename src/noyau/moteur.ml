@@ -28,6 +28,7 @@ and multiplier = function
     | Entier e, Inv (Entier a) | Inv (Entier a), Entier e ->
       (match GrandEntier.diviser e a with
           e, x when x = GrandEntier.unit -> multiplier ((Entier e) :: acc, l)
+        | x, a when x = GrandEntier.unit -> multiplier (acc, Inv (Entier a) :: l)
         | e, a -> multiplier ((Entier e) :: Inv (Entier a) :: acc, l))
     | e, a -> multiplier (a :: e :: acc, l)
 

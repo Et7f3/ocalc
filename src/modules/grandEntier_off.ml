@@ -30,7 +30,11 @@ let soustraire ga gb = ga - gb
 let multiplier ga gb = ga * gb
 (** renvoie ga * gb *)
 
-let pgcd ga gb = 0
+let rec pgcd ga gb =
+  if ga = 0 then
+    gb
+  else
+    pgcd (gb mod ga) ga
 (** renvoie pgcd(ga, gb) *)
 
 let diviser_multiple ga gb = 0

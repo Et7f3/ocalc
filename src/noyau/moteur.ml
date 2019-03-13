@@ -30,6 +30,9 @@ and multiplier = function
           e, x when x = GrandEntier.unit -> multiplier ((Entier e) :: acc, l)
         | x, a when x = GrandEntier.unit -> multiplier (acc, Inv (Entier a) :: l)
         | e, a -> multiplier ((Entier e) :: Inv (Entier a) :: acc, l))
+    | Inv (Entier e), Inv (Entier a) ->
+      let res = GrandEntier.multiplier e a in
+      multiplier (acc, Inv (Entier res) :: l)
     | e, a -> multiplier (a :: e :: acc, l)
 
 and eval = function

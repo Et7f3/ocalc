@@ -40,8 +40,8 @@ let variable_de_multiplication_division compile t(*texte*) =
   let l = couper_texte t ['*'; '/'] in
   let premier_el = function
       [] | [_] | [_; _] -> failwith "chut OCaml"
-    | "" :: "/" :: e :: liste -> [Inv (compile e)], liste
-    | "" :: "*" :: e :: liste -> [compile e], liste
+    | "" :: "/" :: e :: liste -> [Entier (GrandEntier.unit)], "/" :: e :: liste
+    | "" :: "*" :: e :: liste -> [Entier (GrandEntier.unit)], "*" :: e :: liste
     | e :: liste -> [compile e], liste
   in
   let (premier, l) = premier_el l in

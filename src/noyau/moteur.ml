@@ -3,7 +3,7 @@ open Type
 
 let rec additionner = function
     [], [] -> failwith "Chut OCaml: additioner rien du tout ?"
-  | [], e :: l -> additionner ([e], l)
+  | [], e :: l -> additionner ([eval e], l)
   | acc, [] -> List.rev acc
   | e :: acc, (a :: l) ->
     match eval e, eval a with
@@ -15,7 +15,7 @@ let rec additionner = function
 
 and multiplier = function
     [], [] -> failwith "Chut OCaml: multiplier rien du tout ?"
-  | [], e :: l -> multiplier ([e], l)
+  | [], e :: l -> multiplier ([eval e], l)
   | acc, [] -> List.rev acc
   | e :: acc, Inv a :: l when (match e with Inv _ -> false | _ -> true) ->
     multiplier (acc, Inv a :: e :: l)
@@ -42,13 +42,13 @@ and eval = function
     let acc = [eval e] in
     (match additionner (acc, l) with
        [e] -> e
-     |l -> Operation ("+", l))
+     | l -> Operation ("+", l))
   | Operation ("*", []) -> failwith "euh il y a un problème"
   | Operation ("*", [e]) -> eval e
   | Operation ("*", e :: l) ->
     let acc = [eval e] in
     (match multiplier (acc, l) with
        [e] -> e
-     |l -> Operation ("*", l))
+     | l -> Operation ("*", l))
   | Neg (Neg e) -> eval e
   | a -> a

@@ -1,7 +1,10 @@
 type grandentier = int
 (** grandentier est un tuple [(signe négatif, \[unité, dizaine, centaine, ...\])]
-
     [-123] correspond à [(true, \[3; 2; 1\])] *)
+
+let zero = 0
+
+let unit = 1
 
 let est_negatif x = x < 0
 (** renvoie [grandentier < 0] *)
@@ -27,13 +30,19 @@ let soustraire ga gb = ga - gb
 let multiplier ga gb = ga * gb
 (** renvoie ga * gb *)
 
-let pgcd ga gb = 0
+let rec pgcd ga gb =
+  if ga = 0 then
+    gb
+  else
+    pgcd (gb mod ga) ga
 (** renvoie pgcd(ga, gb) *)
 
-let diviser_multiple ga gb = 0
+let diviser_multiple ga gb = ga / gb
 (** renvoie ga / gb où ga est multiple de gb *)
 
-let diviser ga gb = 0, 0
+let diviser ga gb =
+  let pgcd = pgcd ga gb in
+  ga / pgcd, gb / pgcd
 (** renvoie (nominateur, dénominateur) de la fraction ga / gb *)
 
 let grandentier_depuis_texte sa = int_of_string sa

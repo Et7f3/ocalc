@@ -1,4 +1,6 @@
 type grandentier
+val zero : grandentier
+val unit : grandentier
 val est_negatif : grandentier -> bool
 val neg : grandentier -> grandentier
 val comparer : grandentier -> grandentier -> int

@@ -2,6 +2,10 @@ type grandentier = bool * int list
 (** grandentier est un tuple [(signe négatif, \[unité, dizaine, centaine, ...\])]
     [-123] correspond à [(true, \[3; 2; 1\])] *)
 
+let zero = false, []
+
+let unit = false, [1]
+
 let est_negatif (signe, _) = signe
 (** renvoie [grandentier < 0] *)
 

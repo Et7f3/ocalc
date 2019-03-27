@@ -5,3 +5,6 @@ build:
 
 run: build
 	./install.exe
+
+clean:
+	git clean -fdx

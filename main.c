@@ -2,8 +2,8 @@
 
 int main(void)
 {
-  MessageBox(NULL, "Voulez-vous le composant graphique", "graphique", MB_YESNOCANCEL | MB_DEFBUTTON1 | MB_ICONQUESTION);
-  system("opam switch list");
+  /*MessageBox(NULL, "Voulez-vous le composant graphique", "graphique", MB_YESNOCANCEL | MB_DEFBUTTON1 | MB_ICONQUESTION);
+  system("opam switch list");*/
   return 0;
 }
 /*

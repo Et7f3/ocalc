@@ -1,3 +1,29 @@
 * {
     font-family: sans-serif;
 }
+
+html, body {
+  margin: 0px;
+}
+
+#bar_menu
+{
+  padding: 00%;
+  margin: 0;
+  background: silver;
+  text-align: center;
+}
+
+#bar_menu > li
+{
+  display: inline-block;
+  color: white;
+  margin-right: 15%;
+}
+
+
+#bar_menu > li > a:link, #bar_menu > li > a:visited
+{
+  text-decoration: none;
+  color: white;
+}

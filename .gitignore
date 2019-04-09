@@ -9,3 +9,6 @@ a.out
 deps
 ftp*
 http*
+.o
+.a
+.exe

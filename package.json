@@ -1,0 +1,64 @@
+{
+    "name": "ocalc",
+    "version": "0.0.0",
+    "description": "A formal calculator written in OCaml",
+    "main": "index.js",
+    "esy": {
+        "build": ["dune build --root . -j4"],
+        "install": [
+            "esy-installer OCalc.install"
+        ]
+    },
+    "dependencies": {
+    },
+    "devDependencies": {
+        "@esy-ocaml/reason": "3.4.0",
+        "reason-glfw": "^3.2.1024",
+        "reason-fontkit": "^2.4.0",
+        "reason-gl-matrix": "^0.9.9304",
+        "rebez": "*",
+        "revery": "^0.16.0",
+        "@opam/color": "^0.2.0",
+        "@opam/js_of_ocaml": "*",
+        "@opam/js_of_ocaml-compiler": "*",
+        "@opam/js_of_ocaml-lwt": "*",
+        "@opam/lwt": "^4.0.0",
+        "@opam/lwt_ppx": "^1.1.0",
+        "@brisk/brisk-reconciler": "*",
+        "flex": "^1.2.2",
+        "reperf": "^1.4.0",
+        "@reason-native/console": "^0.0.3",
+        "ocaml": "^4.7.0",
+        "@opam/merlin": "*",
+        "@opam/dune": "^1.5.0",
+        "@opam/odoc": "*"
+    },
+    "resolutions": {
+        "rebez": "github:jchavarri/rebez#46cbc183",
+        "@opam/cmdliner": "1.0.2",
+        "@opam/dune": "1.7.3",
+        "@opam/js_of_ocaml": "github:ocsigen/js_of_ocaml:js_of_ocaml.opam#db257ce",
+        "@opam/js_of_ocaml-compiler": "github:ocsigen/js_of_ocaml:js_of_ocaml-compiler.opam#db257ce",
+        "@brisk/brisk-reconciler": "github:briskml/brisk-reconciler#daa00be"
+    },
+    "scripts": {
+        "test": "echo \"Error: no test specified\" && exit 1",
+        "build": "esy b",
+        "build:release": "esy b dune build --profile=release --root . -j4",
+        "build:js": "esy b dune build examples/Examples.bc.js",
+        "build:js:release": "esy b dune build examples/Examples.bc.js",
+        "revery-test": "esy b dune runtest",
+        "format": "esy dune build @fmt --auto-promote",
+        "format:windows": "esy b .ci/format.sh",
+        "doc": "refmterr esy dune build @doc --root .",
+        "create-release": "bash ./create-release.sh",
+        "run": "esy x OCalc"
+    },
+    "repository": {
+        "type": "git",
+        "url": "ocal.github"
+    },
+    "keywords": ["formal", "calculator", "ocaml"],
+    "maintainers": ["elie.brami", "alexandre.mourgues", "gautier.habermann", "quentin.feugueur"],
+    "license": "ISC"
+}

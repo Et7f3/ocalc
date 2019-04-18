@@ -11,7 +11,7 @@ let rec length = function
 
 
 let nth n l = (* Prend un element dans une liste *)
-  if n < 0 then 
+  if n < 0 then
     invalid_arg "nth: index must be a natural"
   else
     let rec nth_rec = function
@@ -30,14 +30,14 @@ let comparer_nbr_abs ga gb =let la = length ga and lb  = length gb in (* Compare
 	let rec cna i = function
 |(ga,gb) when length ga > length gb -> -1
 |(ga,gb) when length ga < length gb -> 1
-|_ -> 
-if i = (length ga) then 
+|_ ->
+if i = (length ga) then
 	0
-else if (nth (la - i) ga < (nth (lb - i) gb)) then 
+else if (nth (la - i) ga < (nth (lb - i) gb)) then
 	1
-else if (nth (la - i) ga > (nth (lb - i) gb))  then 
+else if (nth (la - i) ga > (nth (lb - i) gb))  then
 	-1
-else 
+else
 	cna (i+1) (ga,gb)
 in
 cna 1 (ga,gb);;
@@ -91,12 +91,12 @@ avec fonction ga gb
 
 let additionner ga gb = match (ga,gb) with
 | ((a,b),(c,d)) when a = c -> (a,bigint_sum b d)
-| ((true,b),(false,d)) -> 
+| ((true,b),(false,d)) ->
 	if comparer_nbr_abs b d = -1 then
 		(true,sous (b,d))
 	else
 		(false,sous (d,b))
-| ((false,b),(true,d)) -> 
+| ((false,b),(true,d)) ->
 	if comparer_nbr_abs b d = -1 then
 		(false,sous (b,d))
 	else
@@ -112,7 +112,7 @@ let additionner ga gb = match (ga,gb) with
 let soustraire ga gb = match (ga,gb) with
 | ((true ,b),(false,d)) -> (true,bigint_sum b d)
 | ((false,b),(true ,d)) -> (false,bigint_sum b d)
-| ((true ,b),(true ,d)) -> 
+| ((true ,b),(true ,d)) ->
 	if comparer_nbr_abs b d = -1 then
 		(true,sous b d)
 	else
@@ -168,8 +168,8 @@ let diviser_multiple ga gb = (false, [])
   -1 : ga > gb*)
 
 let diviser_multiple_abs a b =
-	let rec d_m a b e = 
-	if (comparer_nbr_abs a (bigint_times b e)) >=  0 then 
+	let rec d_m a b e =
+	if (comparer_nbr_abs a (bigint_times b e)) >=  0 then
 		e
 	else
 		d_m a b (bigint_sum e [1])
@@ -187,9 +187,9 @@ let modulo ga gb = match (ga,gb) with
 let pgcd ga gb = (false, [])
 (** renvoie pgcd(ga, gb) *)
 
-  
+
 (** renvoie le grandentier à partir de sa représentation textuelle *)
-let cse_rec a n = 
+let cse_rec a n =
 	let rec abc a i = match i with
 	| i when i = n-1 -> []
 	| _ -> (int_of_char a.[i]) -48 :: abc a (i-1)
@@ -211,7 +211,7 @@ let texte_depuis_grandentier ga = ""
 let textedechiffre ga =
 	let rec tdc = function
 	    [] -> ""
-	  | e :: ga -> tdc ga ^ (string_of_int e) 
+	  | e :: ga -> tdc ga ^ (string_of_int e)
 	in tdc ga;;
 	(* mauvais prototype c'ets int list pas string list... *)
 (*Convertit basiquement le nombre*)

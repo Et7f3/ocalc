@@ -1,15 +1,16 @@
 open Revery
-open Revery.Math
+(*open Revery.Math*)
 open Revery.UI
 open Revery.UI.Components
+
 module SimpleButton =
   struct
     let component =
       React.component (("SimpleButton")[@reason.raw_literal "SimpleButton"])
     let createElement ~children:_ ?(click = fun () -> ()) () =
       component
-        (fun hooks  ->
-           let (count,setCount,hooks) = React.Hooks.state 0 hooks in
+        (fun hooks ->
+           let (_ (*count*), _ (*setCount*), hooks) = React.Hooks.state 0 hooks in
            let wrapperStyle =
              let open Style in
                [backgroundColor (Color.rgba 0. 0. 0. 0.1);
@@ -34,6 +35,7 @@ module SimpleButton =
                                                ())[@JSX ])] ())[@JSX ])] ())
              [@JSX ])))
   end
+
 module Entry =
   struct
     type inputFields = {
@@ -42,15 +44,16 @@ module Entry =
     let component = React.component "Entry"
     let createElement ~children:_  () =
       component
-        (fun hooks  ->
-           let ({ first; second },setValue,hooks) =
+        (fun hooks ->
+           let ({second; _}, setValue, hooks) =
              React.Hooks.state { first = ""; second = "" } hooks in
            (hooks,
              ((Input.createElement ~placeholder:"Entrez votre équation"
-                 ~onChange:(fun { value;_}  ->
-                              setValue { first = value; second })
+                 ~onChange:(fun {value; _} ->
+                              setValue {first = value; second})
                  ~children:[] ())[@JSX ])))
   end
+
 let init app =
   let win =
     App.createWindow app
@@ -78,4 +81,5 @@ let init app =
         ~children:[ent; texte; button] ())
     [@JSX ]) in
   UI.start win render
+
 let _ = App.start init

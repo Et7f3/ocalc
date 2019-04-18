@@ -22,9 +22,3 @@
  (public_name OCalc)
  (package OCalc)
  (libraries js_of_ocaml Revery Commune Noyau))
-
-(install
- (section bin)
- (package OCalc)
- (files
-  (topGui.bc.js as OCalc.bc.js)))

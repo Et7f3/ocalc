@@ -1,3 +1,5 @@
+open Noyau
+open Modules
 open Type
 open Utils
 open Lexer
@@ -9,7 +11,7 @@ let mechant = false
 (*numéro de *)
 let (test_total, test_valide_total, suite, test, test_valide) = ref 0, ref 0, ref 0, ref 0, ref 0
 
-let rec test_unitaire_assert a b =
+let test_unitaire_assert a b =
   let () =
     if a <> b then
       Printf.printf "Le test #%d n'as pas produit la valeure attendue\n" !test
@@ -146,7 +148,7 @@ let b = grandentier_depuis_texte "-50"
 let c = grandentier_depuis_texte "5"
 let d = grandentier_depuis_texte "0"
 let e = grandentier_depuis_texte "-0"
-let f = grandentier_depuis_texte "-45"
+let _ = grandentier_depuis_texte "-45"
 
 let () = init_suite "est_negatif"
 

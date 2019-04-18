@@ -1,6 +1,6 @@
+open Noyau
 open Utils
 open Lexer
-open Type
 open Parser
 open Moteur
 

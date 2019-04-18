@@ -4,7 +4,12 @@
     "description": "A formal calculator written in OCaml",
     "main": "index.js",
     "esy": {
-        "build": ["dune build --root . -j4"],
+        "build": [
+            "dune build OCalc.install",
+            "refmterr dune build src/interfaces/topCmd.exe",
+            "refmterr dune build src/interfaces/topTest.exe",
+            "refmterr dune build src/interfaces/topGui.exe"
+        ],
         "install": [
             "esy-installer OCalc.install"
         ]

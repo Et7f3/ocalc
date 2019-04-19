@@ -16,6 +16,11 @@
 
     <body>
         <script src="gl-matrix-min.js"></script>
+        <script>
+            // Compiled OCalc.bc.js does a check for require,
+            // but it's not needed during runtime.
+            window.require = false;
+        </script>
         <script src="OCalc.bc.js"></script>
     </body>
 

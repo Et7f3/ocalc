@@ -1,0 +1,49 @@
+{
+  "server": {
+    "tool": "rls"
+  },
+  "rls": {
+    "refmt": "",
+    "lispRefmt": "",
+    "format_width": 80,
+    "autoRebuild": true
+  },
+  "ols": {
+    "codelens": {
+      "enabled": true,
+      "unicode": true
+    },
+    "debounce": {
+      "linter": 500
+    },
+    "diagnostics": {
+      "merlinPerfLogging": false,
+      "tools": [
+        "merlin"
+      ]
+    },
+    "format": {
+      "width": null
+    },
+    "path": {
+      "bsb": "./node_modules/bs-platform/lib/bsb.exe",
+      "env": "env",
+      "esy": "esy",
+      "ocamlfind": "ocamlfind",
+      "ocamlmerlin": "ocamlmerlin",
+      "ocpindent": "ocp-indent",
+      "opam": "opam",
+      "rebuild": "rebuild",
+      "refmt": "refmt",
+      "refmterr": "refmterr",
+      "rtop": "rtop"
+    },
+    "server": {
+      "languages": [
+        "ocaml",
+        "reason"
+      ]
+    }
+  },
+  "autocompleteResultsFirst": true
+}

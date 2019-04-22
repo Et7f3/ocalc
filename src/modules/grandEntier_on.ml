@@ -136,10 +136,10 @@ let bigint_times big1 big2 =
 let multiplier ga gb =
   match ga, gb with
     (a, b), (c, d) when a = c -> false, bigint_times b d
-  | (a, b), (c, d) -> true, bigint_times b d
+  | (_, b), (_, d) -> true, bigint_times b d
 (** renvoie ga * gb *)
 
-let pgcd ga gb = (false, [])
+let pgcd _ _ = (false, [])
 (** renvoie pgcd(ga, gb) *)
 
 
@@ -154,10 +154,10 @@ let diviser_multiple_abs a b =
 let diviser_multiple ga gb =
   match (ga, gb) with
     (a, b), (c, d) when a = c -> false, [diviser_multiple_abs b d]
-  | (a, b), (c, d) -> true, [diviser_multiple_abs b d]
+  | (_, b), (_, d) -> true, [diviser_multiple_abs b d]
 (** renvoie ga / gb où ga est multiple de gb *)
 
-let diviser ga gb = ((false, []), (false, []))
+let diviser _ _ = ((false, []), (false, []))
 (** renvoie (nominateur, dénominateur) de la fraction ga / gb *)
 (*
 let diviser ga gb =

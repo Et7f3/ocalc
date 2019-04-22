@@ -1,4 +1,3 @@
-open Type
 open Utils
 
 let est_entier t(*exte*) b(*ase*) =

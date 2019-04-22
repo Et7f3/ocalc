@@ -52,3 +52,11 @@ and eval = function
      | l -> Operation ("*", l))
   | Neg (Neg e) -> eval e
   | a -> a
+
+type context = expr list
+
+let empty_context = []
+
+let evaluate_with_history str context =
+    let e = eval (Parser.expr_de_texte str) in
+    Parser.texte_de_expr e, e :: context

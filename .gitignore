@@ -6,6 +6,11 @@ src2
 obj/lien.ml
 bin
 a.out
-deps
-ftp*
-http*
+esy.lock
+_esy
+node_modules
+.o
+.a
+.exe
+.merlin
+OCalc.install

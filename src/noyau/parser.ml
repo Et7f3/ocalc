@@ -68,8 +68,8 @@ let parse =
 let rec expr_de_texte_etend fxs(*list of function*) t(*exte*) =
   let f = expr_de_texte_etend fxs in
   let rec b(*oucle*) = function
-      (p(*redicat*), c(*onvertisseur*)) :: l when p t -> c f t
-    | e :: l -> b l
+      (p(*redicat*), c(*onvertisseur*)) :: _ when p t -> c f t
+    | _ :: l -> b l
     | []  -> Textenonvalide t
   in b fxs
 
@@ -81,8 +81,8 @@ let rec texte_de_expr ?paren = function
   | Neg e -> "(-" ^ texte_de_expr e ^ ")"
   | Inv e -> "(1/" ^ texte_de_expr e ^ ")"
   | Textenonvalide s -> s
-  | Operation (op, []) -> failwith "On a une operation sans operande"
-  | Operation (op, e :: []) -> texte_de_expr e
+  | Operation (_, []) -> failwith "On a une operation sans operande"
+  | Operation (_, e :: []) -> texte_de_expr e
   | Operation (op, e :: l) ->
     let s =
       texte_de_expr e ^ op ^ (texte_de_expr ?paren:(Some false) (Operation (op, l))) in

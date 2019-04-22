@@ -1,0 +1,24 @@
+(library
+ (name Commune)
+ (modules Commune))
+
+(executable
+ (name topCmd)
+ (modules TopCmd)
+ (public_name topCmd)
+ (package OCalc)
+ (libraries Commune Noyau))
+
+(executable
+ (name topTest)
+ (modules TopTest)
+ (public_name topTest)
+ (package OCalc)
+ (libraries Commune Noyau))
+
+(executable
+ (name topGui)
+ (modules TopGui)
+ (public_name OCalc)
+ (package OCalc)
+ (libraries js_of_ocaml Revery Commune Noyau))

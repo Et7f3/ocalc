@@ -1,0 +1,10 @@
+(install
+ (section bin)
+ (package OCalc)
+ (files
+  Roboto-Regular.ttf
+  index.html
+  404.html
+  index.js
+  (../src/interfaces/topGui.bc.js as OCalc.bc.js)
+  gl-matrix-min.js))

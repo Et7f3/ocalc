@@ -1,0 +1,4 @@
+(library
+ (name Noyau)
+ (modules Lien Type Utils Lexer Parser Moteur)
+ (libraries Modules))

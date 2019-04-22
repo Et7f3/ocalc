@@ -22,7 +22,7 @@
         "reason-fontkit": "^2.4.0",
         "reason-gl-matrix": "^0.9.9304",
         "rebez": "*",
-        "revery": "^0.16.0",
+        "revery": "*",
         "@opam/color": "^0.2.0",
         "@opam/js_of_ocaml": "*",
         "@opam/js_of_ocaml-compiler": "*",
@@ -44,7 +44,8 @@
         "@opam/dune": "1.7.3",
         "@opam/js_of_ocaml": "github:ocsigen/js_of_ocaml:js_of_ocaml.opam#db257ce",
         "@opam/js_of_ocaml-compiler": "github:ocsigen/js_of_ocaml:js_of_ocaml-compiler.opam#db257ce",
-        "@brisk/brisk-reconciler": "github:briskml/brisk-reconciler#daa00be"
+        "@brisk/brisk-reconciler": "github:briskml/brisk-reconciler#daa00be",
+        "revery": "github:revery-ui/revery#a3cab38a79a737a724d25359be5a9ff4a947a468"
     },
     "scripts": {
         "test": "echo \"Error: no test specified\" && exit 1",

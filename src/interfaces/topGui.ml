@@ -3,6 +3,7 @@ open Revery
 open Revery.UI
 open Revery.UI.Components
 
+(*
 module SimpleButton =
   struct
     let component =
@@ -54,6 +55,7 @@ module Entry =
                  ~children:[] ())[@JSX ])))
   end
 
+
 let init app =
   let win =
     App.createWindow app
@@ -80,6 +82,49 @@ let init app =
     ((View.createElement ~style:containerStyle
         ~children:[ent; texte; button] ())
     [@JSX ]) in
+  UI.start win render
+
+*)
+
+let my_input ?(placeholder = "") () =
+    let o =
+        object
+            val mutable value = ""
+            val mutable input = Input.createElement ~children:[] ()
+
+            method get_value = value
+            method set_value v = value <- v
+            method get_input = input
+            method set_input i = input <- i
+        end
+    in
+    let () = o#set_input (Input.createElement ~onChange:(fun {value; _} -> o#set_value value) ~placeholder ~children:[] ())
+    in o
+
+let init app =
+  let win =
+    App.createWindow app (("OCalc")[@reason.raw_literal "OCalc"])
+  in
+  let containerStyle =
+    Style.[
+      position `Absolute;
+      justifyContent `Center;
+      alignItems `Center;
+      bottom 0;
+      top 0;
+      left 0;
+      right 0
+    ]
+  in
+  let _ (*textStyle*) =
+    Style.[
+      color Colors.white;
+      fontFamily (("Roboto-Regular.ttf")[@reason.raw_literal "Roboto-Regular.ttf"])
+    ]
+  in
+  let input = my_input () in
+  let button = Button.createElement ~onClick:(fun _ -> print_endline input#get_value) ~title:"recherchez" ~children:[] () in
+  let render () = View.createElement ~style:containerStyle ~children:[input#get_input; button] () in
   UI.start win render
 
 let _ = App.start init

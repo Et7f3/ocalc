@@ -53,6 +53,8 @@ and eval = function
   | Neg (Neg e) -> eval e
   | a -> a
 
+type context = expr list
+
 let empty_context = []
 
 let evaluate_with_history str context =

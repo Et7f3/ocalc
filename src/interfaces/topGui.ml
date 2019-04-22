@@ -5,6 +5,7 @@ open Revery.UI.Components
 type main_view_state =
 {
   valeur: string;
+  context: Noyau.Moteur.context;
 }
 
 module VuePrincipal = struct
@@ -18,10 +19,10 @@ module VuePrincipal = struct
 
   let reducer action etat =
     match action with
-      Vider -> {valeur = ""}
-    | MiseAJour valeur -> {valeur} (* ici on met à jour notre état *)
+      Vider -> {etat with valeur = ""}
+    | MiseAJour valeur -> {etat with valeur} (* ici on met à jour notre état *)
     | Calculer -> (* on doit calculer ici et vider l'entre
-    BoNuS: si c'est valide: tapez élie en attendant *) {valeur = ""}
+    BoNuS: si c'est valide: tapez élie en attendant *) {etat with valeur = ""}
 
   let createElement =
     let containerStyle =
@@ -38,8 +39,8 @@ module VuePrincipal = struct
     fun ~children:_ () ->
       component
         (fun hooks  ->
-          let ({valeur}, dispatch,hooks) =
-            React.Hooks.reducer ~initialState:{valeur = ""} reducer hooks
+          let ({valeur; _}, dispatch,hooks) =
+            React.Hooks.reducer ~initialState:{valeur = ""; context = Noyau.Moteur.empty_context} reducer hooks
           in
           (hooks, View.createElement ~style:containerStyle ~children:[
             Input.createElement ~value:valeur ~placeholder:"Entrer votre équation" ~onChange:(fun {value; _} -> dispatch(MiseAJour value)) ~children:[] ();

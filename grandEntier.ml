@@ -31,7 +31,7 @@ let comparer_nbr_abs ga gb =let la = length ga and lb  = length gb in (* Compare
 |(ga,gb) when length ga > length gb -> -1
 |(ga,gb) when length ga < length gb -> 1
 |_ ->
-if i = (length ga) then
+if i = (length ga) + 1 then
 	0
 else if (nth (la - i) ga < (nth (lb - i) gb)) then
 	1
@@ -114,18 +114,16 @@ let soustraire ga gb = match (ga,gb) with
 | ((false,b),(true ,d)) -> (false,bigint_sum b d)
 | ((true ,b),(true ,d)) ->
 	if comparer_nbr_abs b d = -1 then
-		(true,sous b d)
+		(true,sous (b,d))
 	else
-		(false,sous d b)
-| ((false,b),(true ,d)) ->
+		(false,sous (d,b))
+| ((false,b),(false ,d)) ->
 	if comparer_nbr_abs b d = -1 then
-		(false,sous b d)
+		(false,sous (b,d))
 	else
-		(true,sous d b)
+		(true,sous (d,b));;
 
 
-let multiplier ga gb = (false, [])
-(** renvoie ga * gb *)
 
 let bigint_mult big n =
   if n < 0 then
@@ -157,11 +155,9 @@ let multiplier ga gb = match ga,gb with
 |((a,b),(c,d)) when a = c -> (false,bigint_times b d)
 |((a,b),(c,d)) -> (true,bigint_times b d) ;;
 
-let pgcd ga gb = (false, [])
-(** renvoie pgcd(ga, gb) *)
 
-let diviser_multiple ga gb = (false, [])
-(** renvoie ga / gb où ga est multiple de gb *)
+
+
 
 (* 1 : gb > ga
    0 : ga = gb
@@ -181,11 +177,16 @@ let diviser_multiple ga gb = match (ga,gb) with
 | ((a,b),(c,d)) -> (true,diviser_multiple_abs b d);;
 
 let modulo ga gb = match (ga,gb) with
-| patt -> expr
-| _ -> expr2
-
-let pgcd ga gb = (false, [])
-(** renvoie pgcd(ga, gb) *)
+| ((a,b),(c,[0])) -> failwith("Ah")
+| ((a,b),(c,d)) ->
+  let rec modulo_rec i j =
+    if comparer_nbr_abs i j = -1
+    then
+      modulo_rec (sous(i,j)) j
+    else
+      i
+  in
+  modulo_rec b d;;
 
 
 (** renvoie le grandentier à partir de sa représentation textuelle *)

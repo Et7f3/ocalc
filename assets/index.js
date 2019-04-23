@@ -70,7 +70,8 @@ let server = http.createServer(function(req, res) {
                 folder = v;
             break;
             default:
-                folder = match.groups.version;
+                folder = `${major}.${minor}.${patch}`;
+                // add the .0 if needed
             break;
         }
         console.log("match_correct_path: folder :",  folder);
@@ -78,11 +79,12 @@ let server = http.createServer(function(req, res) {
         if (is_main_page(rest))
             new_path = folder + "/index.html";
         else
-            new_path = folder + rest;
+            new_path = folder + "/" + rest.split('/').pop();
         console.log("match_correct_path: ", new_path);
         serve_file(res)(new_path);
     } else {
-        console.log("fallback", u.pathname.slice(1));
-        serve_file(res)(u.pathname.slice(1));
+        var new_path = u.pathname.split('/').pop();
+        console.log("fallback", new_path);// by default we look at current directory
+        serve_file(res)(new_path);
     }
 }).listen(80);

@@ -5,3 +5,9 @@
  (release
   (flags
    (:standard -O3))))
+
+(install
+ (section bin)
+ (package OCalc)
+ (files
+  package.json))

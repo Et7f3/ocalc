@@ -1,6 +1,7 @@
 (library
  (name Commune)
- (modules Commune))
+ (modules Commune)
+ (libraries Yojson))
 
 (executable
  (name topCmd)

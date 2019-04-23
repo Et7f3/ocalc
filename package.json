@@ -36,7 +36,8 @@
         "ocaml": "^4.7.0",
         "@opam/merlin": "*",
         "@opam/dune": "^1.5.0",
-        "@opam/odoc": "*"
+        "@opam/odoc": "*",
+        "@opam/yojson": "^1.7.0"
     },
     "resolutions": {
         "rebez": "github:jchavarri/rebez#46cbc183",

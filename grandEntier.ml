@@ -90,7 +90,6 @@ avec fonction ga gb
 *)
 
 let additionner ga gb = match (ga,gb) with
-| ((a,b),(c,d)) when a = c -> (a,bigint_sum b d)
 | ((true,b),(false,d)) ->
 	if comparer_nbr_abs b d = -1 then
 		(true,sous (b,d))
@@ -100,7 +99,8 @@ let additionner ga gb = match (ga,gb) with
 	if comparer_nbr_abs b d = -1 then
 		(false,sous (b,d))
 	else
-		(true,sous (d,b));;
+		(true,sous (d,b))
+| ((a,b),(c,d)) -> (a,bigint_sum b d);;
 
 (** renvoie ga + gb *)
 (** 1 si ga < gb sinon 0 si ga = gb sinon -1 *)
@@ -113,7 +113,8 @@ let soustraire ga gb = match (ga,gb) with
 | ((true ,b),(false,d)) -> (true,bigint_sum b d)
 | ((false,b),(true ,d)) -> (false,bigint_sum b d)
 | ((true ,b),(true ,d)) ->
-	if comparer_nbr_abs b d = -1 then
+	if comparer_nbr_abs b d = -1 
+	then
 		(true,sous (b,d))
 	else
 		(false,sous (d,b))

@@ -17,9 +17,9 @@ let neg = function
   | (s, m, e) -> not s, m, e
 
 
-(* 
+(*
 Fonction Auxiliaire qui va mettre les deux valeurs sur la meme puissance
-On choisira toujours la plus grande 
+On choisira toujours la plus grande
 *)
 let reunir_puissance ga gb =
   let rec r_p ga gb =
@@ -37,7 +37,7 @@ let reunir_puissance ga gb =
   (* 1 : gb > ga
   0 : ga = gb
   -1 : ga > gb*)
-  
+
 let comparer_gr ga gb =
   let ((a,b,c),(d,e,f)) = reunir_puissance ga gb
   in

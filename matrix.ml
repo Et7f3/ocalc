@@ -15,7 +15,7 @@ module Generic_matrix (V : Value) = struct
 
     let print = V.print
     let init n p = Array.make_matrix n p V.zero
-    let protect m = Array.length m > 0 && Array.length m.(0) > 0
+    let __protect m = Array.length m > 0 && Array.length m.(0) > 0
     let size m =
         let h = Array.length m in
         if h = 0 then
@@ -23,7 +23,7 @@ module Generic_matrix (V : Value) = struct
         else
             h, Array.length m.(0)
     let foreach ?(line = function _ -> ()) m f =
-        if protect m then
+        if __protect m then
             let h, w = size m in
             for i = 0 to pred h do
                 let () =
@@ -44,10 +44,16 @@ module Generic_matrix (V : Value) = struct
             mres
         else
             failwith "taille mauvaise dimension"
+    let __vide_vers_identite m =
+        let h, w = size m in
+        let () =
+            for i = 0 to pred (min h w) do
+                m.(i).(i) <- V.unit
+            done
+        in m
     let identite n =
         let mres = init n n in
-        let () = foreach mres (fun i j _ -> mres.(i).(j) <- if i = j then V.unit else V.zero) in
-        mres
+        __vide_vers_identite mres
     let additioner m1 m2 = foreach2 V.additioner m1 m2
     let soustraire m1 m2 = foreach2 V.soustraire m1 m2
     let multiplier m1 m2 =
@@ -69,14 +75,21 @@ module Generic_matrix (V : Value) = struct
     let multiplier_scalaire m scalaire =
         let (h, w) = size m in
         let mres = init h w in
-        let () = foreach m (fun i j _ -> mres.(i).(j) <- V.multiplier m.(i).(j) scalaire) in
+        let () = foreach m (fun i j e -> mres.(i).(j) <- V.multiplier e scalaire) in
         mres
     let inverser m =
         let h, w = size m in
         let n = min h w in
         let mres = init w h in
         let () =
-            for i = 0 to pred n do () done
+            for i = 0 to pred n do
+                for j = i to pred h do
+                    let () =
+                        mres.(j).(i) <- V.unit
+                        (* in fact we should empty it *)
+                    in print mres
+                done
+            done
         in mres
 
 end
@@ -137,12 +150,16 @@ let inv_m3 =
     [|-13.;  6.;  9.|];
 |]
 
-(*let i3 = Test_matrix.identite 3
+(*
+let i3 = Test_matrix.identite 3
 let res1 = Test_matrix.additioner m1 m2
 let res2 = Test_matrix.soustraire res1 m2
 let res3 = Test_matrix.multiplier i3 m1*)
 let res4 = Test_float_matrix.inverser m3
+let () = Test_float_matrix.print (Test_float_matrix.multiplier_scalaire inv_m3 (1. /. 12.))
 let () = Test_float_matrix.print (Test_float_matrix.multiplier res4 m3)
+
+
 (*
 let () = Test_matrix.print i3
 let () = Test_matrix.print m1

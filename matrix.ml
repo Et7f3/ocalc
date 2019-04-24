@@ -10,7 +10,7 @@ module type Value = sig
     val print : t -> unit
 end
 
-module GenericMatrix (V : Value) = struct
+module Generic_matrix (V : Value) = struct
     type t = V.t array array
 
     let print = V.print
@@ -66,6 +66,11 @@ module GenericMatrix (V : Value) = struct
             mres
         else
             failwith "taille mauvaise dimension"
+    let multiplier_scalaire m scalaire =
+        let (h, w) = size m in
+        let mres = init h w in
+        let () = foreach m (fun i j _ -> mres.(i).(j) <- V.multiplier m.(i).(j) scalaire) in
+        mres
     let inverser m =
         let h, w = size m in
         let n = min h w in
@@ -88,7 +93,21 @@ module Test = struct
     let print = Printf.printf "%5d"
 end
 
-module TestMatrix = GenericMatrix(Test)
+module Test_matrix = Generic_matrix(Test)
+
+module Test_float = struct
+    type t = float
+
+    let zero = 0.
+    let unit = 1.
+    let additioner = ( +. )
+    let soustraire = ( -. )
+    let diviser = ( /. )
+    let multiplier = ( *. )
+    let print = Printf.printf "%10.6f"
+end
+
+module Test_float_matrix = Generic_matrix(Test_float)
 
 let m1 =
 [|
@@ -104,14 +123,30 @@ let m2 =
     [|3; 2; 1|];
 |]
 
-let i3 = TestMatrix.identite 3
-let res1 = TestMatrix.additioner m1 m2
-let res2 = TestMatrix.soustraire res1 m2
-let res3 = TestMatrix.multiplier i3 m1
+let m3 =
+[|
+    [|6.; 6.; 6.|];
+    [|4.; 7.; 6.|];
+    [|6.; 4.; 6.|];
+|]
+
+let inv_m3 =
+[|
+    [|9.  ; -6.; -3.|];
+    [|6.  ;  0.; -6.|];
+    [|-13.;  6.;  9.|];
+|]
+
+(*let i3 = Test_matrix.identite 3
+let res1 = Test_matrix.additioner m1 m2
+let res2 = Test_matrix.soustraire res1 m2
+let res3 = Test_matrix.multiplier i3 m1*)
+let res4 = Test_float_matrix.inverser m3
+let () = Test_float_matrix.print (Test_float_matrix.multiplier res4 m3)
 (*
-let () = TestMatrix.print i3
-let () = TestMatrix.print m1
-let () = TestMatrix.print res1
-let () = TestMatrix.print res2
-let () = TestMatrix.print res3
+let () = Test_matrix.print i3
+let () = Test_matrix.print m1
+let () = Test_matrix.print res1
+let () = Test_matrix.print res2
+let () = Test_matrix.print res3
 *)

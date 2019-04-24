@@ -34,7 +34,7 @@ let comparer_nbr_abs ga gb =
       ga, gb when la > lb -> -1
     | ga, gb when la < lb -> 1
     | _ ->
-      if i = la then
+      if i = la + 1 then
         0
       else if nth (la - i) ga < (nth (lb - i) gb) then
         1

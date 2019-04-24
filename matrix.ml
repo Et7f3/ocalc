@@ -77,8 +77,10 @@ module Generic_matrix (V : Value) = struct
         let mres = init h w in
         let () = foreach m (fun i j e -> mres.(i).(j) <- V.multiplier e scalaire) in
         mres
-    let inverser m =
-        let h, w = size m in
+    let inverser m' =
+        let h, w = size m' in
+        let m = init h w in
+        let () = foreach m' (fun i j e -> m.(i).(j) <- e) in
         let n = min h w in
         let mres = init w h in
         let () =
@@ -87,7 +89,8 @@ module Generic_matrix (V : Value) = struct
                     let () =
                         mres.(j).(i) <- V.unit
                         (* in fact we should empty it *)
-                    in print mres
+                    in let () = print m in
+                    print mres
                 done
             done
         in mres

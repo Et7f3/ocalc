@@ -1,24 +1,25 @@
 type grandentier = bool * int list
 (** grandentier est un tuple [(signe négatif, \[unité, dizaine, centaine, ...\])]
-    [-123] correspond à [(true, \[3; 2; 1\])] *)
+    [ - 123] correspond à [(true, \[3; 2; 1\])] *)
 
 let zero = false, []
 
 let unit = false, [1]
 
-let est_negatif (signe, _) = signe
 (** renvoie [grandentier < 0] *)
+let est_negatif (signe, _) = signe
 
+(** renvoie l'oposé *)
 let neg (a, b) =
   match b with
     [] -> false, []
   | _ -> not a, b
-(** renvoie l'oposé *)
 
 let rec length = function
     [] -> 0
   | _ :: l -> 1 + length l
 
+(* Prend un element dans une liste *)
 let nth n l =
   if n < 0 then
     invalid_arg "nth: index must be a natural"
@@ -26,87 +27,97 @@ let nth n l =
     let rec nth_rec = function
         [], _ -> failwith "nth: list is too short"
       | e :: _, 0 -> e
-      | _ :: l, n -> nth_rec (l, n-1)
+      | _ :: l, n -> nth_rec (l, n - 1)
     in nth_rec (l, n)
 
+(** 1 si ga < gb sinon 0 si ga = gb sinon -1 *)
+(* 1 : gb > ga
+   0 : ga = gb
+  -1 : ga > gb*)
+
+
+(* TODO: erase + 1 *)
+
 let comparer_nbr_abs ga gb =
-  let rec cna i = function
-      ga, gb when length ga > length gb -> -1
-    | ga, gb when length ga < length gb -> 1
-    | _ ->
-      if i = (length ga) then
+  let la = length ga
+  and lb  = length gb in
+  (* Compare un a un les elements en partant de la fin *)
+  if la > lb then
+    -1
+  else if la < lb then
+   1
+  else
+    let rec cna i =
+      if i = la + 1 then
         0
-      else if (nth ((length ga) - i) ga < (nth ((length gb) - i) gb)) then
+      else if nth (la - i) ga < (nth (lb - i) gb) then
         1
-      else if (nth ((length ga) - i) ga > (nth ((length gb) - i) gb))  then
+      else if nth (la - i) ga > (nth (lb - i) gb) then
         -1
       else
-        cna (i+1) (ga, gb)
-  in cna 1 (ga, gb)
+        cna (i + 1)
+    in cna 1
 
 let comparer ga gb =
   match ga, gb with
     (true, _), (false, _) -> 1
-  | (false, _), (true, _) -> (-1)
-  |((false, b), (false, d)) -> comparer_nbr_abs b d
-  |((true, d), (true, b)) -> comparer_nbr_abs b d
+  | (false, _), (true, _) -> -1
+  | (false, b), (false, d) | (true, d), (true, b) -> comparer_nbr_abs b d
 (** 1 si ga < gb sinon 0 si ga = gb sinon -1 *)
 (* 1 : gb > ga
    0 : ga = gb
    -1 : ga > gb*)
 
-
 let bigint_sum big1 big2 =
   let rec add = function
-      ([], r) | (r, []) -> r
-    | (d1::r1, d2::r2) ->
+      [], r | r, [] -> r
+    | d1 :: r1, d2 :: r2 ->
       let s = d1 + d2 in
       if s < 10 then
         s :: add(r1, r2)
       else
         (s - 10) :: add (add([1], r1), r2)
-  in
-  add (big1, big2)
+  in add (big1, big2)
 
-let rec sous (a, b) =
-  match (a, b) with (* On preferera a>b en abs*)
-    ([], r) | (r, []) -> r
-  | (d1::r1, d2::r2) ->
-    let s = d1 - d2 in
-    if s > 0 then
-      s :: sous(a, b)
-    else
-      (10 + s) :: sous (r1, (bigint_sum [1] r2))
+(* Constructeur propre a la sousatraction qui va
+permettre de ne pas effectuer la retenue*)
+let bigint_sum_for_sous big1 big2 =
+  let rec add = function
+      [], r | r, [] -> r
+    | d1 :: r1, d2 :: r2 ->
+      let s = d1 + d2 in
+      s :: add(r1, r2)
+  in add (big1, big2)
 
-let additionner ga gb =
-  match (ga, gb) with
-    (true as a, b), (true, d) | (false as a, b), (false, d) -> (a, bigint_sum b d)
-  | (true, b), (false, d) ->
-    if comparer_nbr_abs b d = -1 then
-      (true, sous (b, d))
+(* On preferera a > b en abs et on aura toujours*)
+let rec sous = function
+    [], [] -> []
+  | [], r | r, [] -> r
+  | d1 :: r1, d2 :: r2 ->
+    if d1 >= d2 then
+      (d1 - d2) :: sous(r1, r2)
     else
-      (false, sous (b, d))
-  | (false, b), (true, d) ->
-    if comparer_nbr_abs b d = -1 then
-      (false, sous (d, b))
-    else
-      (true, sous (b, d))
+      (d1 + 10 - d2) :: sous (r1, (bigint_sum_for_sous [1] r2))
+
 (** renvoie ga + gb *)
+let additionner ga gb =
+  match ga, gb with
+    (true, b), (false, d) | (false, d), (true, b) ->
+      if comparer_nbr_abs b d = -1 then
+        true, sous (b, d)
+      else
+        false, sous (d, b)
+  | (a, b), (_ (* = a *), d) -> a, bigint_sum b d
 
+(** renvoie ga - gb *)
 let soustraire ga gb =
-  match (ga, gb) with
-    (true as a, b), (false, d) | (false as a, b), (true, d) -> (a, bigint_sum b d)
-  | (true, b), (true, d) ->
+  match ga, gb with
+    (true, b), (true, d) | (false, d), (false, b) ->
     if comparer_nbr_abs b d = -1 then
       true, sous (b, d)
     else
       false, sous (d, b)
-  | (false, b), (false, d) ->
-    if comparer_nbr_abs b d = -1 then
-      false, sous (b, d)
-    else
-      true, sous (d, b)
-(** renvoie ga - gb *)
+  | (a, b), (_ (* not a *), d) -> a, bigint_sum b d
 
 
 let bigint_mult big n =
@@ -133,47 +144,50 @@ let bigint_times big1 big2 =
     | d :: r, big -> bigint_sum (bigint_mult big d) (0 :: mult (r, big))
   in mult (big1, big2)
 
+(** renvoie ga * gb *)
 let multiplier ga gb =
   match ga, gb with
     (a, b), (c, d) when a = c -> false, bigint_times b d
   | (_, b), (_, d) -> true, bigint_times b d
-(** renvoie ga * gb *)
 
-let pgcd _ _ = (false, [])
 (** renvoie pgcd(ga, gb) *)
-
+let pgcd _ _ = (false, [])
 
 let diviser_multiple_abs a b =
   let rec d_m a b e =
-    if comparer_nbr_abs a (bigint_mult b e) =  1 then
-      e - 1
+    if (comparer_nbr_abs a (bigint_times b e)) >= 0 then
+      e
     else
-      d_m a b (e + 1)
-  in d_m a b 1
+      d_m a b (bigint_sum e [1])
+  in d_m a b [1]
 
-let diviser_multiple ga gb =
-  match (ga, gb) with
-    (a, b), (c, d) when a = c -> false, [diviser_multiple_abs b d]
-  | (_, b), (_, d) -> true, [diviser_multiple_abs b d]
 (** renvoie ga / gb où ga est multiple de gb *)
+let diviser_multiple ga gb =
+  match ga, gb with
+    (_, _), (_, []) -> failwith("Nique ta mere")
+  | (a, b), (c, d) -> not a = c, diviser_multiple_abs b d
 
-let diviser _ _ = ((false, []), (false, []))
+let modulo ga gb =
+  match ga, gb with
+    (_, _), (_, []) -> failwith("Ah")
+  | (_ (* a *), b), (_ (* c *), d) ->
+    let rec modulo_rec i j =
+      if comparer_nbr_abs i j = -1 then
+        modulo_rec (sous(i, j)) j
+      else
+        i
+    in modulo_rec b d
+
 (** renvoie (nominateur, dénominateur) de la fraction ga / gb *)
-(*
-let diviser ga gb =
-  match (ga, gb) with
-  |
-  |
-  |
-  |
-*)
+let diviser _ _ = ((false, []), (false, []))
 
-
+(** renvoie le grandentier à partir de sa représentation textuelle *)
 let cse_rec a n =
-  let rec abc = function
+  let rec abc a i =
+    match i with
       i when i = n - 1 -> []
-    | i -> (int_of_char a.[i]) - 48 :: abc (i - 1)
-  in abc (String.length a - 1)
+    | _ -> (int_of_char a.[i]) - 48 :: abc a (i - 1)
+  in abc a (String.length a - 1)
 
 let grandentier_depuis_texte sa =
   if sa.[0] = '-' then
@@ -182,21 +196,19 @@ let grandentier_depuis_texte sa =
     false, cse_rec sa 1
   else
     false, cse_rec sa 0
-(** renvoie le grandentier à partir de sa représentation textuelle *)
-(* let ga = grandentier_depuis_texte "-47436987436984376893768327692" *)
 
 
+(*Convertit basiquement le nombre*)
 let textedechiffre ga =
   let rec tdc = function
       [] -> ""
     | e :: ga -> tdc ga ^ (string_of_int e)
   in tdc ga
-(* Convertit basiquement le nombre *)
 
+(** renvoie la représentation textuelle d'un grandentier *)
 let texte_depuis_grandentier ga =
   let (a, b) = ga in
-  if a then
+  if a = true then
     "-" ^ textedechiffre b
   else
     textedechiffre b
-(** renvoie la représentation textuelle d'un grandentier *)

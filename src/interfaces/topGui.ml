@@ -7,6 +7,7 @@ type main_view_state =
   valeur: string;
   context: Noyau.Moteur.context;
 }
+let _ = Commune.argc
 
 module VuePrincipal = struct
   let component =

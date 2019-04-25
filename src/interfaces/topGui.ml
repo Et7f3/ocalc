@@ -204,7 +204,75 @@ module Accueil = struct
       let (etat (* nouvel etat *), _ (* dispatch *), hooks) =
         React.Hooks.reducer ~initialState reducer hooks
       in let () = onUpdate (`Accueil etat) in
-      (hooks, View.createElement ~children:[
+      let containerStyle =
+        Style.[
+          position `Absolute;
+          justifyContent `Center;
+          alignItems `Center;
+          bottom 0;
+          top 0;
+          left 0;
+          right 0
+          ]
+      in
+      let (translate1,hooks) =
+        Hooks.animation (Animated.floatValue (-250.))
+        {
+          toValue = 20.;
+          duration = ((Seconds (2.5))[@explicit_arity ]);
+          delay = ((Seconds (0.))[@explicit_arity ]);
+          repeat = false;
+          easing = Animated.linear;
+          direction = `Normal
+        } hooks
+        in
+        let (translate2,hooks) =
+          Hooks.animation (Animated.floatValue 150.)
+          {
+            toValue = (-100.);
+            duration = ((Seconds (5.))[@explicit_arity ]);
+            delay = ((Seconds (2.5))[@explicit_arity ]);
+            repeat = false;
+            easing = Animated.linear;
+            direction = `Normal
+          } hooks
+        in
+        let (scale,hooks) =
+          Hooks.animation (Animated.floatValue 0.)
+          {
+            toValue = 1.;
+            duration = ((Seconds (0.5))[@explicit_arity ]);
+            delay = ((Seconds (2.5))[@explicit_arity ]);
+            repeat = false;
+            easing = Animated.linear;
+            direction = `Normal
+          } hooks
+        in
+        let imageStyle1 =
+          let open Style in
+            [bottom 0;
+            top 0;
+            left 0;
+            right 0;
+            width 200;
+            height 200;
+            transform [((Transform.TranslateX (translate1))[@explicit_arity ])]]
+        in
+        let imageStyle2 =
+          let open Style in
+            [top 0;
+            bottom 0;
+            right 0;
+            left 0;
+            width 75;
+            height 75;
+            transform [((Transform.TranslateY (translate2))[@explicit_arity ]);
+            ((Transform.ScaleX (scale))[@explicit_arity ]);
+            ((Transform.ScaleY (scale))[@explicit_arity ])]]
+        in
+     (hooks, View.createElement ~style:containerStyle ~children:[
+        Image.createElement ~src:"pi.png" ~style:imageStyle2 ~children:[] ();
+        Image.createElement ~src:"camel.png" ~style:imageStyle1 ~children:[] ();
         Button.createElement ~title:"Accéder à équation"
            ~width:175
            ~fontSize:25

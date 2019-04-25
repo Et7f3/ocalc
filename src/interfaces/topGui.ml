@@ -132,7 +132,7 @@ module Application = struct
             React.Hooks.reducer ~initialState:{vue_courante = `VueEquation} reducer hooks
           in let choisir_vue = function
             `VueEquation -> Equation.createElement ~initialState:(!sauvegarde.equation)
-          in hooks, (choisir_vue vue_courante)  ~changerVue:(fun v -> dispatch (ChangerVue v)) ~onUpdate:miseAJour ~children:[] ())
+          in hooks, (choisir_vue vue_courante) ~changerVue:(fun v -> dispatch (ChangerVue v)) ~onUpdate:miseAJour ~children:[] ())
 end
 
 let init app =

@@ -31,8 +31,8 @@ type historique_state =
 type matrice_state =
 {
   mode: [`Addition | `Soustraction | `Multiplication | `division];
-  matrice1: int array array;
-  matrice2: int array array;
+  matrice1: string array array;
+  matrice2: string array array;
   taille1: int * int;
   taille2: int * int;
 }
@@ -176,16 +176,29 @@ end
 module Matrice = struct
   let component = React.component "Matrice"
 
-  type action = Nope
+  type action =
+    MiseAJour of int * int * int * string
 
   let reducer action etat =
     match action with
-      Nope -> etat
+      MiseAJour (id, i, j, v) ->
+        let mat =
+          if id = 1 then
+            etat.matrice1
+          else
+            etat.matrice2
+        in let v =
+          try
+            let _ = float_of_string v in
+            mat.(i).(j) <- v
+          with Failure _ -> ()
+        in etat
+
 
   let createElement ~initialState ~changerVue ~onUpdate =
   fun ~children:_ () ->
     component
-      (fun hooks  ->
+      (fun hooks ->
         let (etat (* nouvel etat *), _ (* dispatch *), hooks) =
           React.Hooks.reducer ~initialState reducer hooks
         in let () = onUpdate (`Matrice etat) in
@@ -232,51 +245,51 @@ module Accueil = struct
           easing = Animated.linear;
           direction = `Normal
         } hooks
-        in let translate2, hooks =
-          Hooks.animation (Animated.floatValue 150.)
-          {
-            toValue = -100.;
-            duration = Seconds 5.;
-            delay = Seconds 2.5;
-            repeat = false;
-            easing = Animated.linear;
-            direction = `Normal
-          } hooks
-        in let scale, hooks =
-          Hooks.animation (Animated.floatValue 0.)
-          {
-            toValue = 1.;
-            duration = Seconds 0.5;
-            delay = Seconds 2.5;
-            repeat = false;
-            easing = Animated.linear;
-            direction = `Normal
-          } hooks
-        in let imageStyle1 =
-          Style.[
-            bottom 0;
-            top 0;
-            left 0;
-            right 0;
-            width 200;
-            height 200;
-            transform [Transform.TranslateX translate1]
+      in let translate2, hooks =
+        Hooks.animation (Animated.floatValue 150.)
+        {
+          toValue = -100.;
+          duration = Seconds 5.;
+          delay = Seconds 2.5;
+          repeat = false;
+          easing = Animated.linear;
+          direction = `Normal
+        } hooks
+      in let scale, hooks =
+        Hooks.animation (Animated.floatValue 0.)
+        {
+          toValue = 1.;
+          duration = Seconds 0.5;
+          delay = Seconds 2.5;
+          repeat = false;
+          easing = Animated.linear;
+          direction = `Normal
+        } hooks
+      in let imageStyle1 =
+        Style.[
+          bottom 0;
+          top 0;
+          left 0;
+          right 0;
+          width 200;
+          height 200;
+          transform [Transform.TranslateX translate1]
+        ]
+      in let imageStyle2 =
+        Style.[
+          top 0;
+          bottom 0;
+          right 0;
+          left 0;
+          width 75;
+          height 75;
+          transform [
+            Transform.TranslateY translate2;
+            Transform.ScaleX scale;
+            Transform.ScaleY scale
           ]
-        in let imageStyle2 =
-          Style.[
-            top 0;
-            bottom 0;
-            right 0;
-            left 0;
-            width 75;
-            height 75;
-            transform [
-              Transform.TranslateY translate2;
-              Transform.ScaleX scale;
-              Transform.ScaleY scale
-            ]
-          ]
-        in
+        ]
+      in
      (hooks, View.createElement ~style:containerStyle ~children:[
         Image.createElement ~src:"pi.png" ~style:imageStyle2 ~children:[] ();
         Image.createElement ~src:"camel.png" ~style:imageStyle1 ~children:[] ();
@@ -307,8 +320,8 @@ module Application = struct
     };
     matrice = {
       mode = `Addition;
-      matrice1 = Array.create_matrix 3 3 0;
-      matrice2 = Array.create_matrix 3 3 0;
+      matrice1 = Array.make_matrix 3 3 "0";
+      matrice2 = Array.make_matrix 3 3 "0";
       taille1 = (3, 3);
       taille2 = (3, 3);
     };

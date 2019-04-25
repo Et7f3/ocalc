@@ -6,6 +6,7 @@ type vue =
   [
       `VueEquation
     | `VueHistorique
+    | `VueMatrice
   ]
 
 (*
@@ -26,6 +27,10 @@ type historique_state =
 {
   mutable liste : string list;
 }
+type matrice_state =
+{
+  mode : char;
+}
 
 type application_state =
 {
@@ -36,6 +41,7 @@ type application_sauvegarde =
 {
   equation: equation_state;
   historique: historique_state;
+  matrice: matrice_state;
 }
 
 (*
@@ -53,7 +59,7 @@ module VueParDefaut = struct
     component
       (fun hooks  ->
         let ({_} (* nouvel etat *) as etat, _ (* dispatch *), hooks) =
-          React.Hooks.reducer ~initialState:{nothing = ()} reducer hooks
+          React.Hooks.reducer ~initialState reducer hooks
         in let () = onUpdate (`VueParDefaut etat) in
         (hooks, View.createElement ~children:[] ()))
 end
@@ -156,6 +162,25 @@ module Historique = struct
           hooks, View.createElement ~style:containerStyle ~children:(bouton_retour :: (histol historique [])) ())
 end
 
+module Matrice = struct
+  let component = React.component "Matrice"
+
+  type action = Nope
+
+  let reducer action etat =
+    match action with
+      Nope -> etat
+
+  let createElement ~initialState ~changerVue:_ ~onUpdate =
+  fun ~children:_ () ->
+    component
+      (fun hooks  ->
+        let (etat (* nouvel etat *), _ (* dispatch *), hooks) =
+          React.Hooks.reducer ~initialState reducer hooks
+        in let () = onUpdate (`Matrice etat) in
+        (hooks, View.createElement ~children:[] ()))
+end
+
 module Application = struct
   let component = React.component "Application"
 
@@ -171,6 +196,9 @@ module Application = struct
     };
     historique = {
       liste = [];
+    };
+    matrice = {
+      mode = '+'
     }
   }
 
@@ -182,6 +210,7 @@ module Application = struct
     `Equation e ->
       let () = sauvegarde := {!sauvegarde with equation = e} in
       !sauvegarde.historique.liste <- e.liste_historique
+    | `Matrice e -> ()
 
   let createElement =
     fun ~children:_ () ->
@@ -192,7 +221,11 @@ module Application = struct
           in let choisir_vue = function
               `VueEquation -> Equation.createElement ~initialState:(!sauvegarde.equation)
             | `VueHistorique -> Historique.createElement !sauvegarde.equation.liste_historique
-          in hooks, (choisir_vue vue_courante) ~changerVue:(fun v -> dispatch (ChangerVue v)) ~onUpdate:miseAJour ~children:[] ())
+            | `VueMatrice -> Matrice.createElement ~initialState:(!sauvegarde.matrice)
+          in hooks, (choisir_vue vue_courante)
+          ~changerVue:(fun v -> dispatch (ChangerVue v))
+          ~onUpdate:miseAJour
+          ~children:[] ())
 end
 
 let init app =

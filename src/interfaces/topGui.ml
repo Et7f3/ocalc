@@ -7,6 +7,7 @@ type vue =
       `VueEquation
     | `VueHistorique
     | `VueMatrice
+    | `VueAccueil
   ]
 
 (*
@@ -32,6 +33,11 @@ type matrice_state =
   mode : char;
 }
 
+type accueil_state =
+{
+  nothing : unit
+}
+
 type application_state =
 {
   vue_courante: vue;
@@ -42,6 +48,7 @@ type application_sauvegarde =
   equation: equation_state;
   historique: historique_state;
   matrice: matrice_state;
+  accueil: accueil_state;
 }
 
 (*
@@ -181,6 +188,32 @@ module Matrice = struct
         (hooks, View.createElement ~children:[] ()))
 end
 
+module Accueil = struct
+  let component = React.component "Accueil"
+
+  type action = Nope
+
+  let reducer action etat =
+    match action with
+    Nope -> etat
+
+  let createElement ~initialState ~changerVue ~onUpdate =
+  fun ~children:_ () ->
+    component
+    (fun hooks  ->
+      let (etat (* nouvel etat *), _ (* dispatch *), hooks) =
+        React.Hooks.reducer ~initialState reducer hooks
+      in let () = onUpdate (`Accueil etat) in
+      (hooks, View.createElement ~children:[
+        Button.createElement ~title:"Accéder à équation"
+           ~width:175
+           ~fontSize:25
+           ~onClick:(fun _  ->
+                      changerVue `VueEquation)
+           ~children:[] ()
+      ] ()))
+end
+
 module Application = struct
   let component = React.component "Application"
 
@@ -198,8 +231,11 @@ module Application = struct
       liste = [];
     };
     matrice = {
-      mode = '+'
-    }
+      mode = '+';
+    };
+    accueil = {
+      nothing = ();
+    };
   }
 
   let reducer action etat =
@@ -211,17 +247,19 @@ module Application = struct
       let () = sauvegarde := {!sauvegarde with equation = e} in
       !sauvegarde.historique.liste <- e.liste_historique
     | `Matrice e -> ()
+    | `Accueil e -> ()
 
   let createElement =
     fun ~children:_ () ->
       component
         (fun hooks  ->
           let ({vue_courante}, dispatch, hooks) =
-            React.Hooks.reducer ~initialState:{vue_courante = `VueEquation} reducer hooks
+            React.Hooks.reducer ~initialState:{vue_courante = `VueAccueil} reducer hooks
           in let choisir_vue = function
               `VueEquation -> Equation.createElement ~initialState:(!sauvegarde.equation)
             | `VueHistorique -> Historique.createElement !sauvegarde.equation.liste_historique
             | `VueMatrice -> Matrice.createElement ~initialState:(!sauvegarde.matrice)
+            | `VueAccueil -> Accueil.createElement ~initialState:(!sauvegarde.accueil)
           in hooks, (choisir_vue vue_courante)
           ~changerVue:(fun v -> dispatch (ChangerVue v))
           ~onUpdate:miseAJour

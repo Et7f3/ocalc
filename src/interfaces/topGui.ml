@@ -13,7 +13,7 @@ type vue =
 (*
 type vue_par_defaut_state =
 {
-  nothing : unit;
+  nothing: unit;
 }
 *)
 type equation_state =
@@ -26,16 +26,20 @@ type equation_state =
 
 type historique_state =
 {
-  mutable liste : string list;
+  mutable liste: string list;
 }
 type matrice_state =
 {
-  mode : char;
+  mode: [`Addition | `Soustraction | `Multiplication | `division];
+  matrice1: int array array;
+  matrice2: int array array;
+  taille1: int * int;
+  taille2: int * int;
 }
 
 type accueil_state =
 {
-  nothing : unit
+  nothing: unit
 }
 
 type application_state =
@@ -122,12 +126,12 @@ module Equation = struct
             Text.createElement ~text:res(*retour du moteur*) ~style:textStyle ~children:[] ();
             Button.createElement ~title:"Calculer" ~width:150 ~height:50 ~fontSize:25 ~onClick:(fun _ -> dispatch Calculer) ~children:[] ();
             Button.createElement ~title:"Éffacer" ~width:150 ~height:50 ~fontSize:25 ~onClick:(fun _ -> dispatch Vider) ~children:[] ();
-            Button.createElement ~title:"Accéder à l'historique"
-                 ~width:175
-                 ~fontSize:25
-                 ~onClick:(fun _  ->
-                            changerVue `VueHistorique)
-                 ~children:[] ()
+            Button.createElement ~title:"Accéder à l'historique" ~width:175
+              ~fontSize:25  ~onClick:(fun _  -> changerVue `VueHistorique)
+              ~children:[] ();
+            Button.createElement ~title:"Revenir à l'accueil" ~width:175
+              ~fontSize:25  ~onClick:(fun _  -> changerVue `VueAccueil)
+              ~children:[] ();
             ] ()))
 end
 
@@ -178,14 +182,18 @@ module Matrice = struct
     match action with
       Nope -> etat
 
-  let createElement ~initialState ~changerVue:_ ~onUpdate =
+  let createElement ~initialState ~changerVue ~onUpdate =
   fun ~children:_ () ->
     component
       (fun hooks  ->
         let (etat (* nouvel etat *), _ (* dispatch *), hooks) =
           React.Hooks.reducer ~initialState reducer hooks
         in let () = onUpdate (`Matrice etat) in
-        (hooks, View.createElement ~children:[] ()))
+        (hooks, View.createElement ~children:[
+          Button.createElement ~title:"Revenir à l'accueil" ~width:175
+            ~fontSize:25  ~onClick:(fun _  -> changerVue `VueAccueil)
+            ~children:[] ();
+          ] ()))
 end
 
 module Accueil = struct
@@ -275,9 +283,9 @@ module Accueil = struct
         Button.createElement ~title:"Accéder à équation" ~width:175
            ~fontSize:25 ~onClick:(fun _ -> changerVue `VueEquation)
            ~children:[] ();
-         (*Button.createElement ~title:"Accéder à matrice" ~width:175
+         Button.createElement ~title:"Accéder à matrice" ~width:175
           ~fontSize:25 ~onClick:(fun _ -> changerVue `VueMatrice)
-          ~children:[] ();*)
+          ~children:[] ();
       ] ()))
 end
 
@@ -298,7 +306,11 @@ module Application = struct
       liste = [];
     };
     matrice = {
-      mode = '+';
+      mode = `Addition;
+      matrice1 = Array.create_matrix 3 3 0;
+      matrice2 = Array.create_matrix 3 3 0;
+      taille1 = (3, 3);
+      taille2 = (3, 3);
     };
     accueil = {
       nothing = ();

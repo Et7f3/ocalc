@@ -101,8 +101,8 @@ module Generic_matrix (V : Value) = struct
         let mres = __vide_vers_identite mres in
         let open Operation_elementaires in
         let () =
-            for i = 0 to pred n do
-                for j = i + 1 to pred (pred h) do
+            for i = 0 to pred (pred n) do
+                for j = i + 1 to pred h do
                     if m.(j).(i) <> V.zero then
                         let () =
                             if m.(i).(i) = V.zero then
@@ -114,10 +114,12 @@ module Generic_matrix (V : Value) = struct
                                 let modifier_ligne m =
                                     let ligne = multiplier_ligne m.(i) coeff in
                                     let ligne = neg_ligne ligne in
+                                    let () = Printf.printf "%d, %d\n" (Array.length m.(j)) (Array.length ligne) in
                                     let ligne = additioner_ligne m.(j) ligne in
                                     affecter_ligne m j ligne
                                 in let () = modifier_ligne m in
-                                modifier_ligne mres
+                                if j < n then
+                                    modifier_ligne mres
                         (* in fact we should empty it *)
                         in print mres
                 done
@@ -176,6 +178,8 @@ let m3 =
     [|6.; 6.; 6.|];
     [|4.; 7.; 6.|];
     [|6.; 4.; 6.|];
+    [|6.; 4.; 6.|];(* for test *)
+    [|6.; 4.; 5.|];(* for test *)
     [|6.; 4.; 6.|];(* for test *)
 |]
 

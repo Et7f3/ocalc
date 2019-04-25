@@ -17,7 +17,8 @@ let neg (a, b) =
 
 let rec length = function
     [] -> 0
-  | _ :: l -> 1 + length l
+  | _::l -> 1 + length l ;;
+
 
 (* Prend un element dans une liste *)
 let nth n l =
@@ -120,20 +121,24 @@ let soustraire ga gb =
   | (a, b), (_ (* not a *), d) -> a, bigint_sum b d
 
 
+let multiplier ga gb = (false, [])
+(** renvoie ga * gb *)
+
 let bigint_mult big n =
   if n < 0 then
     invalid_arg "bigint_mult: negative multiplier"
   else
     let rec mult n = function
-        [], 0 -> []
-      | [], carry -> (*bigint_of_int *) [carry]
-      | d :: r, carry ->
-        let res = n * d + carry in
-        (res mod 10) :: mult n (r, res/10)
-    in match n with
-      0 -> []
-    | 1 -> big
-    | n -> mult n (big, 0)
+        ([], 0) -> []
+      | ([], carry) -> (*bigint_of_int *) [carry]
+      | (d::r, carry) -> let res = n * d + carry in
+			 (res mod 10) :: mult n (r, res/10)
+    in
+    match n with
+	     0 -> []
+      | 1 -> big
+      | n -> mult n (big, 0) ;;
+
 
 let bigint_times big1 big2 =
   let rec mult = function
@@ -197,6 +202,8 @@ let grandentier_depuis_texte sa =
   else
     false, cse_rec sa 0
 
+let texte_depuis_grandentier ga = ""
+(** renvoie la représentation textuelle d'un grandentier *)
 
 (*Convertit basiquement le nombre*)
 let textedechiffre ga =

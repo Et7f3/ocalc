@@ -89,7 +89,7 @@ module Equation = struct
       (fun hooks  ->
         let ({valeur; _} as etat, dispatch , hooks) =
           React.Hooks.reducer ~initialState reducer hooks
-        let () = onUpdate (`Equation etat) in
+        in let () = onUpdate (`Equation etat) in
         (hooks,
           View.createElement ~style:containerStyle ~children:[
             Input.createElement ~value:valeur ~placeholder:"Entrer votre équation" ~onChange:(fun {value; _} -> dispatch(MiseAJour value)) ~children:[] ();

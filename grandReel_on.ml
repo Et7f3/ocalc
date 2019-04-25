@@ -44,14 +44,27 @@ let comparer_gr ga gb =
   comparer (a,b) (d,e);;
 
 (** renvoie ga + gb *)
-let additionner ga gb = zero
+let additionner ga gb = 
+  let ((a,b,c),(d,e,_)) = reunir_puissance ga gb
+  in
+  let (a1,b1) = additionner (a,b) (d,e)
+  in
+  (a1,b1,c);;
 
 (** renvoie ga - gb *)
-let soustraire ga gb = zero
+let soustraire ga gb =
+  let ((a,b,c),(d,e,_)) = reunir_puissance ga gb
+  in
+  let (a1,b1) = soustraire (a,b) (d,e)
+  in
+  (a1,b1,c);;
 
 (** renvoie ga * gb *)
-let multiplier ga gb = zero
-
+let multiplier (a,b,c) (d,e,f) =
+  let (a1,b1) = multiplier (a,b) (d,e)
+  in
+  (a1,b1,c+f);;
+  
 (** renvoie ga / gb *)
 let diviser ga gb = zero
 

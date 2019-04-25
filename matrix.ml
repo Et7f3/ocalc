@@ -111,19 +111,19 @@ module Generic_matrix (V : Value) = struct
                             else
                                 let pivot = m.(i).(i) in
                                 let coeff = V.diviser m.(j).(i) pivot in
-                                let ligne = multiplier_ligne m.(i) coeff in
-                                let ligne = neg_ligne ligne in
-                                let ligne = additioner_ligne m.(j) ligne in
-                                let () = affecter_ligne m j ligne in
-                                let ligne = multiplier_ligne mres.(i) coeff in
-                                let ligne = neg_ligne ligne in
-                                let ligne = additioner_ligne mres.(j) ligne in
-                                affecter_ligne mres j ligne
+                                let modifier_ligne m =
+                                    let ligne = multiplier_ligne m.(i) coeff in
+                                    let ligne = neg_ligne ligne in
+                                    let ligne = additioner_ligne m.(j) ligne in
+                                    affecter_ligne m j ligne
+                                in let () = modifier_ligne m in
+                                modifier_ligne mres
                         (* in fact we should empty it *)
                         in print mres
                 done
             done
-        in mres
+        in let () = print m in
+        mres
 
 end
 

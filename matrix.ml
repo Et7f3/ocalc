@@ -77,12 +77,23 @@ module Generic_matrix (V : Value) = struct
         let mres = init h w in
         let () = foreach m (fun i j e -> mres.(i).(j) <- V.multiplier e scalaire) in
         mres
+    module Operation_elementaires = struct
+        let multiplier_ligne m i scalaire =
+            m.(i) <- Array.map (V.multiplier scalaire) m.(i)
+        let additioner_ligne m i j =
+            m.(i) <- Array.mapi (fun k -> V.additioner m.(j).(k)) m.(i)
+        let echanger_ligne m i j =
+            let tmp = m.(i) in
+            let ( ) = m.(i) <- m.(j) in
+            m.(j) <- tmp
+    end
     let inverser m' =
         let h, w = size m' in
         let m = init h w in
         let () = foreach m' (fun i j e -> m.(i).(j) <- e) in
         let n = min h w in
         let mres = init w h in
+        let open Operation_elementaires in
         let () =
             for i = 0 to pred n do
                 for j = i to pred h do

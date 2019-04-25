@@ -214,71 +214,70 @@ module Accueil = struct
           left 0;
           right 0
           ]
-      in
-      let (translate1,hooks) =
+      in let translate1, hooks =
         Hooks.animation (Animated.floatValue (-250.))
         {
           toValue = 20.;
-          duration = ((Seconds (2.5))[@explicit_arity ]);
-          delay = ((Seconds (0.))[@explicit_arity ]);
+          duration = Seconds 2.5;
+          delay = Seconds 0.;
           repeat = false;
           easing = Animated.linear;
           direction = `Normal
         } hooks
-        in
-        let (translate2,hooks) =
+        in let translate2, hooks =
           Hooks.animation (Animated.floatValue 150.)
           {
-            toValue = (-100.);
-            duration = ((Seconds (5.))[@explicit_arity ]);
-            delay = ((Seconds (2.5))[@explicit_arity ]);
+            toValue = -100.;
+            duration = Seconds 5.;
+            delay = Seconds 2.5;
             repeat = false;
             easing = Animated.linear;
             direction = `Normal
           } hooks
-        in
-        let (scale,hooks) =
+        in let scale, hooks =
           Hooks.animation (Animated.floatValue 0.)
           {
             toValue = 1.;
-            duration = ((Seconds (0.5))[@explicit_arity ]);
-            delay = ((Seconds (2.5))[@explicit_arity ]);
+            duration = Seconds 0.5;
+            delay = Seconds 2.5;
             repeat = false;
             easing = Animated.linear;
             direction = `Normal
           } hooks
-        in
-        let imageStyle1 =
-          let open Style in
-            [bottom 0;
+        in let imageStyle1 =
+          Style.[
+            bottom 0;
             top 0;
             left 0;
             right 0;
             width 200;
             height 200;
-            transform [((Transform.TranslateX (translate1))[@explicit_arity ])]]
-        in
-        let imageStyle2 =
-          let open Style in
-            [top 0;
+            transform [Transform.TranslateX translate1]
+          ]
+        in let imageStyle2 =
+          Style.[
+            top 0;
             bottom 0;
             right 0;
             left 0;
             width 75;
             height 75;
-            transform [((Transform.TranslateY (translate2))[@explicit_arity ]);
-            ((Transform.ScaleX (scale))[@explicit_arity ]);
-            ((Transform.ScaleY (scale))[@explicit_arity ])]]
+            transform [
+              Transform.TranslateY translate2;
+              Transform.ScaleX scale;
+              Transform.ScaleY scale
+            ]
+          ]
         in
      (hooks, View.createElement ~style:containerStyle ~children:[
         Image.createElement ~src:"pi.png" ~style:imageStyle2 ~children:[] ();
         Image.createElement ~src:"camel.png" ~style:imageStyle1 ~children:[] ();
-        Button.createElement ~title:"Accéder à équation"
-           ~width:175
-           ~fontSize:25
-           ~onClick:(fun _  ->
-                      changerVue `VueEquation)
-           ~children:[] ()
+        Button.createElement ~title:"Accéder à équation" ~width:175
+           ~fontSize:25 ~onClick:(fun _ -> changerVue `VueEquation)
+           ~children:[] ();
+         (*Button.createElement ~title:"Accéder à matrice" ~width:175
+          ~fontSize:25 ~onClick:(fun _ -> changerVue `VueMatrice)
+          ~children:[] ();*)
       ] ()))
 end
 
@@ -308,14 +307,14 @@ module Application = struct
 
   let reducer action etat =
     match action with
-      ChangerVue v -> {etat with vue_courante = v}
+      ChangerVue v -> {(* etat with *) vue_courante = v}
 
   let miseAJour = function
     `Equation e ->
       let () = sauvegarde := {!sauvegarde with equation = e} in
       !sauvegarde.historique.liste <- e.liste_historique
-    | `Matrice e -> ()
-    | `Accueil e -> ()
+    | `Matrice e -> sauvegarde := {!sauvegarde with matrice = e}
+    | `Accueil e -> sauvegarde := {!sauvegarde with accueil = e}
 
   let createElement =
     fun ~children:_ () ->

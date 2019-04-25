@@ -67,28 +67,7 @@ let comparer ga gb =
 (** 1 si ga < gb sinon 0 si ga = gb sinon -1 *)
 (* 1 : gb > ga
    0 : ga = gb
-  -1 : ga > gb*)
-let comparer_nbr_abs ga gb =let la = length ga and lb  = length gb in (* Compare un a un les elements en partant de la fin *)
-	let rec cna i = function
-|(ga,gb) when length ga > length gb -> -1
-|(ga,gb) when length ga < length gb -> 1
-|_ ->
-if i = (length ga) then
-	0
-else if (nth (la - i) ga < (nth (lb - i) gb)) then
-	1
-else if (nth (la - i) ga > (nth (lb - i) gb))  then
-	-1
-else
-	cna (i+1) (ga,gb)
-in
-cna 1 (ga,gb);;
-
-let comparer ga gb = match ga, gb with
-| (true,_),(false,_) -> 1
-| (false,_),(true,_) -> (-1)
-|((false,b),(false,d)) -> comparer_nbr_abs b d
-|((true,b),(true,d)) -> - comparer_nbr_abs b d;;
+   -1 : ga > gb*)
 
 let bigint_sum big1 big2 =
   let rec add = function

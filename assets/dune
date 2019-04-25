@@ -3,6 +3,7 @@
  (package OCalc)
  (files
   Roboto-Regular.ttf
+  logo.png
   index.html
   404.html
   index.js

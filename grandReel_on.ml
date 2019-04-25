@@ -23,15 +23,15 @@ On choisira toujours la plus grande
 *)
 let reunir_puissance ga gb =
   let rec r_p ga gb =
-    let (sa,va,a) = ga and (sb,vb,b) = gb in
+    let (sa, va, a) = ga
+    and (sb, vb, b) = gb in
     if a = b then
-      (ga,gb)
+      ga, gb
     else if a < b then
-      r_p (sa,va,a) (sb,bigint_mult vb 10, b - 1)
+      r_p (sa, va, a) (sb, 0 :: vb, b - 1)
     else
-      r_p (sa,bigint_mult va 10, a - 1) (sb,vb,b)
-  in
-  r_p ga gb;;
+      r_p (sa, 0 :: va, a - 1) (sb, vb, b)
+  in r_p ga gb
 
   (** 1 si ga < gb sinon 0 si ga = gb sinon -1 *)
   (* 1 : gb > ga
@@ -39,21 +39,34 @@ let reunir_puissance ga gb =
   -1 : ga > gb*)
 
 let comparer_gr ga gb =
-  let ((a,b,c),(d,e,f)) = reunir_puissance ga gb
-  in
-  comparer (a,b) (d,e);;
+  let (a, b, c), (d, e, _) = reunir_puissance ga gb in
+  comparer (a,b) (d,e)
 
 (** renvoie ga + gb *)
-let additionner ga gb = zero
+let additionner ga gb =
+  let (a, b, c), (d, e, _) = reunir_puissance ga gb in
+  let a, b = additionner (a,b) (d,e) in
+  a, b, c
 
 (** renvoie ga - gb *)
-let soustraire ga gb = zero
+let soustraire ga gb =
+  let (a, b, c), (d, e, _) = reunir_puissance ga gb in
+  let a, b = soustraire (a,b) (d,e) in
+  a, b, c
 
 (** renvoie ga * gb *)
-let multiplier ga gb = zero
+let multiplier (a, b, c) (d, e, f) =
+  let a, b = multiplier (a, b) (d, e) in
+  a, b, c + f
 
 (** renvoie ga / gb *)
-let diviser ga gb = zero
+let diviser (a, b, c) (d, e, f) =
+  let () =
+    if e = [] then (* / 0 *)
+      failwith "Nique ta gentil maman"
+  in let signe = b <> [] (* 0 / a -> + *) && a <> d in
+  let b = [] in
+  signe, b, c - f
 
 (** renvoie le grandreel à partir de sa représentation textuelle *)
 let grandreel_depuis_texte s = zero

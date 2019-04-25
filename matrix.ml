@@ -3,6 +3,7 @@ module type Value = sig
 
     val zero : t
     val unit : t
+    val neg : t -> t
     val additioner : t -> t -> t
     val soustraire : t -> t -> t
     val diviser : t -> t -> t
@@ -78,14 +79,18 @@ module Generic_matrix (V : Value) = struct
         let () = foreach m (fun i j e -> mres.(i).(j) <- V.multiplier e scalaire) in
         mres
     module Operation_elementaires = struct
-        let multiplier_ligne m i scalaire =
-            m.(i) <- Array.map (V.multiplier scalaire) m.(i)
-        let additioner_ligne m i j =
-            m.(i) <- Array.mapi (fun k -> V.additioner m.(j).(k)) m.(i)
+        let multiplier_ligne l scalaire =
+            Array.map (V.multiplier scalaire) l
+        let additioner_ligne l1 l2 =
+            Array.mapi (fun k -> V.additioner l2.(k)) l1
+        let neg_ligne l =
+            Array.map V.neg l
         let echanger_ligne m i j =
             let tmp = m.(i) in
-            let ( ) = m.(i) <- m.(j) in
+            let () = m.(i) <- m.(j) in
             m.(j) <- tmp
+        let affecter_ligne m i l =
+            m.(i) <- l
     end
     let inverser m' =
         let h, w = size m' in
@@ -93,15 +98,29 @@ module Generic_matrix (V : Value) = struct
         let () = foreach m' (fun i j e -> m.(i).(j) <- e) in
         let n = min h w in
         let mres = init w h in
+        let mres = __vide_vers_identite mres in
         let open Operation_elementaires in
         let () =
             for i = 0 to pred n do
-                for j = i to pred h do
-                    let () =
-                        mres.(j).(i) <- V.unit
+                for j = i + 1 to pred (pred h) do
+                    if m.(j).(i) <> V.zero then
+                        let () =
+                            if m.(i).(i) = V.zero then
+                                let () = echanger_ligne m j i in
+                                echanger_ligne mres j i
+                            else
+                                let pivot = m.(i).(i) in
+                                let coeff = V.diviser m.(j).(i) pivot in
+                                let ligne = multiplier_ligne m.(i) coeff in
+                                let ligne = neg_ligne ligne in
+                                let ligne = additioner_ligne m.(j) ligne in
+                                let () = affecter_ligne m j ligne in
+                                let ligne = multiplier_ligne mres.(i) coeff in
+                                let ligne = neg_ligne ligne in
+                                let ligne = additioner_ligne mres.(j) ligne in
+                                affecter_ligne mres j ligne
                         (* in fact we should empty it *)
-                    in let () = print m in
-                    print mres
+                        in print mres
                 done
             done
         in mres
@@ -113,6 +132,7 @@ module Test = struct
 
     let zero = 0
     let unit = 1
+    let neg = ( ~- )
     let additioner = ( + )
     let soustraire = ( - )
     let diviser = ( / )
@@ -127,6 +147,7 @@ module Test_float = struct
 
     let zero = 0.
     let unit = 1.
+    let neg = ( ~-. )
     let additioner = ( +. )
     let soustraire = ( -. )
     let diviser = ( /. )
@@ -155,6 +176,7 @@ let m3 =
     [|6.; 6.; 6.|];
     [|4.; 7.; 6.|];
     [|6.; 4.; 6.|];
+    [|6.; 4.; 6.|];(* for test *)
 |]
 
 let inv_m3 =
@@ -170,7 +192,10 @@ let res1 = Test_matrix.additioner m1 m2
 let res2 = Test_matrix.soustraire res1 m2
 let res3 = Test_matrix.multiplier i3 m1*)
 let res4 = Test_float_matrix.inverser m3
-let () = Test_float_matrix.print (Test_float_matrix.multiplier_scalaire inv_m3 (1. /. 12.))
+let () = print_char '\n'
+let () = print_char '\n'
+let () = Test_float_matrix.print
+    (Test_float_matrix.multiplier_scalaire inv_m3 (1. /. 12.))
 let () = Test_float_matrix.print (Test_float_matrix.multiplier res4 m3)
 
 

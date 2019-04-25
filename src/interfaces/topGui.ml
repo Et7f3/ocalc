@@ -16,6 +16,7 @@ type vue_par_defaut_state =
 type equation_state =
 {
   valeur: string;
+  res: string;
   context: Noyau.Moteur.context;
 }
 
@@ -63,8 +64,12 @@ module Equation = struct
     match action with
       Vider -> {etat with valeur = ""}
     | MiseAJour valeur -> {etat with valeur} (* ici on met à jour notre état *)
-    | Calculer -> (* on doit calculer ici et vider l'entre
-    BoNuS: si c'est valide: tapez élie en attendant *) {etat with valeur = ""}
+    | Calculer ->
+      let res, cxt =
+        try
+          Noyau.Moteur.evaluate_with_history etat.valeur etat.context
+        with Failure msg -> msg, etat.context (* old context *)
+      in {context = cxt; valeur = ""; res}
 
   let createElement ~initialState ~changerVue:_ ~onUpdate =
   let containerStyle =
@@ -87,15 +92,15 @@ module Equation = struct
   fun ~children:_ () ->
     component
       (fun hooks  ->
-        let ({valeur; _} as etat, dispatch , hooks) =
+        let ({valeur; res; _} as etat, dispatch , hooks) =
           React.Hooks.reducer ~initialState reducer hooks
         in let () = onUpdate (`Equation etat) in
         (hooks,
           View.createElement ~style:containerStyle ~children:[
             Input.createElement ~value:valeur ~placeholder:"Entrer votre équation" ~onChange:(fun {value; _} -> dispatch(MiseAJour value)) ~children:[] ();
+            Text.createElement ~text:res(*retour du moteur*) ~style:textStyle ~children:[] ();
             Button.createElement ~title:"Calculer" ~width:150 ~height:50 ~fontSize:25 ~onClick:(fun _ -> dispatch Calculer) ~children:[] ();
-            Button.createElement ~title:"Éffacer" ~width:150 ~height:50 ~fontSize:25 ~onClick:(fun _ -> dispatch Vider) ~children:[] ();
-            Text.createElement ~text:""(*retour du moteur*) ~style:textStyle ~children:[] ()
+            Button.createElement ~title:"Éffacer" ~width:150 ~height:50 ~fontSize:25 ~onClick:(fun _ -> dispatch Vider) ~children:[] ()
             ] ()))
 end
 
@@ -106,7 +111,10 @@ module Application = struct
       ChangerVue of vue
 
   let sauvegarde = ref {
-    equation = {valeur = "ddd"; context = Noyau.Moteur.empty_context}
+    equation = {
+      valeur = "";
+      res = " "(* trick to be displayed *);
+      context = Noyau.Moteur.empty_context}
   }
 
   let reducer action etat =

@@ -96,11 +96,19 @@ module Equation = struct
       Vider -> {etat with valeur = ""}
     | MiseAJour valeur -> {etat with valeur} (* ici on met à jour notre état *)
     | Calculer ->
+      let rec restr strl =
+      match strl with
+      [] -> ""
+      |e :: l -> e ^ restr l
+      in
+      let res = etat.valeur in
+      let res = restr (String.split_on_char ' ' res) in
       let res, cxt =
         try
-          Noyau.Moteur.evaluate_with_history etat.valeur etat.context
+          Noyau.Moteur.evaluate_with_history res etat.context
         with Failure msg -> msg, etat.context (* old context *)
-      in {liste_historique = res :: etat.liste_historique; context = cxt; valeur = ""; res}
+      in let res = etat.valeur ^ " = " ^ res in
+      {liste_historique = res :: etat.liste_historique; context = cxt; valeur = ""; res}
 
   let createElement ~initialState ~changerVue ~onUpdate =
   let containerStyle =
@@ -177,26 +185,26 @@ module Historique = struct
       let textStyle =
       Style.[
       fontSize 25;
+      left 0;
+      right 0;
+      bottom 0;
+      top 0;
       fontFamily "Roboto-Regular.ttf"
       ]
     in
-    let rec histol hist res =
-      match hist with
-       [] -> []
-      | e :: l -> histol l ((Text.createElement ~text:e ~style:textStyle ~children:[]) :: res)
+    let histol hist =
+      List.map (fun a -> Text.createElement ~text:a ~style:textStyle ~children:[] ()) hist
     in
     fun ~children:_ () ->
       component
         (fun hooks ->
           let bouton_retour = Text.createElement ~text:"Revenir au mode Équation"
-          ~style:Style.[fontSize 25;
-          fontFamily "Roboto-Regular.ttf";
-          left 0;
-          right 0;]
+          ~style:Style.[width 175; height 75; fontSize 25; fontFamily "Roboto-Regular.ttf";
+          position `Absolute; top 500; left 0; right 0;]
                ~onMouseUp:(fun _  ->
                           changerVue `VueEquation)
                ~children:[] () in
-          hooks, View.createElement ~style:containerStyle ~children:(bouton_retour :: (histol historique [])) ())
+          hooks, View.createElement ~style:containerStyle ~children:(bouton_retour :: (histol historique)) ())
 end
 
 module Matrice = struct
@@ -360,12 +368,12 @@ module Accueil = struct
           delay = Seconds 0.;
           repeat = false;
           easing = Animated.linear;
-          direction = `Normal
+          direction = `Normal;
         } hooks
       in let translate2, hooks =
         Hooks.animation (Animated.floatValue 150.)
         {
-          toValue = -100.;
+          toValue = -50.;
           duration = Seconds 5.;
           delay = Seconds 2.5;
           repeat = false;

@@ -96,11 +96,19 @@ module Equation = struct
       Vider -> {etat with valeur = ""}
     | MiseAJour valeur -> {etat with valeur} (* ici on met à jour notre état *)
     | Calculer ->
+      let rec restr strl =
+      match strl with
+      [] -> ""
+      |e :: l -> e ^ restr l
+      in
+      let res = etat.valeur in
+      let res = restr (String.split_on_char ' ' res) in
       let res, cxt =
         try
-          Noyau.Moteur.evaluate_with_history etat.valeur etat.context
+          Noyau.Moteur.evaluate_with_history res etat.context
         with Failure msg -> msg, etat.context (* old context *)
-      in {liste_historique = res :: etat.liste_historique; context = cxt; valeur = ""; res}
+      in let res = etat.valeur ^ " = " ^ res in
+      {liste_historique = res :: etat.liste_historique; context = cxt; valeur = ""; res}
 
   let createElement ~initialState ~changerVue ~onUpdate =
   let containerStyle =
@@ -130,13 +138,31 @@ module Equation = struct
           View.createElement ~style:containerStyle ~children:[
             Input.createElement ~value:valeur ~placeholder:"Entrer votre équation" ~onChange:(fun {value; _} -> dispatch(MiseAJour value)) ~children:[] ();
             Text.createElement ~text:res(*retour du moteur*) ~style:textStyle ~children:[] ();
-            Button.createElement ~title:"Calculer" ~width:150 ~height:50 ~fontSize:25 ~onClick:(fun _ -> dispatch Calculer) ~children:[] ();
-            Button.createElement ~title:"Éffacer" ~width:150 ~height:50 ~fontSize:25 ~onClick:(fun _ -> dispatch Vider) ~children:[] ();
-            Button.createElement ~title:"Accéder à l'historique" ~width:175
-              ~fontSize:25  ~onClick:(fun _  -> changerVue `VueHistorique)
+            Text.createElement ~text:"Calculer" ~style:Style.[fontSize 25;
+            fontFamily "Roboto-Regular.ttf";
+            top 0;
+            left 0;
+            bottom 0;
+            right 0;] ~onMouseUp:(fun _ -> dispatch Calculer) ~children:[] ();
+            Text.createElement ~text:"Éffacer" ~style:Style.[fontSize 25;
+            fontFamily "Roboto-Regular.ttf";
+            top 0;
+            left 0;
+            bottom 0;
+            right 0;] ~onMouseUp:(fun _ -> dispatch Vider) ~children:[] ();
+            Text.createElement ~text:"Accéder à l'historique" ~style:Style.[fontSize 25;
+            fontFamily "Roboto-Regular.ttf";
+            top 0;
+            left 0;
+            bottom 0;
+            right 0;]  ~onMouseUp:(fun _  -> changerVue `VueHistorique)
               ~children:[] ();
-            Button.createElement ~title:"Revenir à l'accueil" ~width:175
-              ~fontSize:25  ~onClick:(fun _  -> changerVue `VueAccueil)
+            Text.createElement ~text:"Revenir à l'accueil" ~style:Style.[fontSize 25;
+            fontFamily "Roboto-Regular.ttf";
+            top 0;
+            left 0;
+            bottom 0;
+            right 0;]  ~onMouseUp:(fun _  -> changerVue `VueAccueil)
               ~children:[] ();
             ] ()))
 end
@@ -159,24 +185,26 @@ module Historique = struct
       let textStyle =
       Style.[
       fontSize 25;
+      left 0;
+      right 0;
+      bottom 0;
+      top 0;
       fontFamily "Roboto-Regular.ttf"
       ]
     in
-    let rec histol hist res =
-      match hist with
-       [] -> []
-      | e :: l -> histol l ((Text.createElement ~text:e ~style:textStyle ~children:[]) :: res)
+    let histol hist =
+      List.map (fun a -> Text.createElement ~text:a ~style:textStyle ~children:[] ()) hist
     in
     fun ~children:_ () ->
       component
         (fun hooks ->
-          let bouton_retour = Button.createElement ~title:"Revenir au mode Équation"
-               ~width:175
-               ~fontSize:25
-               ~onClick:(fun _  ->
+          let bouton_retour = Text.createElement ~text:"Revenir au mode Équation"
+          ~style:Style.[width 175; height 75; fontSize 25; fontFamily "Roboto-Regular.ttf";
+          position `Absolute; top 500; left 0; right 0;]
+               ~onMouseUp:(fun _  ->
                           changerVue `VueEquation)
                ~children:[] () in
-          hooks, View.createElement ~style:containerStyle ~children:(bouton_retour :: (histol historique [])) ())
+          hooks, View.createElement ~style:containerStyle ~children:(bouton_retour :: (histol historique)) ())
 end
 
 module Matrice = struct
@@ -250,16 +278,16 @@ module Matrice = struct
           Text.createElement ~text:"Calculer le résultat"
            ~onMouseUp:(fun _ -> dispatch (Calculer etat.mode))
            ~style:Style.[
-            width 175; fontSize 25; fontFamily "Roboto-Regular.ttf";
-            position `Absolute; top 500; left 200;
+            width 175; height 75; fontSize 25; fontFamily "Roboto-Regular.ttf";
+            position `Absolute; top 500; left 0;
           ]
            ~children:[] ()
         in let bouton_retour =
           Text.createElement ~text:"Revenir à l'accueil"
             ~onMouseUp:(fun _  -> changerVue `VueAccueil)
             ~style:Style.[
-              width 175; fontSize 25; fontFamily "Roboto-Regular.ttf";
-              position `Absolute; top 500;
+              width 175; height 75 ; fontSize 25; fontFamily "Roboto-Regular.ttf";
+              position `Absolute; top 500; right 0;
             ]
             ~children:[] ()
         in let children = [bouton_retour; bouton_calc] in
@@ -358,12 +386,12 @@ module Accueil = struct
           delay = Seconds 0.;
           repeat = false;
           easing = Animated.linear;
-          direction = `Normal
+          direction = `Normal;
         } hooks
       in let translate2, hooks =
         Hooks.animation (Animated.floatValue 150.)
         {
-          toValue = -100.;
+          toValue = -50.;
           duration = Seconds 5.;
           delay = Seconds 2.5;
           repeat = false;
@@ -405,15 +433,27 @@ module Accueil = struct
           ]
         ]
       in
+      let bouton_equa =
+        Text.createElement ~text:"Accéder à équation"
+         ~onMouseUp:(fun _  -> changerVue `VueEquation)
+         ~style:Style.[
+          width 175; height 75; fontSize 25; fontFamily "Roboto-Regular.ttf"; justifyContent `Center; color (Color.rgb 255. 120. 10.);
+          position `Absolute; top 500; left 0;
+        ]
+         ~children:[] ()
+      in let bouton_mat =
+        Text.createElement ~text:"Accéder à matrice"
+          ~onMouseUp:(fun _  -> changerVue `VueMatrice)
+          ~style:Style.[
+            width 175; height 75 ; fontSize 25; justifyContent `Center; fontFamily "Roboto-Regular.ttf"; color (Color.rgb 255. 120. 10.);
+            position `Absolute; right 0 ; top 500;
+          ]
+          ~children:[] ()
+      in
      (hooks, View.createElement ~style:containerStyle ~children:[
         Image.createElement ~src:"pi.png" ~style:imageStyle2 ~children:[] ();
         Image.createElement ~src:"camel.png" ~style:imageStyle1 ~children:[] ();
-        Button.createElement ~title:"Accéder à équation" ~width:175
-           ~fontSize:25 ~onClick:(fun _ -> changerVue `VueEquation)
-           ~children:[] ();
-         Button.createElement ~title:"Accéder à matrice" ~width:175
-          ~fontSize:25 ~onClick:(fun _ -> changerVue `VueMatrice)
-          ~children:[] ();
+        bouton_equa; bouton_mat;
       ] ()))
 end
 

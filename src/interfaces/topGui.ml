@@ -437,6 +437,16 @@ let init app =
   let win = App.createWindow app "OCalc" in
   Input.createElement ~style:Style.[top (100); left (300); position `Absolute] ~children:[] () |>
   UI.start win |> ignore
+
+
+let init app =
+  let win = App.createWindow app "OCalc" in
+  let op: Dropdown.items = [
+    {value = "+"; label = "+";};
+    {value = "-"; label = "-";};
+    {value = "*"; label = "*";};
+  ] in Dropdown.createElement ~items:op ~onItemSelected:(fun _ -> ()) ~children:[] () |>
+  UI.start win |> ignore
 *)
 
 let _ = App.start init

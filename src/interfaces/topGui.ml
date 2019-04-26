@@ -136,7 +136,7 @@ module Equation = struct
         in let () = onUpdate (`Equation etat) in
         (hooks,
           View.createElement ~style:containerStyle ~children:[
-            Input.createElement ~value:valeur ~placeholder:"Entrer votre équation" ~onChange:(fun {value; _} -> dispatch(MiseAJour value)) ~children:[] ();
+            Input.createElement ~style:Style.[color (Color.rgb 255. 255. 255.);] ~value:valeur ~placeholder:"Entrer votre équation" ~onChange:(fun {value; _} -> dispatch(MiseAJour value)) ~children:[] ();
             Text.createElement ~text:res(*retour du moteur*) ~style:textStyle ~children:[] ();
             Text.createElement ~text:"Calculer" ~style:Style.[fontSize 25;
             fontFamily "Roboto-Regular.ttf";
@@ -200,7 +200,7 @@ module Historique = struct
         (fun hooks ->
           let bouton_retour = Text.createElement ~text:"Revenir au mode Équation"
           ~style:Style.[width 175; height 75; fontSize 25; fontFamily "Roboto-Regular.ttf";
-          position `Absolute; top 500; left 0; right 0;]
+          position `Absolute; bottom 0; left 0; right 0;]
                ~onMouseUp:(fun _  ->
                           changerVue `VueEquation)
                ~children:[] () in
@@ -279,7 +279,7 @@ module Matrice = struct
            ~onMouseUp:(fun _ -> dispatch (Calculer etat.mode))
            ~style:Style.[
             width 175; height 75; fontSize 25; fontFamily "Roboto-Regular.ttf";
-            position `Absolute; top 500; left 0;
+            position `Absolute; bottom 0; left 0;
           ]
            ~children:[] ()
         in let bouton_retour =
@@ -287,7 +287,7 @@ module Matrice = struct
             ~onMouseUp:(fun _  -> changerVue `VueAccueil)
             ~style:Style.[
               width 175; height 75 ; fontSize 25; fontFamily "Roboto-Regular.ttf";
-              position `Absolute; top 500; right 0;
+              position `Absolute; bottom 0; right 0;
             ]
             ~children:[] ()
         in let children = [bouton_retour; bouton_calc] in
@@ -305,7 +305,7 @@ module Matrice = struct
           in (View.createElement ~children:!input) ()
         in let m1 =
           dessiner_matrice etat.taille1 (fun i j -> Input.createElement
-            ~style:Style.[width 100; margin2 ~horizontal:40 ~vertical:10]
+            ~style:Style.[color (Color.rgb 255. 255. 255.); width 100; margin2 ~horizontal:40 ~vertical:10]
             ~value:etat.matrice1.(i).(j)
             ~placeholder:etat.matrice1.(0).(j)
             ~onChange:(fun {value; _} ->
@@ -332,7 +332,7 @@ module Matrice = struct
           ~children:[] ()
         in let m2 =
           dessiner_matrice etat.taille2 (fun i j -> Input.createElement
-            ~style:Style.[width 100; margin2 ~horizontal:40 ~vertical:10]
+            ~style:Style.[color (Color.rgb 255. 255. 255.); width 100; margin2 ~horizontal:40 ~vertical:10]
             ~value:etat.matrice2.(i).(j)
             ~placeholder:etat.matrice2.(0).(j)
             ~onChange:(fun {value; _} ->
@@ -345,7 +345,7 @@ module Matrice = struct
             ~children:[] ())
         in let m_res =
           dessiner_matrice etat.taille_res (fun i j -> Input.createElement
-            ~style:Style.[width 100; margin2 ~horizontal:40 ~vertical:10]
+            ~style:Style.[color (Color.rgb 255. 255. 255.); width 100; margin2 ~horizontal:40 ~vertical:10]
             ~value:etat.matrice_res.(i).(j)
             ~children:[] ())
         in let children = (View.createElement ~style:Style.[flexDirection(`Row)] ~children:[m1; dropdown; m2] ()) :: m_res :: children
@@ -438,7 +438,7 @@ module Accueil = struct
          ~onMouseUp:(fun _  -> changerVue `VueEquation)
          ~style:Style.[
           width 175; height 75; fontSize 25; fontFamily "Roboto-Regular.ttf"; justifyContent `Center; color (Color.rgb 255. 120. 10.);
-          position `Absolute; top 500; left 0;
+          position `Absolute; bottom 0; left 0;
         ]
          ~children:[] ()
       in let bouton_mat =
@@ -446,7 +446,7 @@ module Accueil = struct
           ~onMouseUp:(fun _  -> changerVue `VueMatrice)
           ~style:Style.[
             width 175; height 75 ; fontSize 25; justifyContent `Center; fontFamily "Roboto-Regular.ttf"; color (Color.rgb 255. 120. 10.);
-            position `Absolute; right 0 ; top 500;
+            position `Absolute; right 0; bottom 0;
           ]
           ~children:[] ()
       in
@@ -544,7 +544,7 @@ let init app =
   let windowWidth = dimensions.width / 2 in
   let windowHeight = dimensions.height / 2 in
   let options_fen = WindowCreateOptions.create ~width:windowWidth
-                         ~height:windowHeight ~maximized ~icon:(Some "logo.png") () in
+                         ~height:windowHeight ~maximized ~icon:(Some "logo.png") ~backgroundColor:(Color.hex("#212733")) () in
   let fen = App.createWindow ~createOptions:options_fen app "OCalc" in
   let () =
     if not Environment.webGL then

@@ -35,6 +35,7 @@ type matrice_state =
   matrice2: string array array;
   taille1: int * int;
   taille2: int * int;
+  message: string;
 }
 
 type accueil_state =
@@ -177,28 +178,28 @@ module Matrice = struct
   let component = React.component "Matrice"
 
   type 'a action =
-      MiseAJour of int * int * int * string * ('a -> unit)
-    | MiseAJourEntete of int * string * ('a -> unit)
+      MiseAJour of int * int * int * string(* * ('a -> unit) *)
+    | MiseAJourEntete of int * string(* * ('a -> unit) *)
 
   let reducer action etat =
     match action with
-      MiseAJour (id, i, j, v, f) ->
+      MiseAJour (id, i, j, v(*, f*)) ->
         let mat =
           if id = 1 then
             etat.matrice1
           else
             etat.matrice2
-        in let v =
+        in let () =
           try
             let _ = float_of_string v in
             mat.(i).(j) <- v
           with Failure _ -> ()
-        in let () = f (`Matrice etat) in
+        in (*let () = f (`Matrice etat) in*)
         if id = 1 then
           {etat with matrice1 = mat}
         else
           {etat with matrice2 = mat}
-      | MiseAJourEntete (j, v, f) ->
+      | MiseAJourEntete (j, v(*, f*)) ->
         let () = etat.matrice1.(0).(j) <- v in
         {etat with matrice1 = etat.matrice1}
 
@@ -230,32 +231,32 @@ module Matrice = struct
               in input :=  (View.createElement ~style:Style.[flexDirection(`Row)] ~children:!row ()) :: !input
             done
           in (View.createElement ~children:!input) ()
-        in
-        let children =
+        in let m1 =
           dessiner_matrice etat.taille1 (fun i j -> Input.createElement
-            ~style:Style.[width 40; margin2 ~horizontal:40 ~vertical:10]
+            ~style:Style.[width 100; margin2 ~horizontal:40 ~vertical:10]
             ~value:etat.matrice1.(i).(j)
             ~placeholder:etat.matrice1.(0).(j)
             ~onChange:(fun {value; _} ->
               if i = 0 && etat.mode = `Solveur then
-                dispatch(MiseAJourEntete (j, value, onUpdate))
+                dispatch(MiseAJourEntete (j, value(*, onUpdate *)))
               else
-                dispatch(MiseAJour (1, i, j, value, onUpdate))
+                dispatch(MiseAJour (1, i, j, value(*, onUpdate *)))
           )
-          ~children:[] ()) :: children
-        in let children =
+          ~children:[] ())
+        in let m2 =
           dessiner_matrice etat.taille2 (fun i j -> Input.createElement
-            ~style:Style.[width 40; margin2 ~horizontal:40 ~vertical:10]
-            ~value:etat.matrice1.(i).(j)
-            ~placeholder:etat.matrice1.(0).(j)
+            ~style:Style.[width 100; margin2 ~horizontal:40 ~vertical:10]
+            ~value:etat.matrice2.(i).(j)
+            ~placeholder:etat.matrice2.(0).(j)
             ~onChange:(fun {value; _} ->
               if i = 0 && etat.mode = `Solveur then
-                dispatch(MiseAJourEntete (j, value, onUpdate))
+                dispatch(MiseAJourEntete (j, value(*, onUpdate *)))
               else
-                dispatch(MiseAJour (1, i, j, value, onUpdate))
+                dispatch(MiseAJour (2, i, j, value(*, onUpdate *)))
           )
-          ~children:[] ()) :: children
-        in (hooks, View.createElement ~style:Style.[] ~children:children ()))
+          ~children:[] ())
+        in let children = (View.createElement ~style:Style.[flexDirection(`Row)] ~children:[m1; m2] ()) :: children
+        in (hooks, View.createElement (* ~style:Style.[] *) ~children:children ()))
 end
 
 module Accueil = struct
@@ -369,10 +370,11 @@ module Application = struct
     };
     matrice = {
       mode = `Addition;
-      matrice1 = Array.make_matrix 3 3 "0";
-      matrice2 = Array.make_matrix 3 3 "0";
-      taille1 = (3, 3);
-      taille2 = (3, 3);
+      matrice1 = Array.make_matrix 2 2 "0";
+      matrice2 = Array.make_matrix 2 2 "0";
+      taille1 = (2, 2);
+      taille2 = (2, 2);
+      message = "";
     };
     accueil = {
       nothing = ();

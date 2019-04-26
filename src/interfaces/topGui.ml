@@ -28,9 +28,12 @@ type historique_state =
 {
   mutable liste: string list;
 }
+
+type matrice_mode = [`Solveur | `Addition | `Soustraction | `Multiplication | `Division]
+
 type matrice_state =
 {
-  mode: [`Solveur | `Addition | `Soustraction | `Multiplication | `division];
+  mode: matrice_mode;
   matrice1: string array array;
   matrice2: string array array;
   taille1: int * int;
@@ -180,6 +183,7 @@ module Matrice = struct
   type 'a action =
       MiseAJour of int * int * int * string(* * ('a -> unit) *)
     | MiseAJourEntete of int * string(* * ('a -> unit) *)
+    | ChangerMode of matrice_mode
 
   let reducer action etat =
     match action with
@@ -202,6 +206,7 @@ module Matrice = struct
       | MiseAJourEntete (j, v(*, f*)) ->
         let () = etat.matrice1.(0).(j) <- v in
         {etat with matrice1 = etat.matrice1}
+      | ChangerMode m -> {etat with mode = m}
 
   let createElement ~initialState ~changerVue ~onUpdate =
   fun ~children:_ () ->
@@ -243,6 +248,18 @@ module Matrice = struct
                 dispatch(MiseAJour (1, i, j, value(*, onUpdate *)))
           )
           ~children:[] ())
+        in let op: Dropdown.items = [
+          {value = "+"; label = "+                             ";(* all this space are for a bug *)};
+          {value = "-"; label = "-                             ";};
+          {value = "*"; label = "*                             ";};
+        ] in
+        let dropdown = Dropdown.createElement ~items:op
+          ~onItemSelected:(fun {value = a; _} -> dispatch ((function
+          | "+" -> ChangerMode `Addition
+          | "-" -> ChangerMode `Soustraction
+          | "*" -> ChangerMode `Multiplication
+          | _ -> failwith ("impossible")) a))
+          ~children:[] ()
         in let m2 =
           dessiner_matrice etat.taille2 (fun i j -> Input.createElement
             ~style:Style.[width 100; margin2 ~horizontal:40 ~vertical:10]
@@ -255,7 +272,7 @@ module Matrice = struct
                 dispatch(MiseAJour (2, i, j, value(*, onUpdate *)))
           )
           ~children:[] ())
-        in let children = (View.createElement ~style:Style.[flexDirection(`Row)] ~children:[m1; m2] ()) :: children
+        in let children = (View.createElement ~style:Style.[flexDirection(`Row)] ~children:[m1; dropdown; m2] ()) :: children
         in (hooks, View.createElement (* ~style:Style.[] *) ~children:children ()))
 end
 

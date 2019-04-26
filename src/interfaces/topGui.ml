@@ -186,7 +186,7 @@ module Matrice = struct
       MiseAJour of int * int * int * string(* * ('a -> unit) *)
     | MiseAJourEntete of int * string(* * ('a -> unit) *)
     | ChangerMode of matrice_mode
-    | Calculer
+    | Calculer of matrice_mode
 
   let reducer action etat =
     match action with
@@ -209,8 +209,22 @@ module Matrice = struct
       | MiseAJourEntete (j, v(*, f*)) ->
         let () = etat.matrice1.(0).(j) <- v in
         {etat with matrice1 = etat.matrice1}
-      | ChangerMode m -> {etat with mode = m}
-      | Calculer ->
+      | ChangerMode m ->
+        if m <> `Solveur then
+          {
+            etat with mode = m;
+            taille2 = (let (h, _) = etat.taille1 in (h, 2));
+            taille_res = (let (h, _) = etat.taille_res in (h, 2));
+          }
+        else
+          {
+            etat with mode = m;
+            taille2 = (let (h, _) = etat.taille1 in (h, 1));
+            taille_res = (let (h, _) = etat.taille_res in (h, 1));
+          }
+      | Calculer `Solveur ->
+        etat
+      | Calculer _ ->
         let array_map2 f = Array.map (fun e -> Array.map f e) in
         let m1 = array_map2 float_of_string etat.matrice1 in
         let m2 = array_map2 float_of_string etat.matrice2 in
@@ -234,7 +248,7 @@ module Matrice = struct
         in let () = onUpdate (`Matrice etat) in
         let bouton_calc =
           Text.createElement ~text:"Calculer le résultat"
-           ~onMouseUp:(fun _  -> dispatch Calculer)
+           ~onMouseUp:(fun _ -> dispatch (Calculer etat.mode))
            ~style:Style.[
             width 175; fontSize 25; fontFamily "Roboto-Regular.ttf";
             position `Absolute; top 500; left 200;
@@ -277,12 +291,15 @@ module Matrice = struct
           {value = "+"; label = "+                             ";(* all this space are for a bug *)};
           {value = "-"; label = "-                             ";};
           {value = "*"; label = "*                             ";};
+          (*{value = "resoudre"; label = "resoudre               ";};*)
+
         ] in
         let dropdown = Dropdown.createElement ~items:op
           ~onItemSelected:(fun {value = a; _} -> dispatch ((function
           | "+" -> ChangerMode `Addition
           | "-" -> ChangerMode `Soustraction
           | "*" -> ChangerMode `Multiplication
+          | "resoudre" -> ChangerMode `Solveur
           | _ -> failwith ("impossible")) a))
           ~children:[] ()
         in let m2 =
@@ -291,7 +308,8 @@ module Matrice = struct
             ~value:etat.matrice2.(i).(j)
             ~placeholder:etat.matrice2.(0).(j)
             ~onChange:(fun {value; _} ->
-              if i = 0 && etat.mode = `Solveur then
+              if i = 0 && etat.mode = `Solveur && false then
+                let () = Printf.printf "i, j : %d, %d\n" i j in
                 dispatch(MiseAJourEntete (j, value(*, onUpdate *)))
               else
                 dispatch(MiseAJour (2, i, j, value(*, onUpdate *)))
@@ -417,12 +435,12 @@ module Application = struct
     };
     matrice = {
       mode = `Addition;
-      matrice1 = Array.make_matrix 2 2 "0";
-      matrice2 = Array.make_matrix 2 2 "0";
-      matrice_res = Array.make_matrix 2 2 "0";
-      taille1 = (2, 2);
-      taille2 = (2, 2);
-      taille_res = (2, 2);
+      matrice1 = Array.make_matrix 3 3 "0";
+      matrice2 = Array.make_matrix 3 3 "0";
+      matrice_res = Array.make_matrix 3 3 "0";
+      taille1 = (3, 3);
+      taille2 = (3, 3);
+      taille_res = (3, 3);
       message = "";
     };
     accueil = {
@@ -480,9 +498,20 @@ let init app =
 *)
 
 let init app =
-  let options_fen = WindowCreateOptions.create ~icon:(Some "logo.png") () in
+  let maximized = Environment.webGL in
+  let dimensions: Monitor.size =
+    (Monitor.getPrimaryMonitor ()) |> Monitor.getSize in
+  let windowWidth = dimensions.width / 2 in
+  let windowHeight = dimensions.height / 2 in
+  let options_fen = WindowCreateOptions.create ~width:windowWidth
+                         ~height:windowHeight ~maximized ~icon:(Some "logo.png") () in
   let fen = App.createWindow ~createOptions:options_fen app "OCalc" in
-  let afficher () = Application.createElement ~children:[] () in
+  let () =
+    if not Environment.webGL then
+      (let xPosition = (dimensions.width - windowWidth) / 2 in
+      let yPosition = (dimensions.height - windowHeight) / 2 in
+      Window.setPos fen xPosition yPosition)
+  in let afficher () = Application.createElement ~children:[] () in
   UI.start fen (afficher ()) (afficher ())
 
 let _ = App.start init

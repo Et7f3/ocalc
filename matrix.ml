@@ -104,7 +104,7 @@ module Generic_matrix (V : Value) = struct
             for i = 0 to pred (pred n) do
                 for j = i + 1 to pred h do
                     if m.(j).(i) <> V.zero then
-                        let () =
+                        (* let () = *)
                             if m.(i).(i) = V.zero then
                                 let () = echanger_ligne m j i in
                                 echanger_ligne mres j i
@@ -114,17 +114,18 @@ module Generic_matrix (V : Value) = struct
                                 let modifier_ligne m =
                                     let ligne = multiplier_ligne m.(i) coeff in
                                     let ligne = neg_ligne ligne in
-                                    let () = Printf.printf "%d, %d\n" (Array.length m.(j)) (Array.length ligne) in
                                     let ligne = additioner_ligne m.(j) ligne in
                                     affecter_ligne m j ligne
                                 in let () = modifier_ligne m in
                                 if j < n then
                                     modifier_ligne mres
                         (* in fact we should empty it *)
-                        in print mres
+                        (*in print mres*)
                 done
             done
         in let () = print m in
+        let () = print_char '\n' in
+        let () = print_char '\n' in
         mres
 
 end
@@ -178,9 +179,9 @@ let m3 =
     [|6.; 6.; 6.|];
     [|4.; 7.; 6.|];
     [|6.; 4.; 6.|];
-    [|6.; 4.; 6.|];(* for test *)
+    (*[|6.; 4.; 6.|];(* for test *)
     [|6.; 4.; 5.|];(* for test *)
-    [|6.; 4.; 6.|];(* for test *)
+    [|6.; 4.; 6.|];(* for test *) *)
 |]
 
 let inv_m3 =
@@ -196,12 +197,11 @@ let res1 = Test_matrix.additioner m1 m2
 let res2 = Test_matrix.soustraire res1 m2
 let res3 = Test_matrix.multiplier i3 m1*)
 let res4 = Test_float_matrix.inverser m3
-let () = print_char '\n'
-let () = print_char '\n'
+(*
 let () = Test_float_matrix.print
     (Test_float_matrix.multiplier_scalaire inv_m3 (1. /. 12.))
 let () = Test_float_matrix.print (Test_float_matrix.multiplier res4 m3)
-
+*)
 
 (*
 let () = Test_matrix.print i3

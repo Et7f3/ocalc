@@ -217,30 +217,45 @@ module Matrice = struct
             position `Absolute; top 500
           ]
            ~children:[] ()
-        in let input = ref [bouton_retour] in
-        let () =
-          let h, w = etat.taille1 in
-          for i = pred h downto 0 do
-            let row = ref [] in
-            for j = pred w downto 0 do
-              row := (Input.createElement
-                ~style:Style.[
-                  width 40;
-                  margin2 ~horizontal:40 ~vertical:10
-                  ]
-              ~value:etat.matrice1.(i).(j)
-              ~placeholder:etat.matrice1.(0).(j)
-              ~onChange:(fun {value; _} ->
-                if i = 0 && etat.mode = `Solveur then
-                  dispatch(MiseAJourEntete (j, value, onUpdate))
-                else
-                  dispatch(MiseAJour (1, i, j, value, onUpdate))
-              )
-              ~children:[] ()) :: !row
-            done;
-            input :=  (View.createElement ~style:Style.[flexDirection(`Row)] ~children:!row ()) :: !input
-          done
-        in (hooks, View.createElement ~style:Style.[] ~children:!input ()))
+        in let children = [bouton_retour] in
+        let dessiner_matrice (h, w) f =
+          let input = ref [] in
+          let () =
+            for i = pred h downto 0 do
+              let row = ref [] in
+              let () =
+                for j = pred w downto 0 do
+                  row := (f i j) :: !row
+                done
+              in input :=  (View.createElement ~style:Style.[flexDirection(`Row)] ~children:!row ()) :: !input
+            done
+          in (View.createElement ~children:!input) ()
+        in
+        let children =
+          dessiner_matrice etat.taille1 (fun i j -> Input.createElement
+            ~style:Style.[width 40; margin2 ~horizontal:40 ~vertical:10]
+            ~value:etat.matrice1.(i).(j)
+            ~placeholder:etat.matrice1.(0).(j)
+            ~onChange:(fun {value; _} ->
+              if i = 0 && etat.mode = `Solveur then
+                dispatch(MiseAJourEntete (j, value, onUpdate))
+              else
+                dispatch(MiseAJour (1, i, j, value, onUpdate))
+          )
+          ~children:[] ()) :: children
+        in let children =
+          dessiner_matrice etat.taille2 (fun i j -> Input.createElement
+            ~style:Style.[width 40; margin2 ~horizontal:40 ~vertical:10]
+            ~value:etat.matrice1.(i).(j)
+            ~placeholder:etat.matrice1.(0).(j)
+            ~onChange:(fun {value; _} ->
+              if i = 0 && etat.mode = `Solveur then
+                dispatch(MiseAJourEntete (j, value, onUpdate))
+              else
+                dispatch(MiseAJour (1, i, j, value, onUpdate))
+          )
+          ~children:[] ()) :: children
+        in (hooks, View.createElement ~style:Style.[] ~children:children ()))
 end
 
 module Accueil = struct

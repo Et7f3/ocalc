@@ -36,8 +36,10 @@ type matrice_state =
   mode: matrice_mode;
   matrice1: string array array;
   matrice2: string array array;
+  matrice_res: string array array;
   taille1: int * int;
   taille2: int * int;
+  taille_res: int * int;
   message: string;
 }
 
@@ -246,8 +248,8 @@ module Matrice = struct
                 dispatch(MiseAJourEntete (j, value(*, onUpdate *)))
               else
                 dispatch(MiseAJour (1, i, j, value(*, onUpdate *)))
-          )
-          ~children:[] ())
+            )
+            ~children:[] ())
         in let op: Dropdown.items = [
           {value = "+"; label = "+                             ";(* all this space are for a bug *)};
           {value = "-"; label = "-                             ";};
@@ -270,9 +272,14 @@ module Matrice = struct
                 dispatch(MiseAJourEntete (j, value(*, onUpdate *)))
               else
                 dispatch(MiseAJour (2, i, j, value(*, onUpdate *)))
-          )
-          ~children:[] ())
-        in let children = (View.createElement ~style:Style.[flexDirection(`Row)] ~children:[m1; dropdown; m2] ()) :: children
+            )
+            ~children:[] ())
+        in let m_res =
+          dessiner_matrice etat.taille_res (fun i j -> Input.createElement
+            ~style:Style.[width 100; margin2 ~horizontal:40 ~vertical:10]
+            ~value:etat.matrice_res.(i).(j)
+            ~children:[] ())
+        in let children = (View.createElement ~style:Style.[flexDirection(`Row)] ~children:[m1; dropdown; m2] ()) :: m_res :: children
         in (hooks, View.createElement (* ~style:Style.[] *) ~children:children ()))
 end
 
@@ -389,8 +396,10 @@ module Application = struct
       mode = `Addition;
       matrice1 = Array.make_matrix 2 2 "0";
       matrice2 = Array.make_matrix 2 2 "0";
+      matrice_res = Array.make_matrix 2 2 "0";
       taille1 = (2, 2);
       taille2 = (2, 2);
+      taille_res = (2, 2);
       message = "";
     };
     accueil = {

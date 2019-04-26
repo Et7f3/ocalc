@@ -458,18 +458,16 @@ module Application = struct
           ~children:[] ())
 end
 
-let init app =
-  let options_fen = WindowCreateOptions.create ~icon:(Some "logo.png") () in
-  let fen = App.createWindow ~createOptions:options_fen app "OCalc" in
-  let afficher () = Application.createElement ~children:[] () in
-  UI.start fen (afficher ()) (afficher ())
-
 (*
 let init app =
-  let win = App.createWindow app "OCalc" in
-  Input.createElement ~style:Style.[top (100); left (300); position `Absolute] ~children:[] () |>
-  UI.start win |> ignore
+let win = App.createWindow app "OCalc" in
+Input.createElement ~style:Style.[top (100); left (300); position `Absolute] ~children:[] () |>
+UI.start win |> ignore
 
+let init app =
+  let win = App.createWindow app "OCalc" in
+  Input.createElement ~style:Style.[] ~children:[] () |>
+  UI.start win |> ignore
 
 let init app =
   let win = App.createWindow app "OCalc" in
@@ -480,5 +478,11 @@ let init app =
   ] in Dropdown.createElement ~items:op ~onItemSelected:(fun _ -> ()) ~children:[] () |>
   UI.start win |> ignore
 *)
+
+let init app =
+  let options_fen = WindowCreateOptions.create ~icon:(Some "logo.png") () in
+  let fen = App.createWindow ~createOptions:options_fen app "OCalc" in
+  let afficher () = Application.createElement ~children:[] () in
+  UI.start fen (afficher ()) (afficher ())
 
 let _ = App.start init

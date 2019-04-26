@@ -30,7 +30,7 @@ type historique_state =
 }
 type matrice_state =
 {
-  mode: [`Addition | `Soustraction | `Multiplication | `division];
+  mode: [`Solveur | `Addition | `Soustraction | `Multiplication | `division];
   matrice1: string array array;
   matrice2: string array array;
   taille1: int * int;
@@ -176,12 +176,13 @@ end
 module Matrice = struct
   let component = React.component "Matrice"
 
-  type action =
-    MiseAJour of int * int * int * string
+  type 'a action =
+      MiseAJour of int * int * int * string * ('a -> unit)
+    | MiseAJourEntete of int * string * ('a -> unit)
 
   let reducer action etat =
     match action with
-      MiseAJour (id, i, j, v) ->
+      MiseAJour (id, i, j, v, f) ->
         let mat =
           if id = 1 then
             etat.matrice1
@@ -192,21 +193,54 @@ module Matrice = struct
             let _ = float_of_string v in
             mat.(i).(j) <- v
           with Failure _ -> ()
-        in etat
-
+        in let () = f (`Matrice etat) in
+        if id = 1 then
+          {etat with matrice1 = mat}
+        else
+          {etat with matrice2 = mat}
+      | MiseAJourEntete (j, v, f) ->
+        let () = etat.matrice1.(0).(j) <- v in
+        {etat with matrice1 = etat.matrice1}
 
   let createElement ~initialState ~changerVue ~onUpdate =
   fun ~children:_ () ->
     component
       (fun hooks ->
-        let (etat (* nouvel etat *), _ (* dispatch *), hooks) =
+        let (etat (* nouvel etat *), dispatch, hooks) =
           React.Hooks.reducer ~initialState reducer hooks
         in let () = onUpdate (`Matrice etat) in
-        (hooks, View.createElement ~children:[
-          Button.createElement ~title:"Revenir à l'accueil" ~width:175
-            ~fontSize:25  ~onClick:(fun _  -> changerVue `VueAccueil)
-            ~children:[] ();
-          ] ()))
+        let bouton_retour =
+          Text.createElement ~text:"Revenir à l'accueil"
+           ~onMouseUp:(fun _  -> changerVue `VueAccueil)
+           ~style:Style.[
+            width 175; fontSize 25; fontFamily "Roboto-Regular.ttf";
+            position `Absolute; top 500
+          ]
+           ~children:[] ()
+        in let input = ref [bouton_retour] in
+        let () =
+          let h, w = etat.taille1 in
+          for i = pred h downto 0 do
+            let row = ref [] in
+            for j = pred w downto 0 do
+              row := (Input.createElement
+                ~style:Style.[
+                  width 40;
+                  margin2 ~horizontal:40 ~vertical:10
+                  ]
+              ~value:etat.matrice1.(i).(j)
+              ~placeholder:etat.matrice1.(0).(j)
+              ~onChange:(fun {value; _} ->
+                if i = 0 && etat.mode = `Solveur then
+                  dispatch(MiseAJourEntete (j, value, onUpdate))
+                else
+                  dispatch(MiseAJour (1, i, j, value, onUpdate))
+              )
+              ~children:[] ()) :: !row
+            done;
+            input :=  (View.createElement ~style:Style.[flexDirection(`Row)] ~children:!row ()) :: !input
+          done
+        in (hooks, View.createElement ~style:Style.[] ~children:!input ()))
 end
 
 module Accueil = struct
@@ -363,5 +397,12 @@ let init app =
   let fen = App.createWindow ~createOptions:options_fen app "OCalc" in
   let afficher () = Application.createElement ~children:[] () in
   UI.start fen (afficher ()) (afficher ())
+
+(*
+let init app =
+  let win = App.createWindow app "OCalc" in
+  Input.createElement ~style:Style.[top (100); left (300); position `Absolute] ~children:[] () |>
+  UI.start win |> ignore
+*)
 
 let _ = App.start init

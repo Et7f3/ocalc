@@ -68,8 +68,72 @@ let diviser (a, b, c) (d, e, f) =
   let b = [] in
   signe, b, c - f
 
-(** renvoie le grandreel à partir de sa représentation textuelle *)
-let grandreel_depuis_texte s = zero
+let grandReel_depuis_texte_transfo ga start = 
+  let rec grdt e max cpt = match e with 
+      (a,b,c) when cpt = max -> (a,b,c)
+    | (a,b,c) when a -> grdt  (a, (int_of_char ga.[cpt] - 48) :: b , c - 1) max (cpt + 1)   
+    | (a,b,c) -> 
+    if ga.[cpt] = ',' || ga.[cpt] = '.' then
+      grdt (true, b, c) max (cpt + 1)
+    else
+      grdt (a, (int_of_char ga.[cpt] - 48) :: b, c) max (cpt + 1)
+  in grdt (false, [], 0) (String.length ga) start  ;;
 
-(** renvoie la représentation textuelle d'un grandreel *)
-let texte_depuis_grandreel ga = ""
+
+let grandreel_depuis_texte sa =
+  if sa.[0] = '-' then
+    let (_,a,b) = grandReel_depuis_texte_transfo sa 1 in 
+    true, a , b
+  else if sa.[0] = '+' then
+    let (_,a,b) = grandReel_depuis_texte_transfo sa 1 in 
+    false, a , b
+  else
+    let (_,a,b) = grandReel_depuis_texte_transfo sa 0 in 
+    false, a , b
+
+(*Convertit basiquement le nombre*)
+let textedechiffre ga =
+  let rec tdc = function
+      [] -> ""
+    | e :: ga -> tdc ga ^ (string_of_int e)
+  in tdc ga
+
+(** renvoie la représentation textuelle d'un grandentier *)
+let texte_depuis_grandentier ga =
+  let (a, b) = ga in
+  if a = true then
+    "-" ^ textedechiffre b
+  else
+    textedechiffre b
+
+let rec ajouterdes0  texte nbr = 
+  if nbr = 0 then
+    texte
+  else
+    ajouterdes0 (texte ^ "0") (nbr - 1);;
+
+let rec tdgcs a b = match (a,b) with
+      ([],b) -> ""
+    | (e :: a,b) when b = 0 -> tdgcs  (e :: a) (b + 1) ^ "," 
+    | (e :: a,b) -> tdgcs a (b + 1) ^string_of_int e
+
+let texte_depuis_grandreel_cas_neg (a, b, c) = 
+  if a then 
+    "-" ^ tdgcs b c
+  else
+    tdgcs b c
+
+
+
+
+let texte_depuis_grandreel = function
+| (false, [], 0) -> "0"
+| (a, b, 0) -> texte_depuis_grandentier (a, b)
+| (a, b, c) when c > 0 -> ajouterdes0 (texte_depuis_grandentier (a, b)) c
+| ga -> texte_depuis_grandreel_cas_neg ga 
+
+(*
+  let t_depart = "42,24"
+let ga = grandreel_depuis_texte t_depart
+let resultat_correct = texte_depuis_grandreel ga = t_depart
+*)

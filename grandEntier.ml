@@ -160,8 +160,11 @@ let pgcd _ _ = (false, [])
 
 let diviser_multiple_abs a b =
   let rec d_m a b e =
-    if (comparer_nbr_abs a (bigint_times b e)) >= 0 then
+    let cmp = comparer_nbr_abs a (bigint_times b e) in 
+    if cmp = 0 then
       e
+    else if cmp = 1 then
+      sous (e,[1])
     else
       d_m a b (bigint_sum e [1])
   in d_m a b [1]
@@ -202,8 +205,6 @@ let grandentier_depuis_texte sa =
   else
     false, cse_rec sa 0
 
-let texte_depuis_grandentier ga = ""
-(** renvoie la représentation textuelle d'un grandentier *)
 
 (*Convertit basiquement le nombre*)
 let textedechiffre ga =

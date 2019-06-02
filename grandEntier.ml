@@ -47,8 +47,24 @@ let nth n l =
   -1 : ga > gb*)
 
 
-(* TODO: erase + 1 *)
 
+ let comparer_nbr_abs a b = 
+ let rec cna = function
+ | ([],[]) -> 0
+ | (r,[]) -> -1
+ | ([],r) -> 1
+ | (e1 :: a,e2 :: b) -> 
+ if e1 > e2 then
+ -1
+else if e2 > e1 then
+1
+else 
+  cna (a,b)
+in
+cna (List.rev a,List.rev b);;
+
+(* TODO: erase + 1 *)
+(*
 let comparer_nbr_abs ga gb =
   let la = length ga
   and lb  = length gb in
@@ -68,7 +84,7 @@ let comparer_nbr_abs ga gb =
       else
         cna (i + 1)
     in cna 1
-(*
+*)
 let comparer ga gb =
   match ga, gb with
     (true, _), (false, _) -> 1
@@ -78,23 +94,8 @@ let comparer ga gb =
 (* 1 : gb > ga
    0 : ga = gb
    -1 : ga > gb*)
-*)
 
 
- let comparer_nbr_abs a b = 
- let rec cna = function
- | ([],[]) -> 0
- | (r,[]) -> 1
- | ([],r) -> -1
- | (e1 :: a,e2 :: b) -> 
- if e1 > e2 then
- 1
-else if e2 > e1 then
--1
-else 
-  cna (a,b)
-in
-cna (List.rev a,List.rev b);;
 
 
 let bigint_sum big1 big2 =

@@ -4,10 +4,11 @@ open Revery.UI.Components
 
 type vue =
   [
-      `VueEquation
+      `VueCalcul
     | `VueHistorique
     | `VueMatrice
     | `VueAccueil
+    | `VueEquation
   ]
 
 (*
@@ -16,7 +17,7 @@ type vue_par_defaut_state =
   nothing: unit;
 }
 *)
-type equation_state =
+type calcul_state =
 {
   valeur: string;
   res: string;
@@ -43,6 +44,15 @@ type matrice_state =
   message: string;
 }
 
+type equation_state =
+{
+  mutable inconnu: char array;
+  mutable nbr_inc: int;
+  mutable mat1: string array array;
+  mutable mat2: string array array;
+  res: string;
+}
+
 type accueil_state =
 {
   nothing: unit
@@ -55,6 +65,7 @@ type application_state =
 
 type application_sauvegarde =
 {
+  calcul: calcul_state;
   equation: equation_state;
   historique: historique_state;
   matrice: matrice_state;
@@ -83,7 +94,7 @@ end
 *)
 
 
-module Equation = struct
+module Calcul = struct
   let component = React.component "Equation"
 
   type action =
@@ -143,7 +154,7 @@ module Equation = struct
         in
         let bouton_supp =
           Text.createElement ~text:"Éffacer" ~style:Style.[fontSize 25;
-          fontFamily "Roboto-Regular.ttf";] ~onMouseUp:(fun _ -> dispatch Vider) ~children:[] ()
+          fontFamily "Roboto-Regular.ttf"; marginHorizontal 20] ~onMouseUp:(fun _ -> dispatch Vider) ~children:[] ()
         in
         let sous_bout =
           View.createElement ~style:Style.[flexDirection `Row;] ~children:[bouton_calc; bouton_supp] ()
@@ -197,11 +208,11 @@ module Historique = struct
     fun ~children:_ () ->
       component
         (fun hooks ->
-          let bouton_retour = Text.createElement ~text:"Revenir au mode Équation"
+          let bouton_retour = Text.createElement ~text:"Revenir au mode Calculatrice"
           ~style:Style.[fontSize 25; fontFamily "Roboto-Regular.ttf";
           position `Absolute; bottom 10; right 10;]
                ~onMouseUp:(fun _  ->
-                          changerVue `VueEquation)
+                          changerVue `VueCalcul)
                ~children:[] () in
           hooks, View.createElement ~style:containerStyle ~children:(bouton_retour :: (histol historique)) ())
 end
@@ -287,7 +298,7 @@ module Matrice = struct
               fontSize 25; fontFamily "Roboto-Regular.ttf";
               position `Absolute; bottom 10; left 10;]
             ~children:[] ()
-        in let children = [bouton_retour; bouton_calc] in
+        in let children1 = [bouton_retour; bouton_calc] in
         let dessiner_matrice (h, w) f =
           let input = ref [] in
           let () =
@@ -345,9 +356,47 @@ module Matrice = struct
             ~style:Style.[color (Color.rgb 255. 255. 255.); width 100; margin2 ~horizontal:40 ~vertical:10]
             ~value:etat.matrice_res.(i).(j)
             ~children:[] ())
-            in let mat1cou = Text.createElement ~text:"+"
-              ~onMouseUp:(fun _  -> let (a, b) = etat.taille1 in etat.taille1 <- (a + 1, b); etat.matrice1 <- Array.make_matrix (a + 1) b "0";
-               let m1 =
+        in let chmttaille  id c d (a, b) =
+        match id with
+        1 when d -> if c then
+                      etat.taille1 <- (a + 1, b)
+                      else if a > 1 then
+                      etat.taille1 <- (a - 1, b)
+        | 1 -> if c then
+                etat.taille1 <- (a, b + 1)
+                else if b > 1 then
+                etat.taille1 <- (a, b - 1)
+        | 2 when d -> if c then
+                        etat.taille2 <- (a + 1, b)
+                        else if a > 1 then
+                        etat.taille2 <- (a - 1, b)
+        | 2 -> if c then
+                etat.taille2 <- (a, b + 1)
+                else if b > 1 then
+                etat.taille2 <- (a, b - 1)
+        | 3 when d -> if c then
+                        etat.taille_res <- (a + 1, b)
+                        else if a > 1 then
+                        etat.taille_res <- (a - 1, b)
+        | _ -> if c then
+                  etat.taille_res <- (a , b + 1)
+                  else if b > 1 then
+                    etat.taille_res <- (a, b - 1)
+        in let chmtmat id (a, b) =
+          match id with
+              1 -> etat.matrice1 <- Array.make_matrix a b "0"
+            | 2 -> etat.matrice2 <- Array.make_matrix a b  "0"
+            | _ -> etat.matrice_res <- Array.make_matrix a b "0"
+        (*in let squareu id signe =
+          match id with
+            1 -> chmttaille 1 signe true etat.taille1; chmttaille 1 signe false etat.taille1; chmtmat 1 etat.taille1
+          | 2 -> chmttaille 2 signe true etat.taille2; chmttaille 2 signe false etat.taille2; chmtmat 2 etat.taille2
+          | _ -> chmttaille 3 signe true etat.taille_res; chmttaille 3 signe false etat.taille_res; chmtmat 3 etat.taille_res*)
+        in let mat1cou = Text.createElement ~text:"+"
+            ~onMouseUp:(fun _ -> (*if etat.mode = `Multiplication then
+              begin*)
+              chmttaille 1 true true etat.taille1; chmtmat 1 etat.taille1; (*chmttaille 3 true true etat.taille_res; chmtmat 3 etat.taille_res;*)
+              let m1 =
                 dessiner_matrice etat.taille1 (fun i j -> Input.createElement
                   ~style:Style.[color (Color.rgb 255. 255. 255.); width 100; margin2 ~horizontal:40 ~vertical:10]
                   ~value:etat.matrice1.(i).(j)
@@ -358,79 +407,18 @@ module Matrice = struct
                       else
                       dispatch(MiseAJour (1, i, j, value(*, onUpdate *)))
                       )
-                ~children:[] ())
-              in dispatch(MiseAJour (1, 0, 0, etat.matrice1.(0).(0))) )
-              ~style:Style.[fontSize 25; fontFamily "Roboto-Regular.ttf";] ~children:[] ()
-            in let mat1cod = Text.createElement ~text:"-"
-                ~onMouseUp:(fun _  -> let (a, b) = etat.taille1 in etat.taille1 <- (a - 1, b); etat.matrice1 <- Array.make_matrix (a - 1) b "0";
-                 let m1 =
-                  dessiner_matrice etat.taille1 (fun i j -> Input.createElement
-                    ~style:Style.[color (Color.rgb 255. 255. 255.); width 100; margin2 ~horizontal:40 ~vertical:10]
-                    ~value:etat.matrice1.(i).(j)
-                    ~placeholder:etat.matrice1.(0).(j)
-                    ~onChange:(fun {value; _} ->
-                      if i = 0 && etat.mode = `Solveur then
-                        dispatch(MiseAJourEntete (j, value(*, onUpdate *)))
-                        else
-                        dispatch(MiseAJour (1, i, j, value(*, onUpdate *)))
-                        )
-                  ~children:[] ())
-                in dispatch(MiseAJour (1, 0, 0, etat.matrice1.(0).(0))) )
-                ~style:Style.[fontSize 25; fontFamily "Roboto-Regular.ttf"; marginHorizontal 20] ~children:[] ()
-        in let boutton_mat1c = View.createElement ~style:Style.[flexDirection `Row; flexGrow 2; marginHorizontal 50] ~children:[mat1cou; mat1cod] ()
-        in let mat2cou = Text.createElement ~text:"+"
-            ~onMouseUp:(fun _  -> let (a, b) = etat.taille2 in etat.taille2 <- (a + 1, b); etat.matrice2 <- Array.make_matrix (a + 1) b "0";
-             let m2 =
-              dessiner_matrice etat.taille2 (fun i j -> Input.createElement
-                ~style:Style.[color (Color.rgb 255. 255. 255.); width 100; margin2 ~horizontal:40 ~vertical:10]
-                ~value:etat.matrice2.(i).(j)
-                ~placeholder:etat.matrice2.(0).(j)
-                ~onChange:(fun {value; _} ->
-                  if i = 0 && etat.mode = `Solveur then
-                    dispatch(MiseAJourEntete (j, value(*, onUpdate *)))
-                    else
-                    dispatch(MiseAJour (1, i, j, value(*, onUpdate *)))
-                    )
-              ~children:[] ())
-            in dispatch(MiseAJour (2, 0, 0, etat.matrice2.(0).(0))) )
-            ~style:Style.[fontSize 25; fontFamily "Roboto-Regular.ttf"; marginHorizontal 20] ~children:[] ()
-        in let mat2cod = Text.createElement ~text:"-"
-              ~onMouseUp:(fun _  -> let (a, b) = etat.taille2 in etat.taille2 <- (a - 1, b); etat.matrice2 <- Array.make_matrix (a - 1) b "0";
-               let m2 =
-                dessiner_matrice etat.taille2 (fun i j -> Input.createElement
+                      ~children:[] ()) in
+              dispatch(MiseAJour (1, 0, 0, etat.matrice1.(0).(0))) (* ;
+              let m_res =
+                dessiner_matrice etat.taille_res (fun i j -> Input.createElement
                   ~style:Style.[color (Color.rgb 255. 255. 255.); width 100; margin2 ~horizontal:40 ~vertical:10]
-                  ~value:etat.matrice2.(i).(j)
-                  ~placeholder:etat.matrice2.(0).(j)
-                  ~onChange:(fun {value; _} ->
-                    if i = 0 && etat.mode = `Solveur then
-                      dispatch(MiseAJourEntete (j, value(*, onUpdate *)))
-                      else
-                      dispatch(MiseAJour (1, i, j, value(*, onUpdate *)))
-                      )
-                ~children:[] ())
-              in dispatch(MiseAJour (2, 0, 0, etat.matrice2.(0).(0))) )
-              ~style:Style.[fontSize 25; fontFamily "Roboto-Regular.ttf";] ~children:[] ()
-        in let boutton_mat2c = View.createElement ~style:Style.[flexDirection `RowReverse; marginHorizontal 50] ~children:[mat2cou; mat2cod] ()
-        in let boutton_matc = View.createElement ~style:Style.[flexDirection`Row;] ~children:[boutton_mat1c; boutton_mat2c] ()
-        in let mat1liu = Text.createElement ~text:"+"
-          ~onMouseUp:(fun _  -> let (a, b) = etat.taille1 in etat.taille1 <- (a, b + 1); etat.matrice1 <- Array.make_matrix a (b + 1) "0";
-           let m1 =
-            dessiner_matrice etat.taille1 (fun i j -> Input.createElement
-              ~style:Style.[color (Color.rgb 255. 255. 255.); width 100; margin2 ~horizontal:40 ~vertical:10]
-              ~value:etat.matrice1.(i).(j)
-              ~placeholder:etat.matrice1.(0).(j)
-              ~onChange:(fun {value; _} ->
-                if i = 0 && etat.mode = `Solveur then
-                  dispatch(MiseAJourEntete (j, value(*, onUpdate *)))
-                  else
-                  dispatch(MiseAJour (1, i, j, value(*, onUpdate *)))
-                  )
-            ~children:[] ())
-          in dispatch(MiseAJour (1, 0, 0, etat.matrice1.(0).(0))) )
-          ~style:Style.[fontSize 25; fontFamily "Roboto-Regular.ttf";] ~children:[] ()
-        in let mat1lid = Text.createElement ~text:"-"
-            ~onMouseUp:(fun _  -> let (a, b) = etat.taille1 in etat.taille1 <- (a, b - 1); etat.matrice1 <- Array.make_matrix a (b - 1) "0";
-             let m1 =
+                  ~value:etat.matrice_res.(i).(j)
+                  ~children:[] ()) in ()
+            end
+            else
+            begin
+              squareu 1 true; squareu 2 true; squareu 3 true;
+              let m1 =
               dessiner_matrice etat.taille1 (fun i j -> Input.createElement
                 ~style:Style.[color (Color.rgb 255. 255. 255.); width 100; margin2 ~horizontal:40 ~vertical:10]
                 ~value:etat.matrice1.(i).(j)
@@ -441,13 +429,9 @@ module Matrice = struct
                     else
                     dispatch(MiseAJour (1, i, j, value(*, onUpdate *)))
                     )
-              ~children:[] ())
-            in dispatch(MiseAJour (1, 0, 0, etat.matrice1.(0).(0))) )
-            ~style:Style.[fontSize 25; fontFamily "Roboto-Regular.ttf";] ~children:[] ()
-        in let boutton_mat1l = View.createElement ~children:[mat1liu; mat1lid] ()
-        in let mat2liu = Text.createElement ~text:"+"
-          ~onMouseUp:(fun _  -> let (a, b) = etat.taille2 in etat.taille2 <- (a, b + 1); etat.matrice2 <- Array.make_matrix a (b + 1) "0";
-           let m2 =
+              ~children:[] ()) in
+            dispatch(MiseAJour (1, 0, 0, etat.matrice1.(0).(0)));
+            let m2 =
             dessiner_matrice etat.taille2 (fun i j -> Input.createElement
               ~style:Style.[color (Color.rgb 255. 255. 255.); width 100; margin2 ~horizontal:40 ~vertical:10]
               ~value:etat.matrice2.(i).(j)
@@ -456,13 +440,79 @@ module Matrice = struct
                 if i = 0 && etat.mode = `Solveur then
                   dispatch(MiseAJourEntete (j, value(*, onUpdate *)))
                   else
-                  dispatch(MiseAJour (1, i, j, value(*, onUpdate *)))
+                  dispatch(MiseAJour (2, i, j, value(*, onUpdate *)))
                   )
-            ~children:[] ())
-          in dispatch(MiseAJour (2, 0, 0, etat.matrice2.(0).(0))) )
-          ~style:Style.[fontSize 25; fontFamily "Roboto-Regular.ttf";] ~children:[] ()
-        in let mat2lid = Text.createElement ~text:"-"
-            ~onMouseUp:(fun _  -> let (a, b) = etat.taille2 in etat.taille2 <- (a, b - 1); etat.matrice2 <- Array.make_matrix a (b - 1) "0";
+            ~children:[] ()) in
+          dispatch(MiseAJour (2, 0, 0, etat.matrice2.(0).(0)));
+          let m_res =
+            dessiner_matrice etat.taille_res (fun i j -> Input.createElement
+              ~style:Style.[color (Color.rgb 255. 255. 255.); width 100; margin2 ~horizontal:40 ~vertical:10]
+              ~value:etat.matrice_res.(i).(j)
+              ~children:[] ()) in ()
+            end*) )
+            ~style:Style.[fontSize 25; fontFamily "Roboto-Regular.ttf";] ~children:[] ()
+        in let mat1cod = Text.createElement ~text:"-"
+            ~onMouseUp:(fun _ -> (*if etat.mode = `Multiplication then
+              begin*)
+              chmttaille 1 false true etat.taille1; chmtmat 1 etat.taille1; (*chmttaille 3 false true etat.taille_res; chmtmat 3 etat.taille_res;*)
+              let m1 =
+              dessiner_matrice etat.taille1 (fun i j -> Input.createElement
+                ~style:Style.[color (Color.rgb 255. 255. 255.); width 100; margin2 ~horizontal:40 ~vertical:10]
+                ~value:etat.matrice1.(i).(j)
+                ~placeholder:etat.matrice1.(0).(j)
+                ~onChange:(fun {value; _} ->
+                  if i = 0 && etat.mode = `Solveur then
+                    dispatch(MiseAJourEntete (j, value(*, onUpdate *)))
+                    else
+                    dispatch(MiseAJour (1, i, j, value(*, onUpdate *)))
+                    )
+              ~children:[] ()) in
+            dispatch(MiseAJour (1, 0, 0, etat.matrice1.(0).(0))) (*;
+            let m_res =
+              dessiner_matrice etat.taille_res (fun i j -> Input.createElement
+                ~style:Style.[color (Color.rgb 255. 255. 255.); width 100; margin2 ~horizontal:40 ~vertical:10]
+                ~value:etat.matrice_res.(i).(j)
+                ~children:[] ()) in ()
+            end
+            else
+            begin
+              squareu 1 false; squareu 2 false; squareu 3 false;
+              let m1 =
+              dessiner_matrice etat.taille1 (fun i j -> Input.createElement
+                ~style:Style.[color (Color.rgb 255. 255. 255.); width 100; margin2 ~horizontal:40 ~vertical:10]
+                ~value:etat.matrice1.(i).(j)
+                ~placeholder:etat.matrice1.(0).(j)
+                ~onChange:(fun {value; _} ->
+                  if i = 0 && etat.mode = `Solveur then
+                    dispatch(MiseAJourEntete (j, value(*, onUpdate *)))
+                    else
+                    dispatch(MiseAJour (1, i, j, value(*, onUpdate *)))
+                    )
+              ~children:[] ()) in
+            dispatch(MiseAJour (1, 0, 0, etat.matrice1.(0).(0)));
+            let m2 =
+            dessiner_matrice etat.taille2 (fun i j -> Input.createElement
+              ~style:Style.[color (Color.rgb 255. 255. 255.); width 100; margin2 ~horizontal:40 ~vertical:10]
+              ~value:etat.matrice2.(i).(j)
+              ~placeholder:etat.matrice2.(0).(j)
+              ~onChange:(fun {value; _} ->
+                if i = 0 && etat.mode = `Solveur then
+                  dispatch(MiseAJourEntete (j, value(*, onUpdate *)))
+                  else
+                  dispatch(MiseAJour (2, i, j, value(*, onUpdate *)))
+                  )
+            ~children:[] ()) in
+          dispatch(MiseAJour (2, 0, 0, etat.matrice2.(0).(0)));
+          let m_res =
+            dessiner_matrice etat.taille_res (fun i j -> Input.createElement
+              ~style:Style.[color (Color.rgb 255. 255. 255.); width 100; margin2 ~horizontal:40 ~vertical:10]
+              ~value:etat.matrice_res.(i).(j)
+              ~children:[] ()) in ()
+            end*) )
+            ~style:Style.[fontSize 25; fontFamily "Roboto-Regular.ttf"; marginHorizontal 20] ~children:[] ()
+        in let boutton_mat1c = View.createElement ~style:Style.[flexDirection `Row; flexGrow 2; marginHorizontal 50] ~children:[mat1cou; mat1cod] ()
+        in let mat2cou = Text.createElement ~text:"+"
+            ~onMouseUp:(fun _  -> chmttaille 2 true true etat.taille2; chmtmat 2 etat.taille2;
              let m2 =
               dessiner_matrice etat.taille2 (fun i j -> Input.createElement
                 ~style:Style.[color (Color.rgb 255. 255. 255.); width 100; margin2 ~horizontal:40 ~vertical:10]
@@ -472,17 +522,347 @@ module Matrice = struct
                   if i = 0 && etat.mode = `Solveur then
                     dispatch(MiseAJourEntete (j, value(*, onUpdate *)))
                     else
-                    dispatch(MiseAJour (1, i, j, value(*, onUpdate *)))
+                    dispatch(MiseAJour (2, i, j, value(*, onUpdate *)))
                     )
               ~children:[] ())
             in dispatch(MiseAJour (2, 0, 0, etat.matrice2.(0).(0))) )
+            ~style:Style.[fontSize 25; fontFamily "Roboto-Regular.ttf"; marginHorizontal 20] ~children:[] ()
+        in let mat2cod = Text.createElement ~text:"-"
+              ~onMouseUp:(fun _  -> chmttaille 2 false true etat.taille2; chmtmat 2 etat.taille2;
+               let m2 =
+                dessiner_matrice etat.taille2 (fun i j -> Input.createElement
+                  ~style:Style.[color (Color.rgb 255. 255. 255.); width 100; margin2 ~horizontal:40 ~vertical:10]
+                  ~value:etat.matrice2.(i).(j)
+                  ~placeholder:etat.matrice2.(0).(j)
+                  ~onChange:(fun {value; _} ->
+                    if i = 0 && etat.mode = `Solveur then
+                      dispatch(MiseAJourEntete (j, value(*, onUpdate *)))
+                      else
+                      dispatch(MiseAJour (2, i, j, value(*, onUpdate *)))
+                      )
+                ~children:[] ())
+              in dispatch(MiseAJour (2, 0, 0, etat.matrice2.(0).(0))) )
+              ~style:Style.[fontSize 25; fontFamily "Roboto-Regular.ttf";] ~children:[] ()
+        in let boutton_mat2c = View.createElement ~style:Style.[flexDirection `RowReverse; marginHorizontal 50] ~children:((*if etat.mode = `Multiplication then*)
+          [mat2cou; mat2cod]
+          (*else [mat1cou; mat1cod]*)) ()
+        in let boutton_matc = View.createElement ~style:Style.[flexDirection`Row;] ~children:[boutton_mat1c; boutton_mat2c] ()
+        in let mat1liu = Text.createElement ~text:"+"
+          ~onMouseUp:(fun _ -> (*if etat.mode = `Multiplication then
+            begin*)
+            chmttaille 1 true false etat.taille1; chmtmat 1 etat.taille1;
+            let m1 =
+            dessiner_matrice etat.taille1 (fun i j -> Input.createElement
+              ~style:Style.[color (Color.rgb 255. 255. 255.); width 100; margin2 ~horizontal:40 ~vertical:10]
+              ~value:etat.matrice1.(i).(j)
+              ~placeholder:etat.matrice1.(0).(j)
+              ~onChange:(fun {value; _} ->
+                if i = 0 && etat.mode = `Solveur then
+                  dispatch(MiseAJourEntete (j, value(*, onUpdate *)))
+                  else
+                  dispatch(MiseAJour (1, i, j, value(*, onUpdate *)))
+                  )
+            ~children:[] ()) in
+          dispatch(MiseAJour (1, 0, 0, etat.matrice1.(0).(0)))
+          (*end
+          else
+          begin
+            squareu 1 true; squareu 2 true; squareu 3 true;
+            let m1 =
+            dessiner_matrice etat.taille1 (fun i j -> Input.createElement
+              ~style:Style.[color (Color.rgb 255. 255. 255.); width 100; margin2 ~horizontal:40 ~vertical:10]
+              ~value:etat.matrice1.(i).(j)
+              ~placeholder:etat.matrice1.(0).(j)
+              ~onChange:(fun {value; _} ->
+                if i = 0 && etat.mode = `Solveur then
+                  dispatch(MiseAJourEntete (j, value(*, onUpdate *)))
+                  else
+                  dispatch(MiseAJour (1, i, j, value(*, onUpdate *)))
+                  )
+            ~children:[] ()) in
+          dispatch(MiseAJour (1, 0, 0, etat.matrice1.(0).(0)));
+          let m2 =
+          dessiner_matrice etat.taille2 (fun i j -> Input.createElement
+            ~style:Style.[color (Color.rgb 255. 255. 255.); width 100; margin2 ~horizontal:40 ~vertical:10]
+            ~value:etat.matrice2.(i).(j)
+            ~placeholder:etat.matrice2.(0).(j)
+            ~onChange:(fun {value; _} ->
+              if i = 0 && etat.mode = `Solveur then
+                dispatch(MiseAJourEntete (j, value(*, onUpdate *)))
+                else
+                dispatch(MiseAJour (2, i, j, value(*, onUpdate *)))
+                )
+          ~children:[] ()) in
+        dispatch(MiseAJour (2, 0, 0, etat.matrice2.(0).(0)));
+        let m_res =
+          dessiner_matrice etat.taille_res (fun i j -> Input.createElement
+            ~style:Style.[color (Color.rgb 255. 255. 255.); width 100; margin2 ~horizontal:40 ~vertical:10]
+            ~value:etat.matrice_res.(i).(j)
+            ~children:[] ()) in ()
+          end*) )
+          ~style:Style.[fontSize 25; fontFamily "Roboto-Regular.ttf";] ~children:[] ()
+        in let mat1lid = Text.createElement ~text:"-"
+            ~onMouseUp:(fun _ ->(*if etat.mode = `Multiplication then
+              begin*)
+              chmttaille 1 false false etat.taille1; chmtmat 1 etat.taille1;
+              let m1 =
+              dessiner_matrice etat.taille1 (fun i j -> Input.createElement
+                ~style:Style.[color (Color.rgb 255. 255. 255.); width 100; margin2 ~horizontal:40 ~vertical:10]
+                ~value:etat.matrice1.(i).(j)
+                ~placeholder:etat.matrice1.(0).(j)
+                ~onChange:(fun {value; _} ->
+                  if i = 0 && etat.mode = `Solveur then
+                    dispatch(MiseAJourEntete (j, value(*, onUpdate *)))
+                    else
+                    dispatch(MiseAJour (1, i, j, value(*, onUpdate *)))
+                    )
+              ~children:[] ()) in
+            dispatch(MiseAJour (1, 0, 0, etat.matrice1.(0).(0)))
+            (*end
+            else
+            begin
+              squareu 1 false; squareu 2 false; squareu 3 false;
+              let m1 =
+              dessiner_matrice etat.taille1 (fun i j -> Input.createElement
+                ~style:Style.[color (Color.rgb 255. 255. 255.); width 100; margin2 ~horizontal:40 ~vertical:10]
+                ~value:etat.matrice1.(i).(j)
+                ~placeholder:etat.matrice1.(0).(j)
+                ~onChange:(fun {value; _} ->
+                  if i = 0 && etat.mode = `Solveur then
+                    dispatch(MiseAJourEntete (j, value(*, onUpdate *)))
+                    else
+                    dispatch(MiseAJour (1, i, j, value(*, onUpdate *)))
+                    )
+              ~children:[] ()) in
+            dispatch(MiseAJour (1, 0, 0, etat.matrice1.(0).(0)));
+            let m2 =
+            dessiner_matrice etat.taille2 (fun i j -> Input.createElement
+              ~style:Style.[color (Color.rgb 255. 255. 255.); width 100; margin2 ~horizontal:40 ~vertical:10]
+              ~value:etat.matrice2.(i).(j)
+              ~placeholder:etat.matrice2.(0).(j)
+              ~onChange:(fun {value; _} ->
+                if i = 0 && etat.mode = `Solveur then
+                  dispatch(MiseAJourEntete (j, value(*, onUpdate *)))
+                  else
+                  dispatch(MiseAJour (2, i, j, value(*, onUpdate *)))
+                  )
+            ~children:[] ()) in
+          dispatch(MiseAJour (2, 0, 0, etat.matrice2.(0).(0)));
+          let m_res =
+            dessiner_matrice etat.taille_res (fun i j -> Input.createElement
+              ~style:Style.[color (Color.rgb 255. 255. 255.); width 100; margin2 ~horizontal:40 ~vertical:10]
+              ~value:etat.matrice_res.(i).(j)
+              ~children:[] ()) in ()
+            end*) )
             ~style:Style.[fontSize 25; fontFamily "Roboto-Regular.ttf";] ~children:[] ()
-        in let boutton_mat2l = View.createElement ~children:[mat2liu; mat2lid] ()
-        in let children = (View.createElement ~style:Style.[flexDirection(`Row)] ~children:[boutton_mat1l; m1; dropdown; m2; boutton_mat2l] ()) :: m_res :: children
+        in let boutton_mat1l = View.createElement ~children:[mat1liu; mat1lid] ()
+        in let mat2liu = Text.createElement ~text:"+"
+          ~onMouseUp:(fun _  -> chmttaille 2 true false etat.taille2; chmtmat 2 etat.taille2; (*chmttaille 3 true false etat.taille_res; chmtmat 3 etat.taille_res;*)
+           let m2 =
+            dessiner_matrice etat.taille2 (fun i j -> Input.createElement
+              ~style:Style.[color (Color.rgb 255. 255. 255.); width 100; margin2 ~horizontal:40 ~vertical:10]
+              ~value:etat.matrice2.(i).(j)
+              ~placeholder:etat.matrice2.(0).(j)
+              ~onChange:(fun {value; _} ->
+                if i = 0 && etat.mode = `Solveur then
+                  dispatch(MiseAJourEntete (j, value(*, onUpdate *)))
+                  else
+                  dispatch(MiseAJour (2, i, j, value(*, onUpdate *)))
+                  )
+            ~children:[] ())
+          in dispatch(MiseAJour (2, 0, 0, etat.matrice2.(0).(0))) (*;
+          let m_res =
+            dessiner_matrice etat.taille_res (fun i j -> Input.createElement
+              ~style:Style.[color (Color.rgb 255. 255. 255.); width 100; margin2 ~horizontal:40 ~vertical:10]
+              ~value:etat.matrice_res.(i).(j)
+              ~children:[] ()) in ()*) )
+          ~style:Style.[fontSize 25; fontFamily "Roboto-Regular.ttf";] ~children:[] ()
+        in let mat2lid = Text.createElement ~text:"-"
+            ~onMouseUp:(fun _  -> chmttaille 2 false false etat.taille2; chmtmat 2 etat.taille2; (*chmttaille 3 false false etat.taille_res; chmtmat 3 etat.taille_res;*)
+             let m2 =
+              dessiner_matrice etat.taille2 (fun i j -> Input.createElement
+                ~style:Style.[color (Color.rgb 255. 255. 255.); width 100; margin2 ~horizontal:40 ~vertical:10]
+                ~value:etat.matrice2.(i).(j)
+                ~placeholder:etat.matrice2.(0).(j)
+                ~onChange:(fun {value; _} ->
+                  if i = 0 && etat.mode = `Solveur then
+                    dispatch(MiseAJourEntete (j, value(*, onUpdate *)))
+                    else
+                    dispatch(MiseAJour (2, i, j, value(*, onUpdate *)))
+                    )
+              ~children:[] ())
+            in dispatch(MiseAJour (2, 0, 0, etat.matrice2.(0).(0))) (*;
+            let m_res =
+              dessiner_matrice etat.taille_res (fun i j -> Input.createElement
+                ~style:Style.[color (Color.rgb 255. 255. 255.); width 100; margin2 ~horizontal:40 ~vertical:10]
+                ~value:etat.matrice_res.(i).(j)
+                ~children:[] ()) in () *) )
+            ~style:Style.[fontSize 25; fontFamily "Roboto-Regular.ttf";] ~children:[] ()
+        in let boutton_mat2l = View.createElement ~children:((*if etat.mode = `Multiplication then*)
+          [mat2liu; mat2lid]
+          (*else
+          [mat1liu; mat1lid]*)) ()
+        in let children = View.createElement ~style:Style.[flexDirection `Row;] ~children:[boutton_mat1l; m1; dropdown; m2; boutton_mat2l] ()
         in (hooks, View.createElement ~style:Style.[position `Absolute; alignItems `Center;
-        bottom 0; top 0; left 0; right 0] ~children:(boutton_matc :: children) ()))
+        bottom 0; top 0; left 0; right 0] ~children:(boutton_matc :: children :: m_res :: children1) ()))
 end
 
+(*module Equation = struct
+
+  let component = React.component "Equation"
+
+  type 'a action =
+      MiseAJour of int * int * int * string(* * ('a -> unit) *)
+    | MiseAJourEntete of int * string(* * ('a -> unit) *)
+    | Calculer of matrice_mode
+
+  let reducer action etat =
+    match action with
+      MiseAJour (id, i, j, v(*, f*)) ->
+        let mat =
+          if id = 1 then
+            etat.mat1
+          else
+            etat.mat2
+        in let () =
+          try
+            let _ = float_of_string v in
+            mat.(i).(j) <- v
+          with Failure _ -> ()
+        in (*let () = f (`Matrice etat) in*)
+        if id = 1 then
+          {etat with mat1 = mat}
+        else
+          {etat with mat2 = mat}
+      | MiseAJourEntete (j, v(*, f*)) ->
+        let () = etat.mat1.(0).(j) <- v in
+        {etat with matrice1 = etat.mat1}
+      | Calculer `Solveur ->
+        etat
+      | Calculer _ ->
+        let array_map2 f = Array.map (fun e -> Array.map f e) in
+        let m1 = array_map2 float_of_string etat.mat1 in
+        let m2 = array_map2 float_of_string etat.mat2 in
+        let f = (fun () -> "0" ) in
+        let res = f m1 m2 in
+        {etat with res}
+
+
+  let createElement ~initialState ~changerVue ~onUpdate =
+    fun ~children:_ () ->
+      component
+      (fun hooks ->
+        let (etat (* nouvel etat *), dispatch, hooks) =
+          React.Hooks.reducer ~initialState reducer hooks
+        in let () = onUpdate (`Equation etat) in
+        let bouton_acc =
+        Text.createElement ~text:"Accéder à l'accueil"
+         ~onMouseUp:(fun _  -> changerVue `VueAccueil)
+         ~style:Style.[
+          fontSize 25; fontFamily "Roboto-Regular.ttf"; justifyContent `Center; color (Color.rgb 255. 120. 10.);
+          position `Absolute; bottom 10; left 0; right 0;]
+         ~children:[] ()
+        in let bouton_calc =
+        Text.createElement ~text:"Calculer le résultat"
+         ~onMouseUp:(fun _ -> dispatch (Calculer etat.mode))
+         ~style:Style.[
+          fontSize 25; fontFamily "Roboto-Regular.ttf";
+          position `Absolute; bottom 10; right 10;]
+         ~children:[] ()
+        in let inc_to_list L =
+          match L with
+            [] -> []
+          | e :: l -> (View.createElement ~text:e ~style:Style.[
+                        fontSize 25; fontFamily "Roboto-Regular.ttf";
+                        position `Absolute; marginHorizontal 20]
+                        ~children:[] ()) :: inc_to_list l
+        in let dessiner_matrice (h, w) f =
+          let input = ref [] in
+          let () =
+            for i = pred h downto 0 do
+              let row = ref [] in
+              let () =
+                for j = pred w downto 0 do
+                  row := (f i j) :: !row
+                done
+              in input :=  (View.createElement ~style:Style.[flexDirection(`Row)] ~children:!row ()) :: !input
+            done
+          in (View.createElement ~children:!input) ()
+        in let m1 =
+          dessiner_matrice (1, etat.nbr_inc + 1) (fun i j -> Input.createElement
+            ~style:Style.[color (Color.rgb 255. 255. 255.); width 100; margin2 ~horizontal:40 ~vertical:10]
+            ~value:etat.mat.(i).(j)
+            ~placeholder:etat.mat.(0).(j)
+            ~onChange:(fun {value; _} ->
+              if i = 0 && etat.mode = `Solveur then
+                dispatch(MiseAJourEntete (j, value(*, onUpdate *)))
+              else
+                dispatch(MiseAJour (1, i, j, value(*, onUpdate *)))
+            )
+            ~children:[] ())
+        in let m2 =
+          dessiner_matrice (1, 1) (fun i j -> Input.createElement
+            ~style:Style.[color (Color.rgb 255. 255. 255.); width 100; margin2 ~horizontal:40 ~vertical:10]
+            ~value:etat.mat.(i).(j)
+            ~placeholder:etat.mat.(0).(j)
+            ~onChange:(fun {value; _} ->
+              if i = 0 && etat.mode = `Solveur then
+                dispatch(MiseAJourEntete (j, value(*, onUpdate *)))
+              else
+                dispatch(MiseAJour (1, i, j, value(*, onUpdate *)))
+            )
+            ~children:[] ())
+        in let add_inc () =
+          let inc = (int_of_char etat.inconnu.[0]) + 1 in
+          let inc = char_of_int (
+          if inc > 122 then
+            inc = inc - 26
+          else inc )
+          in let inc = (if (Array.exist (fun a -> a == inc) etat.inconnu) then
+            inc ^ inc
+            else
+            inc)
+          in let _ = etat.inconnu <- inc :: etat.inconnu
+          in let _ = etat.nbr_inc <- etat.nbr_inc + 1
+        in let minus_inc () =
+          let (e :: l) = etat.inconnu in etat.inconnu <- l; etat.nbr_inc <- etat.nbr_inc - 1
+        in let boutton_addinc =
+          Text.createElement ~text:"+" ~onMouseUp:(fun () ->
+          add_inc (); etat.mat1 <- Array.make_matrix 1 (nbr_inc + 1) "0";
+          let m1 = dessiner_matrice (1, etat.nbr_inc + 1) (fun i j -> Input.createElement
+            ~style:Style.[color (Color.rgb 255. 255. 255.); width 100; margin2 ~horizontal:40 ~vertical:10]
+            ~value:etat.mat.(i).(j)
+            ~placeholder:etat.mat.(0).(j)
+            ~onChange:(fun {value; _} ->
+              if i = 0 && etat.mode = `Solveur then
+                dispatch(MiseAJourEntete (j, value(*, onUpdate *)))
+              else
+                dispatch(MiseAJour (1, i, j, value(*, onUpdate *)))
+            )
+            ~children:[] ()) in dispatch(MiseAJour (1, 0, 0, "")) )
+          ~style:Style.[fontSize 25; fontFamily "Roboto-Regular.ttf";] ~children:[] ()
+        in let boutton_mininc =
+          Texte.createElement ~text:"-" ~onMouseUp:(fun () ->
+            minus_inc (); etat.mat1 <- Array.make_matrix 1 (etat.nbr_inc + 1) "0";
+            let m1 = dessiner_matrice (1, etat.nbr_inc + 1) (fun i j -> Input.createElement
+              ~style:Style.[color (Color.rgb 255. 255. 255.); width 100; margin2 ~horizontal:40 ~vertical:10]
+              ~value:etat.mat.(i).(j)
+              ~placeholder:etat.mat.(0).(j)
+              ~onChange:(fun {value; _} ->
+                if i = 0 && etat.mode = `Solveur then
+                  dispatch(MiseAJourEntete (j, value(*, onUpdate *)))
+                else
+                  dispatch(MiseAJour (1, i, j, value(*, onUpdate *)))
+              )
+              ~children:[] ()) in dispatch(MiseAJour (1, 0, 0, "")) )
+          ~style:Style.[fontSize 25; fontFamily "Roboto-Regular.ttf";] ~children:[] ()
+        in let children = View.createElement ~style:Style.[flexDirection `Row;] ~children:[m1; boutton_addinc; boutton_mininc; m2] ()
+        in let list_inc = View.createElement ~style:Style.[flexDirection `Row;] ~children:(inc_to_list etat.inconnu) ()
+        in (hooks, View.createElement ~style:Style.[position `Absolute; alignItems `Center;
+        bottom 0; top 0; left 0; right 0;] ~children:[list_inc; children] ()))
+
+end
+*)
 module Accueil = struct
   let component = React.component "Accueil"
 
@@ -565,8 +945,8 @@ module Accueil = struct
         ]
       in
       let bouton_equa =
-        Text.createElement ~text:"Accéder à équation"
-         ~onMouseUp:(fun _  -> changerVue `VueEquation)
+        Text.createElement ~text:"Accéder à la calculatrice"
+         ~onMouseUp:(fun _  -> changerVue `VueCalcul)
          ~style:Style.[
           fontSize 25; fontFamily "Roboto-Regular.ttf"; justifyContent `Center; color (Color.rgb 255. 120. 10.);
           position `Absolute; bottom 10; left 10;
@@ -624,7 +1004,7 @@ module Application = struct
       ChangerVue v -> {(* etat with *) vue_courante = v}
 
   let miseAJour = function
-    `Equation e ->
+    `Calcul e ->
       let () = sauvegarde := {!sauvegarde with equation = e} in
       !sauvegarde.historique.liste <- e.liste_historique
     | `Matrice e -> sauvegarde := {!sauvegarde with matrice = e}
@@ -637,7 +1017,7 @@ module Application = struct
           let ({vue_courante}, dispatch, hooks) =
             React.Hooks.reducer ~initialState:{vue_courante = `VueAccueil} reducer hooks
           in let choisir_vue = function
-              `VueEquation -> Equation.createElement ~initialState:(!sauvegarde.equation)
+              `VueCalcul -> Calcul.createElement ~initialState:(!sauvegarde.equation)
             | `VueHistorique -> Historique.createElement !sauvegarde.equation.liste_historique
             | `VueMatrice -> Matrice.createElement ~initialState:(!sauvegarde.matrice)
             | `VueAccueil -> Accueil.createElement ~initialState:(!sauvegarde.accueil)

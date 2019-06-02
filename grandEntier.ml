@@ -27,19 +27,27 @@ let nettoyer_zero a =
    0 : ga = gb
   -1 : ga > gb*)
 
-let comparer_nbr_abs a b =
-  let rec cna = function
-      [], [] -> 0
-    | r, [] -> -1
-    | [], r -> 1
-    | e1 :: a, e2 :: b ->
-      if e1 > e2 then
-        -1
-      else if e2 > e1 then
-        1
-      else
-        cna (a,b)
-  in cna (List.rev a, List.rev b)
+let comparer_nbr_abs ga gb =
+  let la = List.length ga
+  and lb = List.length gb in
+  if la > lb then
+    -1
+  else if la < lb then
+   1
+  else
+    let rec cna = function
+        e1 :: ga, e2 :: gb ->
+        if e1 > e2 then
+          -1
+        else if e2 > e1 then
+          1
+        else
+          cna (ga, gb)
+      (* this will not happen *)
+      | [], [] -> 0
+      | r, [] -> -1
+      | [], r -> 1
+    in cna (List.rev ga, List.rev gb)
 
 let comparer ga gb =
   match ga, gb with
@@ -110,9 +118,9 @@ let bigint_mult big n =
     invalid_arg "bigint_mult: negative multiplier"
   else
     let rec mult n = function
-        ([], 0) -> []
-      | ([], carry) -> (*bigint_of_int *) [carry]
-      | (d::r, carry) ->
+        [], 0 -> []
+      | [], carry -> (* bigint_of_int *) [carry]
+      | d :: r, carry ->
         let res = n * d + carry in
           (res mod 10) :: mult n (r, res / 10)
     in

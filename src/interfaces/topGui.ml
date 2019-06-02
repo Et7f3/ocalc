@@ -707,7 +707,7 @@ module Matrice = struct
         bottom 0; top 0; left 0; right 0] ~children:(boutton_matc :: children :: m_res :: children1) ()))
 end
 
-(*module Equation = struct
+module Equation = struct
 
   let component = React.component "Equation"
 
@@ -862,7 +862,7 @@ end
         bottom 0; top 0; left 0; right 0;] ~children:[list_inc; children] ()))
 
 end
-*)
+
 module Accueil = struct
   let component = React.component "Accueil"
 
@@ -975,7 +975,15 @@ module Application = struct
       ChangerVue of vue
 
   let sauvegarde = ref {
-    equation = {
+    equation =
+    {
+      inconnu = [||];
+      nbr_inc = 0;
+      mat1 = [|[||]|];
+      mat2 = [|[||]|];
+      res =" string";
+    };
+    calcul = {
       valeur = "";
       res = " "(* trick to be displayed *);
       liste_historique = []; (* TODO: avoid this double list *)
@@ -1005,7 +1013,7 @@ module Application = struct
 
   let miseAJour = function
     `Calcul e ->
-      let () = sauvegarde := {!sauvegarde with equation = e} in
+      let () = sauvegarde := {!sauvegarde with calcul = e} in
       !sauvegarde.historique.liste <- e.liste_historique
     | `Matrice e -> sauvegarde := {!sauvegarde with matrice = e}
     | `Accueil e -> sauvegarde := {!sauvegarde with accueil = e}
@@ -1017,10 +1025,11 @@ module Application = struct
           let ({vue_courante}, dispatch, hooks) =
             React.Hooks.reducer ~initialState:{vue_courante = `VueAccueil} reducer hooks
           in let choisir_vue = function
-              `VueCalcul -> Calcul.createElement ~initialState:(!sauvegarde.equation)
-            | `VueHistorique -> Historique.createElement !sauvegarde.equation.liste_historique
+              `VueCalcul -> Calcul.createElement ~initialState:(!sauvegarde.calcul)
+            | `VueHistorique -> Historique.createElement !sauvegarde.calcul.liste_historique
             | `VueMatrice -> Matrice.createElement ~initialState:(!sauvegarde.matrice)
             | `VueAccueil -> Accueil.createElement ~initialState:(!sauvegarde.accueil)
+            | `VueEquation -> Equation.createElement ~initialState:(!sauvegarde.equation)
           in hooks, (choisir_vue vue_courante)
           ~changerVue:(fun v -> dispatch (ChangerVue v))
           ~onUpdate:miseAJour

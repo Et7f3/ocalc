@@ -180,14 +180,14 @@ let modulo ga gb =
   match ga, gb with
     (_, _), (_, []) -> failwith "Ah"
   | (_ (* a *), b), (_ (* c *), d) ->
-    let rec modulo_rec i j =
-      if comparer_nbr_abs i j = -1 then
-        modulo_rec (sous(i, j)) j
-      else
-        i
-    in modulo_rec b d
     let modulo, _ = div_mul b d in
     false, modulo (* Euclidean rest *)
+  | (false, b), (_ (* c *), d) ->
+    let modulo, _ = div_mul b d in
+    (false, modulo) (* euclide rest *)
+  | (true, b), (_ (* c *), d) ->
+    let modulo, _ = div_mul b d in
+    additionner (true, modulo) (false, d)
 
 (** renvoie (nominateur, dénominateur) de la fraction ga / gb *)
 let diviser _ _ = ((false, []), (false, []))

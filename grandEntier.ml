@@ -232,33 +232,3 @@ let texte_depuis_grandentier ga =
     "-" ^ textedechiffre b
   else
     textedechiffre b
-
-
-let div =
-  let signe a =
-    if a < 0 then
-      -1
-    else if a = 0 then
-      0
-    else
-      1
-  in let div' a b =
-    let div, m = a / b, a mod b in
-    div, m, b * div + m = a
-  in div'
-
-let a = div   22   3
-and b = div ~-22   3
-and c = div   22 ~-3
-and d = div ~-22 ~-3
-
-let div' sa sb =
-  let ga, gb = grandentier_depuis_texte sa, grandentier_depuis_texte sb in
-  let m, div = div_eucl (ga, gb) in
-  let sm, sdiv = texte_depuis_grandentier m, texte_depuis_grandentier div in
-  sdiv, sm, multiplier gb div |> additionner m = ga
-
-let a' = div'  "22"  "3"
-and b' = div' "-22"  "3"
-and c' = div'  "22" "-3"
-and d' = div' "-22" "-3"

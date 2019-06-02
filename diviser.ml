@@ -71,23 +71,16 @@ let to_string outchan n =
 
 let abaisser a e ret =
   let rec abaisser a n =
-    let () = Printf.printf "abaisser: a: %a, e: %a\n" to_string a to_string e in
-    let () = flush stdout in
-    let _ = input_char stdin in
     let cmp = comparer_nbr_abs a e in
     if cmp = 1 then
       a, n
     else
       abaisser (sous (a, e)) (n + 1)
-  in
-  let a, n = abaisser a 0 in
+  in let a, n = abaisser a 0 in
   a, n :: ret
 
 let rec div_mul a e =
   let cmp = comparer_nbr_abs a e in
-  let () = Printf.printf "div_mul: a: %a, e: %a, cmp: %d\n" to_string a to_string e cmp in
-  let () = flush stdout in
-  let _ = input_char stdin in
   if cmp = 1 then
     a, []
   else
@@ -96,7 +89,7 @@ let rec div_mul a e =
 
 
 let diviser_multiple_abs a b =
-  let _, e = div_mul a b in e;;
+  let _, e = div_mul a b in e
 
 
 comparer_nbr_abs [1; 0] [2];;

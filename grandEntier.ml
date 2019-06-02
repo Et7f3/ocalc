@@ -15,76 +15,32 @@ let neg (a, b) =
     [] -> false, []
   | _ -> not a, b
 
-let rec length = function
-    [] -> 0
-  | _::l -> 1 + length l ;;
-
-
- let remove a = 
- let rec r0 c = match c with 
+let remove a =
+  let rec r0 = function
       [] -> []
-    | e :: c -> 
-      if e = 0 then 
-        r0 c
-      else 
-        List.rev (e :: c) 
-  in r0 (List.rev a) ;;
-
-(* Prend un element dans une liste *)
-let nth n l =
-  if n < 0 then
-    invalid_arg "nth: index must be a natural"
-  else
-    let rec nth_rec = function
-        [], _ -> failwith "nth: list is too short"
-      | e :: _, 0 -> e
-      | _ :: l, n -> nth_rec (l, n - 1)
-    in nth_rec (l, n)
+    | 0 :: c -> r0 c
+    | c -> List.rev c
+  in r0 (List.rev a)
 
 (** 1 si ga < gb sinon 0 si ga = gb sinon -1 *)
 (* 1 : gb > ga
    0 : ga = gb
   -1 : ga > gb*)
 
-
-
- let comparer_nbr_abs a b = 
- let rec cna = function
- | ([],[]) -> 0
- | (r,[]) -> -1
- | ([],r) -> 1
- | (e1 :: a,e2 :: b) -> 
- if e1 > e2 then
- -1
-else if e2 > e1 then
-1
-else 
-  cna (a,b)
-in
-cna (List.rev a,List.rev b);;
-
-(* TODO: erase + 1 *)
-(*
-let comparer_nbr_abs ga gb =
-  let la = length ga
-  and lb  = length gb in
-  (* Compare un a un les elements en partant de la fin *)
-  if la > lb then
-    -1
-  else if la < lb then
-   1
-  else
-    let rec cna i =
-      if i = la + 1 then
-        0
-      else if nth (la - i) ga < (nth (lb - i) gb) then
-        1
-      else if nth (la - i) ga > (nth (lb - i) gb) then
+let comparer_nbr_abs a b =
+  let rec cna = function
+      [], [] -> 0
+    | r, [] -> -1
+    | [], r -> 1
+    | e1 :: a, e2 :: b ->
+      if e1 > e2 then
         -1
+      else if e2 > e1 then
+        1
       else
-        cna (i + 1)
-    in cna 1
-*)
+        cna (a,b)
+  in cna (List.rev a, List.rev b)
+
 let comparer ga gb =
   match ga, gb with
     (true, _), (false, _) -> 1
@@ -94,9 +50,6 @@ let comparer ga gb =
 (* 1 : gb > ga
    0 : ga = gb
    -1 : ga > gb*)
-
-
-
 
 let bigint_sum big1 big2 =
   let rec add = function
@@ -110,13 +63,13 @@ let bigint_sum big1 big2 =
   in add (big1, big2)
 
 (* Constructeur propre a la sousatraction qui va
-permettre de ne pas effectuer la retenue*)
+permettre de ne pas effectuer la retenue *)
 let bigint_sum_for_sous big1 big2 =
   let rec add = function
       [], r | r, [] -> r
     | d1 :: r1, d2 :: r2 ->
       let s = d1 + d2 in
-      s :: add(r1, r2)
+      s :: add (r1, r2)
   in add (big1, big2)
 
 (* On preferera a > b en abs et on aura toujours*)
@@ -150,9 +103,6 @@ let soustraire ga gb =
   | (a, b), (_ (* not a *), d) -> a, bigint_sum b d
 
 
-let multiplier ga gb = (false, [])
-(** renvoie ga * gb *)
-
 let bigint_mult big n =
   if n < 0 then
     invalid_arg "bigint_mult: negative multiplier"
@@ -166,7 +116,7 @@ let bigint_mult big n =
     match n with
 	     0 -> []
       | 1 -> big
-      | n -> mult n (big, 0) ;;
+      | n -> mult n (big, 0)
 
 
 let bigint_times big1 big2 =
@@ -189,7 +139,7 @@ let pgcd _ _ = (false, [])
 
 let diviser_multiple_abs a b =
   let rec d_m a b e =
-    let cmp = comparer_nbr_abs a (bigint_times b e) in 
+    let cmp = comparer_nbr_abs a (bigint_times b e) in
     if cmp = 0 then
       e
     else if cmp = 1 then
@@ -244,8 +194,8 @@ let textedechiffre ga =
 
 (** renvoie la représentation textuelle d'un grandentier *)
 let texte_depuis_grandentier ga =
-  let (a, b) = ga in
-  if a = true then
+  let a, b = ga in
+  if a then
     "-" ^ textedechiffre b
   else
     textedechiffre b

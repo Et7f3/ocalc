@@ -15,12 +15,12 @@ let neg (a, b) =
     [] -> false, []
   | _ -> not a, b
 
-let remove a =
-  let rec r0 = function
+let nettoyer_zero a =
+  let rec n0 = function
       [] -> []
-    | 0 :: c -> r0 c
+    | 0 :: c -> n0 c
     | c -> List.rev c
-  in r0 (List.rev a)
+  in n0 (List.rev a)
 
 (** 1 si ga < gb sinon 0 si ga = gb sinon -1 *)
 (* 1 : gb > ga
@@ -82,6 +82,8 @@ let rec sous = function
     else
       (d1 + 10 - d2) :: sous (r1, (bigint_sum_for_sous [1] r2))
 
+let sous a = sous a |> nettoyer_zero
+
 (** renvoie ga + gb *)
 let additionner ga gb =
   match ga, gb with
@@ -110,13 +112,14 @@ let bigint_mult big n =
     let rec mult n = function
         ([], 0) -> []
       | ([], carry) -> (*bigint_of_int *) [carry]
-      | (d::r, carry) -> let res = n * d + carry in
-			 (res mod 10) :: mult n (r, res/10)
+      | (d::r, carry) ->
+        let res = n * d + carry in
+          (res mod 10) :: mult n (r, res / 10)
     in
     match n with
-	     0 -> []
-      | 1 -> big
-      | n -> mult n (big, 0)
+      0 -> []
+    | 1 -> big
+    | n -> mult n (big, 0)
 
 
 let bigint_times big1 big2 =
@@ -143,7 +146,7 @@ let diviser_multiple_abs a b =
     if cmp = 0 then
       e
     else if cmp = 1 then
-      sous (e,[1])
+      sous (e, [1])
     else
       d_m a b (bigint_sum e [1])
   in d_m a b [1]
@@ -151,12 +154,12 @@ let diviser_multiple_abs a b =
 (** renvoie ga / gb où ga est multiple de gb *)
 let diviser_multiple ga gb =
   match ga, gb with
-    (_, _), (_, []) -> failwith("Nique ta mere")
+    (_, _), (_, []) -> failwith "Nique ta mere"
   | (a, b), (c, d) -> not a = c, diviser_multiple_abs b d
 
 let modulo ga gb =
   match ga, gb with
-    (_, _), (_, []) -> failwith("Ah")
+    (_, _), (_, []) -> failwith "Ah"
   | (_ (* a *), b), (_ (* c *), d) ->
     let rec modulo_rec i j =
       if comparer_nbr_abs i j = -1 then
@@ -174,7 +177,7 @@ let cse_rec a n =
     match i with
       i when i = n - 1 -> []
     | _ -> (int_of_char a.[i]) - 48 :: abc a (i - 1)
-  in abc a (String.length a - 1)
+  in abc a (String.length a - 1) |> nettoyer_zero
 
 let grandentier_depuis_texte sa =
   if sa.[0] = '-' then

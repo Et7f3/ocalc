@@ -187,10 +187,10 @@ let grandentier_depuis_texte sa =
 
 (*Convertit basiquement le nombre*)
 let textedechiffre ga =
-  let rec tdc = function
-      [] -> ""
-    | e :: ga -> tdc ga ^ (string_of_int e)
-  in tdc ga
+  let rec tdc acc = function
+      [] -> acc
+    | e :: ga -> (tdc [@tailcall]) ((string_of_int e) ^ acc) ga
+  in tdc "" ga
 
 (** renvoie la représentation textuelle d'un grandentier *)
 let texte_depuis_grandentier ga =

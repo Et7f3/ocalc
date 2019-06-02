@@ -269,11 +269,11 @@ and c'' = div''  "22" "-3"
 and d'' = div'' "-22" "-3"
 
 (*
-val div : int -> int -> int * int * bool = <fun>
-val a : int * int * bool = (7, 1, true)
-val b : int * int * bool = (-7, -1, true)
-val c : int * int * bool = (-7, 1, true)
-val d : int * int * bool = (7, -1, true)
+val div' : int -> int -> int * int * bool = <fun>
+val a' : int * int * bool = (7, 1, true)
+val b' : int * int * bool = (-8, 2, true)
+val c' : int * int * bool = (-7, 1, true)
+val d' : int * int * bool = (8, 2, true)
 *)
 
 let div_eucl = function
@@ -282,10 +282,30 @@ let div_eucl = function
     let m, div = div_mul b d in
     (a, m), (a <> c, div)
 
+
+let div_eucl_fix = function
+    _, (_, []) -> raise Division_by_zero
+  | (false as a, b), (c, d) ->
+    let m, div = div_mul b d in
+    (a, m), (a <> c, div)
+  | (true as a, b), (c, d) ->
+    let m, div = div_mul b d in
+    additionner (a, m) (false, d), additionner (a <> c, div) (not c, [1])
+(*
+let modulo (a, b) (_, d) =
+  let m, _ = div_eucl ((a, b), gb) in
+  if a then
+    additioner m (false, d)
+  else
+    m
+
+let quotient*)
+
 let div''' a b =
   let a, b = grandentier_depuis_texte a, grandentier_depuis_texte b in
-  let m, div = div_eucl (a, b) in
-  texte_depuis_grandentier div, texte_depuis_grandentier m, multiplier b div |> additionner m = a
+  let m, div = div_eucl_fix (a, b) in
+  let div, m, test = texte_depuis_grandentier div, texte_depuis_grandentier m, multiplier b div |> additionner m = a in
+  Printf.printf "%3s = (%3s) * (%3s) + (%s) is %b\n" (texte_depuis_grandentier a) div (texte_depuis_grandentier b) m test
 
 let a''' = div'''  "22"  "3"
 and b''' = div''' "-22"  "3"

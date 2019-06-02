@@ -223,3 +223,47 @@ let texte_depuis_grandentier ga =
     "-" ^ textedechiffre b
   else
     textedechiffre b
+
+
+(*
+let div a b =
+  let div, m = a / b, a mod b in
+  div, m, b * div + m = a
+let a = div 22 3
+and b = div ~-22 3
+and c = div 22 ~-3
+and d = div ~-22 ~-3
+
+
+let div' =
+  let signe a =
+    if a < 0 then
+      -1
+    else if a = 0 then
+      0
+    else
+      1
+  in let div' a b =
+    if a >= 0 then
+      let div, m = a / b, a mod b in
+      div, m, b * div + m = a
+    else
+      let div, m = a / b - signe b, a mod b + abs b in
+      div, m, b * div + m = a
+  in div'
+let a' = div'   22   3
+and b' = div' ~-22   3
+and c' = div'   22 ~-3
+and d' = div' ~-22 ~-3
+
+
+let div'' a b =
+  let a, b = grandentier_depuis_texte a, grandentier_depuis_texte b in
+  let div, m = diviser_multiple a b, modulo a b in
+  texte_depuis_grandentier div, texte_depuis_grandentier m, multiplier b div |> additionner m = a
+
+let a'' = div''  "22"  "3"
+and b'' = div'' "-22"  "3"
+and c'' = div''  "22" "-3"
+and d'' = div'' "-22" "-3"
+*)

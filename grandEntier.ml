@@ -145,9 +145,6 @@ let multiplier ga gb =
     (a, b), (c, d) when a = c -> false, bigint_times b d
   | (_, b), (_, d) -> true, bigint_times b d
 
-(** renvoie pgcd(ga, gb) *)
-let pgcd _ _ = (false, [])
-
 let abaisser a e ret =
   let rec abaisser a n =
     let cmp = comparer_nbr_abs a e in
@@ -168,27 +165,38 @@ let rec div_mul a e =
 
 let div_eucl = function
     _, (_, []) -> raise Division_by_zero
-  | (false, b), (_ (* c *), d) -> div_mul b d
-  | (true, b), (c, d) -> div_mul b d
+  | (a, b), (c, d) ->
+    let m, div = div_mul b d in
+    (a, m), (a <> c, div)
 
-let diviser_multiple_abs a b =
-  let _, e = div_mul a b in e
+
+let div_eucl_fix = function
+    _, (_, []) -> raise Division_by_zero
+  | (false as a, b), (c, d) ->
+    let m, div = div_mul b d in
+    (a, m), (a <> c, div)
+  | (true as a, b), (c, d) ->
+    let m, div = div_mul b d in
+    additionner (a, m) (false, d), additionner (a <> c, div) (not c, [1])
 
 (** renvoie ga / gb où ga est multiple de gb *)
-let diviser_multiple ga gb =
-  match ga, gb with
-    (_, _), (_, []) -> failwith "Nique ta mere"
-  | (a, b), (c, d) -> not a = c, diviser_multiple_abs b d
+let diviser_multiple ((a, _) as ga) ((c, _) as gb) =
+  let _, (s, div) = div_eucl (ga, gb) in
+  if a then
+    additionner (a <> c, div) (not c, [1])
+  else
+    s, div
 
-let modulo ga gb =
-  match ga, gb with
-    (_, _), (_, []) -> failwith "Ah"
-  | (false, b), (_ (* c *), d) ->
-    let modulo, _ = div_mul b d in
-    false, modulo (* euclide rest *)
-  | (true, b), (_ (* c *), d) ->
-    let modulo, _ = div_mul b d in
-    additionner (true, modulo) (false, d)
+(** renvoie le reste de la division euclidienne de ga par gb *)
+let modulo ((a, _) as ga) ((_, d) as gb) =
+  let (s, m), _ = div_eucl (ga, gb) in
+  if a then
+    additionner (a, m) (false, d)
+  else
+    s, m
+
+(** renvoie pgcd(ga, gb) *)
+let pgcd _ _ = (false, [])
 
 (** renvoie (nominateur, dénominateur) de la fraction ga / gb *)
 let diviser _ _ = ((false, []), (false, []))
@@ -276,21 +284,7 @@ val c' : int * int * bool = (-7, 1, true)
 val d' : int * int * bool = (8, 2, true)
 *)
 
-let div_eucl = function
-    _, (_, []) -> raise Division_by_zero
-  | (a, b), (c, d) ->
-    let m, div = div_mul b d in
-    (a, m), (a <> c, div)
 
-
-let div_eucl_fix = function
-    _, (_, []) -> raise Division_by_zero
-  | (false as a, b), (c, d) ->
-    let m, div = div_mul b d in
-    (a, m), (a <> c, div)
-  | (true as a, b), (c, d) ->
-    let m, div = div_mul b d in
-    additionner (a, m) (false, d), additionner (a <> c, div) (not c, [1])
 (*
 let modulo (a, b) (_, d) =
   let m, _ = div_eucl ((a, b), gb) in

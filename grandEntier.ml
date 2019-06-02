@@ -148,16 +148,27 @@ let multiplier ga gb =
 (** renvoie pgcd(ga, gb) *)
 let pgcd _ _ = (false, [])
 
-let diviser_multiple_abs a b =
-  let rec d_m a b e =
-    let cmp = comparer_nbr_abs a (bigint_times b e) in
-    if cmp = 0 then
-      e
-    else if cmp = 1 then
-      sous (e, [1])
+let abaisser a e ret =
+  let rec abaisser a n =
+    let cmp = comparer_nbr_abs a e in
+    if cmp = 1 then
+      a, n
     else
-      d_m a b (bigint_sum e [1])
-  in d_m a b [1]
+      abaisser (sous (a, e)) (n + 1)
+  in let a, n = abaisser a 0 in
+  a, n :: ret
+
+let rec div_mul a e =
+  let cmp = comparer_nbr_abs a e in
+  if cmp = 1 then
+    a, []
+  else
+    let a, n = div_mul a (0 :: e) in
+    abaisser a e n
+
+
+let diviser_multiple_abs a b =
+  let _, e = div_mul a b in e
 
 (** renvoie ga / gb où ga est multiple de gb *)
 let diviser_multiple ga gb =

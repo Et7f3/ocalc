@@ -186,6 +186,8 @@ let modulo ga gb =
       else
         i
     in modulo_rec b d
+    let modulo, _ = div_mul b d in
+    modulo
 
 (** renvoie (nominateur, dénominateur) de la fraction ga / gb *)
 let diviser _ _ = ((false, []), (false, []))

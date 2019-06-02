@@ -166,6 +166,10 @@ let rec div_mul a e =
     let a, n = div_mul a (0 :: e) in
     abaisser a e n
 
+let div_eucl = function
+    _, (_, []) -> raise Division_by_zero
+  | (false, b), (_ (* c *), d) -> div_mul b d
+  | (true, b), (c, d) -> div_mul b d
 
 let diviser_multiple_abs a b =
   let _, e = div_mul a b in e
@@ -179,12 +183,9 @@ let diviser_multiple ga gb =
 let modulo ga gb =
   match ga, gb with
     (_, _), (_, []) -> failwith "Ah"
-  | (_ (* a *), b), (_ (* c *), d) ->
-    let modulo, _ = div_mul b d in
-    false, modulo (* Euclidean rest *)
   | (false, b), (_ (* c *), d) ->
     let modulo, _ = div_mul b d in
-    (false, modulo) (* euclide rest *)
+    false, modulo (* euclide rest *)
   | (true, b), (_ (* c *), d) ->
     let modulo, _ = div_mul b d in
     additionner (true, modulo) (false, d)
@@ -225,7 +226,7 @@ let texte_depuis_grandentier ga =
     textedechiffre b
 
 
-(*
+
 let div a b =
   let div, m = a / b, a mod b in
   div, m, b * div + m = a
@@ -266,4 +267,27 @@ let a'' = div''  "22"  "3"
 and b'' = div'' "-22"  "3"
 and c'' = div''  "22" "-3"
 and d'' = div'' "-22" "-3"
+
+(*
+val div : int -> int -> int * int * bool = <fun>
+val a : int * int * bool = (7, 1, true)
+val b : int * int * bool = (-7, -1, true)
+val c : int * int * bool = (-7, 1, true)
+val d : int * int * bool = (7, -1, true)
 *)
+
+let div_eucl = function
+    _, (_, []) -> raise Division_by_zero
+  | (a, b), (c, d) ->
+    let m, div = div_mul b d in
+    (a, m), (a <> c, div)
+
+let div''' a b =
+  let a, b = grandentier_depuis_texte a, grandentier_depuis_texte b in
+  let m, div = div_eucl (a, b) in
+  texte_depuis_grandentier div, texte_depuis_grandentier m, multiplier b div |> additionner m = a
+
+let a''' = div'''  "22"  "3"
+and b''' = div''' "-22"  "3"
+and c''' = div'''  "22" "-3"
+and d''' = div''' "-22" "-3"

@@ -187,7 +187,7 @@ let modulo ga gb =
         i
     in modulo_rec b d
     let modulo, _ = div_mul b d in
-    modulo
+    false, modulo (* Euclidean rest *)
 
 (** renvoie (nominateur, dénominateur) de la fraction ga / gb *)
 let diviser _ _ = ((false, []), (false, []))

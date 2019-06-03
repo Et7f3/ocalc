@@ -210,7 +210,7 @@ let rec pgcd ((_, b) as ga) ((_, d) as gb) =
       pgcd gb (modulo ga gb)
 
 (** renvoie (nominateur, dénominateur) de la fraction ga / gb *)
-let diviser _ _ = ((false, []), (false, []))
+let diviser ga gb = let gc = pgcd ga gb in (diviser_multiple ga gc,diviser_multiple gb gc);;
 
 (** renvoie le grandentier à partir de sa représentation textuelle *)
 let cse_rec a n =

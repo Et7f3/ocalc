@@ -77,29 +77,28 @@ let diviser (a, b, c) (d, e, f) =
   let b = [] in
   signe, b, c - f
 
-let grandReel_depuis_texte_transfo ga start =
-  let rec grdt e max cpt =
+let grandReel_depuis_texte_transfo start ga =
+  let max = String.length ga in
+  let rec grdt e cpt =
     match e with
-      a, b, c when cpt = max -> a, b, c
-    | true as a, b, c -> grdt (a, (int_of_char ga.[cpt] - 48) :: b, c - 1) max (cpt + 1)
+      a, b, c when cpt = max -> b, c
+    | true as a, b, c -> grdt (a, (int_of_char ga.[cpt] - 48) :: b, c - 1) (cpt + 1)
     | a, b, c ->
       if ga.[cpt] = ',' || ga.[cpt] = '.' then
-        grdt (true, b, c) max (cpt + 1)
+        grdt (true, b, c) (cpt + 1)
       else
-        grdt (a, (int_of_char ga.[cpt] - 48) :: b, c) max (cpt + 1)
-  in grdt (false, [], 0) (String.length ga) start
+        grdt (a, (int_of_char ga.[cpt] - 48) :: b, c) (cpt + 1)
+  in grdt (false, [], 0) start
 
 
 let grandreel_depuis_texte sa =
-  if sa.[0] = '-' then
-    let _, a, b = grandReel_depuis_texte_transfo sa 1 in
-    true, a, b
-  else if sa.[0] = '+' then
-    let _, a, b = grandReel_depuis_texte_transfo sa 1 in
-    false, a, b
-  else
-    let _, a, b = grandReel_depuis_texte_transfo sa 0 in
-    false, a, b
+  let signe, transfo =
+    match sa.[0] with (* sa is not "" *)
+      '-' -> true, grandReel_depuis_texte_transfo 1
+    | '+' -> false, grandReel_depuis_texte_transfo 1
+    | _ -> false, grandReel_depuis_texte_transfo 0
+  in let mantisse, exposant = transfo sa in
+  signe, mantisse, exposant
 
 (*Convertit basiquement le nombre*)
 let textedechiffre ga =

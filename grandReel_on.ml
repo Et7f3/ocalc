@@ -1,3 +1,5 @@
+
+
 (** grandentier est un tuple [(signe négatif, \[unité, dizaine, centaine, ...\], exposant base 10)]
 [-1,23] correspond à [(true, \[3; 2; 1\], -2)] *)
 type grandreel = bool * int list * int
@@ -16,6 +18,16 @@ let neg = function
     _, [], _ -> false, [], 0
   | s, m, e -> not s, m, e
 
+
+let remove a =
+ let rec r0 c = match c with
+      [] -> []
+    | e :: c ->
+      if e = 0 then
+        r0 c
+      else
+        List.rev (e :: c)
+  in r0 (List.rev a)
 
 
 let powerup a =
@@ -55,13 +67,13 @@ let comparer_gr ga gb =
 let additionner ga gb =
   let (a, b, c), (d, e, _) = reunir_puissance ga gb in
   let a, b = additionner (a, b) (d, e) in
-  a, b, c
+  a, remove b, c
 
 (** renvoie ga - gb *)
 let soustraire ga gb =
   let (a, b, c), (d, e, _) = reunir_puissance ga gb in
   let a, b = soustraire (a, b) (d, e) in
-  a, b, c
+  a, remove b, c
 
 (** renvoie ga * gb *)
 let multiplier (a, b, c) (d, e, f) =
@@ -98,7 +110,7 @@ let grandreel_depuis_texte sa =
     | '+' -> false, grandReel_depuis_texte_transfo 1
     | _ -> false, grandReel_depuis_texte_transfo 0
   in let mantisse, exposant = transfo sa in
-  signe, mantisse, exposant
+  signe, remove mantisse, exposant
 
 (*Convertit basiquement le nombre*)
 let textedechiffre ga =

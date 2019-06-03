@@ -1,3 +1,5 @@
+open GrandEntier_on
+
 (** grandentier est un tuple [(signe négatif, \[unité, dizaine, centaine, ...\], exposant base 10)]
 [-1,23] correspond à [(true, \[3; 2; 1\], -2)] *)
 type grandreel = bool * int list * int
@@ -52,8 +54,8 @@ let reunir_puissance ga gb =
   0 : ga = gb
   -1 : ga > gb*)
 
-let comparer_gr ga gb =
-  let (a, b, c), (d, e, _) = reunir_puissance ga gb in
+let comparer ga gb =
+  let (a, b, _), (d, e, _) = reunir_puissance ga gb in
   comparer (a, b) (d, e)
 
 (** renvoie ga + gb *)
@@ -80,7 +82,7 @@ let diviser (a, b, c) (d, e, f) =
       failwith "Nique ta gentil maman"
   in let signe = b <> [] (* 0 / a -> + *) && a <> d in
   let b = [] in
-  powerup (signe, remove b, c - f)
+  powerup (signe, remove b, c - f), powerup (signe, remove b, c - f)
 
 let grandReel_depuis_texte_transfo start ga =
   let max = String.length ga in
@@ -128,7 +130,7 @@ let rec ajouterdes0 texte nbr =
     ajouterdes0 (texte ^ "0") (nbr - 1)
 
 let rec tdgcs = function
-    [], b -> ""
+    [], _ -> ""
   | a, 0 -> tdgcs (a, 1) ^ ","
   | e :: a, b -> tdgcs (a, b + 1) ^ string_of_int e
 

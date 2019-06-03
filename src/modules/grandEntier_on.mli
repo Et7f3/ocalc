@@ -1,4 +1,4 @@
-type grandentier
+type grandentier = bool * int list
 val zero : grandentier
 val unit : grandentier
 val est_negatif : grandentier -> bool

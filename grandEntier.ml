@@ -196,7 +196,18 @@ let modulo ((a, _) as ga) ((_, d) as gb) =
     s, m
 
 (** renvoie pgcd(ga, gb) *)
-let pgcd _ _ = (false, [])
+let rec pgcd ((_, b) as ga) ((_, d) as gb) = 
+  if comparer ga gb = 1 (*ga < gb*) then 
+    let ga, gb = gb, ga in 
+    if gb = zero then 
+      ga
+    else
+      pgcd gb (modulo ga gb)
+  else 
+    if gb = zero then 
+      ga
+    else
+      pgcd gb (modulo ga gb)
 
 (** renvoie (nominateur, dénominateur) de la fraction ga / gb *)
 let diviser _ _ = ((false, []), (false, []))

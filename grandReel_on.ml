@@ -20,13 +20,10 @@ let neg = function
 
 
 let remove a =
- let rec r0 c = match c with
+  let rec r0 = function
       [] -> []
-    | e :: c ->
-      if e = 0 then
-        r0 c
-      else
-        List.rev (e :: c)
+    | 0 :: c -> r0 c
+    | c -> List.rev c
   in r0 (List.rev a)
 
 
@@ -92,14 +89,16 @@ let diviser (a, b, c) (d, e, f) =
 let grandReel_depuis_texte_transfo start ga =
   let max = String.length ga in
   let rec grdt e cpt =
-    match e with
-      a, b, c when cpt = max -> b, c
-    | true as a, b, c -> grdt (a, (int_of_char ga.[cpt] - 48) :: b, c - 1) (cpt + 1)
-    | a, b, c ->
-      if ga.[cpt] = ',' || ga.[cpt] = '.' then
-        grdt (true, b, c) (cpt + 1)
-      else
-        grdt (a, (int_of_char ga.[cpt] - 48) :: b, c) (cpt + 1)
+    let a, b, c = e in
+    if cpt = max then
+      b, c
+    else
+      let next =
+        match a, ga.[cpt] with
+          true, cha -> true, (int_of_char cha - 48) :: b, c - 1
+        | false, ((',' | '.') as cha) -> true, b, c
+        | false, cha -> false, (int_of_char cha - 48) :: b, c
+      in grdt next (cpt + 1)
   in grdt (false, [], 0) start
 
 

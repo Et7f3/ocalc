@@ -11,6 +11,7 @@ let unit = false, [1], 0
 (** renvoie [grandreel < 0] *)
 let est_negatif (s, _, _) = s
 
+let is_nul (a,b,c) = b = []
 (** renvoie l'oposé *)
 let neg = function
     _, [], _ -> false, [], 0
@@ -140,7 +141,7 @@ let texte_depuis_grandreel_cas_neg (a, b, c) =
     texte
 
 let texte_depuis_grandreel = function
-    false, [], 0 -> "0"
+    _, [], _ -> "0"
   | a, b, 0 -> texte_depuis_grandentier (a, b)
   | a, b, c when c > 0 -> ajouterdes0 (texte_depuis_grandentier (a, b)) c
   | ga -> texte_depuis_grandreel_cas_neg ga

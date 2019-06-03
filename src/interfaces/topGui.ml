@@ -778,8 +778,7 @@ module Equation = struct
           Text.createElement ~text:"Accéder à l'accueil"
             ~onMouseUp:(fun _  -> changerVue `VueAccueil)
             ~style:Style.[fontSize 25; fontFamily "Roboto-Regular.ttf";
-              justifyContent `Center; color (Color.rgb 255. 120. 10.);
-              position `Absolute; bottom 10; left 0; right 0]
+              justifyContent `Center; position `Absolute; bottom 10; left 10;]
             ~children:[] ()
         in let bouton_calc =
           Text.createElement ~text:"Calculer le résultat"
@@ -789,11 +788,13 @@ module Equation = struct
           ~style:Style.[fontSize 25; fontFamily "Roboto-Regular.ttf";
             position `Absolute; bottom 10; right 10]
           ~children:[] ()
+        in let egal = Text.createElement ~text:"=" ~style:Style.[
+                      fontSize 25; fontFamily "Roboto-Regular.ttf";] ~children:[] ()
         in let rec inc_to_list = function
             [] -> []
           | e :: l -> (Text.createElement ~text:e ~style:Style.[
                         fontSize 25; fontFamily "Roboto-Regular.ttf";
-                        marginHorizontal 10]
+                        marginHorizontal 100;]
                         ~children:[] ()) :: inc_to_list l
         in
         let dessiner_matrice (h, w) f =
@@ -880,10 +881,10 @@ module Equation = struct
               ~children:[] ()) in dispatch(MiseAJour (1, 0, 0, "")) )
           ~style:Style.[fontSize 25; fontFamily "Roboto-Regular.ttf"; marginHorizontal 10;] ~children:[] ()
         in let children = View.createElement ~children:[boutton_addinc; boutton_mininc] ()
-        in let list_inc = View.createElement ~style:Style.[flexDirection `Row; alignSelf `FlexStart;] ~children:(children :: (inc_to_list etat.inconnu)) ()
+        in let list_inc = View.createElement ~style:Style.[flexDirection `Row; alignSelf `FlexStart;] ~children:(children :: (inc_to_list etat.inconnu) @ [egal]) ()
         in let children = View.createElement ~style:Style.[flexDirection `Row; alignSelf `FlexStart;] ~children:[m1; m2] ()
         in hooks, View.createElement ~style:Style.[position `Absolute; alignItems `Center;
-        bottom 0; top 0; left 0; right 0] ~children:[list_inc; children] ())
+        bottom 0; top 0; left 0; right 0] ~children:[list_inc; children; bouton_acc; bouton_calc] ())
 end
 
 module Accueil = struct
@@ -968,7 +969,7 @@ module Accueil = struct
         ]
       in
       let bouton_cal =
-        Text.createElement ~text:"Accéder à la calculatrice"
+        Text.createElement ~text:"Accéder à calcul simple"
          ~onMouseUp:(fun _  -> changerVue `VueCalcul)
          ~style:Style.[
           fontSize 25; fontFamily "Roboto-Regular.ttf"; justifyContent `Center; color (Color.rgb 255. 120. 10.);
@@ -988,7 +989,7 @@ module Accueil = struct
           ~onMouseUp:(fun _ -> changerVue `VueEquation)
           ~style:Style.[
             fontSize 25; justifyContent `Center; fontFamily "Roboto-Regular.ttf"; color (Color.rgb 255. 120. 10.);
-            position `Absolute; bottom 40; left 10;]
+            position `Absolute; bottom 50; right 10;]
           ~children:[] ()
       in
      (hooks, View.createElement ~style:containerStyle ~children:[

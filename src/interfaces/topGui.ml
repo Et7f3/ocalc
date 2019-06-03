@@ -759,7 +759,7 @@ module Equation = struct
           {etat with mat2 = mat}
       | MiseAJourEntete (j, v(*, f*)) ->
         let () = etat.mat1.(0).(j) <- v in
-        {etat with matrice1 = etat.mat1}
+        {etat with mat1 = etat.mat1}
       | Calculer `Solveur ->
         etat
       | Calculer _ ->
@@ -767,7 +767,7 @@ module Equation = struct
         let m1 = array_map2 float_of_string etat.mat1 in
         let m2 = array_map2 float_of_string etat.mat2 in
         let f = (fun () -> "0" ) in
-        let res = f m1 m2 in
+        let res = "" (* f m1 m2 *) in
         {etat with res}
 
 
@@ -786,13 +786,17 @@ module Equation = struct
             ~children:[] ()
         in let bouton_calc =
           Text.createElement ~text:"Calculer le résultat"
+
+          (*
+
           ~onMouseUp:(fun _ -> dispatch (Calculer etat.mode))
+          *)
           ~style:Style.[fontSize 25; fontFamily "Roboto-Regular.ttf";
             position `Absolute; bottom 10; right 10]
           ~children:[] ()
-        in let inc_to_list = function
+        in let rec inc_to_list = function
             [] -> []
-          | e :: l -> (View.createElement ~text:e ~style:Style.[
+          | e :: l -> (Text.createElement ~text:e ~style:Style.[
                         fontSize 25; fontFamily "Roboto-Regular.ttf";
                         position `Absolute; marginHorizontal 20]
                         ~children:[] ()) :: inc_to_list l

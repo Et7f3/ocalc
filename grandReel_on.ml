@@ -13,20 +13,17 @@ let est_negatif (s, _, _) = s
 
 (** renvoie l'oposé *)
 let neg = function
-    (_, [], _) -> false, [], 0
-  | (s, m, e) -> not s, m, e
+    _, [], _ -> false, [], 0
+  | s, m, e -> not s, m, e
 
 
 
-let powerup a =  
+let powerup a =
   let rec cleaner = function
-      (_,[],_) -> a
-    | (s,e :: b,c) -> 
-        if e = 0 then 
-          cleaner (s, b, c+1)
-        else
-          (s,e :: b,c)
-  in cleaner a;;
+      _, [], _ -> a
+    | s, 0 :: b, c -> cleaner (s, b, c + 1)
+    | s, e :: b, c -> s, e :: b, c
+  in cleaner a
 
 
 (*
@@ -35,8 +32,8 @@ On choisira toujours la plus grande
 *)
 let reunir_puissance ga gb =
   let rec r_p ga gb =
-    let (sa, va, a) = ga
-    and (sb, vb, b) = gb in
+    let sa, va, a = ga
+    and sb, vb, b = gb in
     if a = b then
       ga, gb
     else if a < b then
@@ -52,18 +49,18 @@ let reunir_puissance ga gb =
 
 let comparer_gr ga gb =
   let (a, b, c), (d, e, _) = reunir_puissance ga gb in
-  comparer (a,b) (d,e)
+  comparer (a, b) (d, e)
 
 (** renvoie ga + gb *)
 let additionner ga gb =
   let (a, b, c), (d, e, _) = reunir_puissance ga gb in
-  let a, b = additionner (a,b) (d,e) in
+  let a, b = additionner (a, b) (d, e) in
   a, b, c
 
 (** renvoie ga - gb *)
 let soustraire ga gb =
   let (a, b, c), (d, e, _) = reunir_puissance ga gb in
-  let a, b = soustraire (a,b) (d,e) in
+  let a, b = soustraire (a, b) (d, e) in
   a, b, c
 
 (** renvoie ga * gb *)
@@ -80,28 +77,29 @@ let diviser (a, b, c) (d, e, f) =
   let b = [] in
   signe, b, c - f
 
-let grandReel_depuis_texte_transfo ga start = 
-  let rec grdt e max cpt = match e with 
-      (a,b,c) when cpt = max -> (a,b,c)
-    | (a,b,c) when a -> grdt  (a, (int_of_char ga.[cpt] - 48) :: b , c - 1) max (cpt + 1)   
-    | (a,b,c) -> 
-    if ga.[cpt] = ',' || ga.[cpt] = '.' then
-      grdt (true, b, c) max (cpt + 1)
-    else
-      grdt (a, (int_of_char ga.[cpt] - 48) :: b, c) max (cpt + 1)
-  in grdt (false, [], 0) (String.length ga) start  ;;
+let grandReel_depuis_texte_transfo ga start =
+  let rec grdt e max cpt =
+    match e with
+      a, b, c when cpt = max -> a, b, c
+    | true as a, b, c -> grdt (a, (int_of_char ga.[cpt] - 48) :: b, c - 1) max (cpt + 1)
+    | a, b, c ->
+      if ga.[cpt] = ',' || ga.[cpt] = '.' then
+        grdt (true, b, c) max (cpt + 1)
+      else
+        grdt (a, (int_of_char ga.[cpt] - 48) :: b, c) max (cpt + 1)
+  in grdt (false, [], 0) (String.length ga) start
 
 
 let grandreel_depuis_texte sa =
   if sa.[0] = '-' then
-    let (_,a,b) = grandReel_depuis_texte_transfo sa 1 in 
-    true, a , b
+    let _, a, b = grandReel_depuis_texte_transfo sa 1 in
+    true, a, b
   else if sa.[0] = '+' then
-    let (_,a,b) = grandReel_depuis_texte_transfo sa 1 in 
-    false, a , b
+    let _, a, b = grandReel_depuis_texte_transfo sa 1 in
+    false, a, b
   else
-    let (_,a,b) = grandReel_depuis_texte_transfo sa 0 in 
-    false, a , b
+    let _, a, b = grandReel_depuis_texte_transfo sa 0 in
+    false, a, b
 
 (*Convertit basiquement le nombre*)
 let textedechiffre ga =
@@ -118,7 +116,7 @@ let texte_depuis_grandentier ga =
   else
     textedechiffre b
 
-let rec ajouterdes0  texte nbr = 
+let rec ajouterdes0  texte nbr =
   if nbr = 0 then
     texte
   else
@@ -126,11 +124,11 @@ let rec ajouterdes0  texte nbr =
 
 let rec tdgcs a b = match (a,b) with
       ([],b) -> ""
-    | (e :: a,b) when b = 0 -> tdgcs  (e :: a) (b + 1) ^ "," 
+    | (e :: a,b) when b = 0 -> tdgcs  (e :: a) (b + 1) ^ ","
     | (e :: a,b) -> tdgcs a (b + 1) ^string_of_int e
 
-let texte_depuis_grandreel_cas_neg (a, b, c) = 
-  if a then 
+let texte_depuis_grandreel_cas_neg (a, b, c) =
+  if a then
     "-" ^ tdgcs b c
   else
     tdgcs b c
@@ -139,10 +137,10 @@ let texte_depuis_grandreel_cas_neg (a, b, c) =
 
 
 let texte_depuis_grandreel = function
-| (false, [], 0) -> "0"
-| (a, b, 0) -> texte_depuis_grandentier (a, b)
-| (a, b, c) when c > 0 -> ajouterdes0 (texte_depuis_grandentier (a, b)) c
-| ga -> texte_depuis_grandreel_cas_neg ga 
+| false, [], 0 -> "0"
+| a, b, 0 -> texte_depuis_grandentier (a, b)
+| a, b, c when c > 0 -> ajouterdes0 (texte_depuis_grandentier (a, b)) c
+| ga -> texte_depuis_grandreel_cas_neg ga
 
 (*
   let t_depart = "42,24"

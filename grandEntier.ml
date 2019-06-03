@@ -45,8 +45,8 @@ let comparer_nbr_abs ga gb =
           cna (ga, gb)
       (* this will not happen *)
       | [], [] -> 0
-      | r, [] -> -1
-      | [], r -> 1
+      | _, [] -> -1
+      | [], _ -> 1
     in cna (List.rev ga, List.rev gb)
 
 let comparer ga gb =
@@ -196,19 +196,21 @@ let modulo ((a, _) as ga) ((_, d) as gb) =
     s, m
 
 (** renvoie pgcd(ga, gb) *)
-let rec pgcd ((_, b) as ga) ((_, d) as gb) =
+let rec pgcd ga gb =
   let ga, gb =
     if comparer ga gb = 1 (*ga < gb*) then
       gb, ga
     else
       ga, gb
-  in if gb = zero then 
+  in if gb = zero then
     ga
   else
     pgcd gb (modulo ga gb)
 
 (** renvoie (nominateur, dénominateur) de la fraction ga / gb *)
-let diviser ga gb = let gc = pgcd ga gb in (diviser_multiple ga gc,diviser_multiple gb gc);;
+let diviser ga gb =
+  let gc = pgcd ga gb in
+  diviser_multiple ga gc, diviser_multiple gb gc
 
 (** renvoie le grandentier à partir de sa représentation textuelle *)
 let cse_rec a n =

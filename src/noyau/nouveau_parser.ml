@@ -1,88 +1,72 @@
 type expression =
     Vide
-  | Integer of string
+  | Entier of string
   | Reel of string
-  | Var of string
+  | Variable of string
   | Tuple of int * expression list
   | Fonction of string * int * expression list
   | Operation of [ `Multiplication | `Addition ] * expression list
-  | Inv of expression
-  | Neg of expression
+  | Inverse of expression
+  | Negation of expression
 
 type affectable =
     Pas_affectable
-  | Def_Var of string
-  | Def_fonction of string * string list
+  | Definition_Variable of string
+  | Definition_fonction of string * string list
 
 type entre_valide =
     Erreur of string * Nouveau_lexer.token list
   | Expression of expression
   | Definition of (affectable * expression) list
 
-let number =
+let entier =
   let open Nouveau_lexer in
-  let rec loop = function
-      e1, Digit e2 :: l | e1, Blanc :: Digit e2 :: l -> loop (e1 ^ e2, l)
-    | e, Souligne :: l -> loop (e, l)
-    | e, l -> Integer e, l
+  let rec boucle = function
+      e1, Digit e2 :: l | e1, Blanc :: Digit e2 :: l -> boucle (e1 ^ e2, l)
+    | e, Souligne :: l -> boucle (e, l)
+    | e, l -> Entier e, l
   in function
-      (* (Operateur Plus) :: Digit e :: l | *) (* + number will be treted later *)
-      Digit e :: l -> loop (e, l)
+      (* (Operateur Plus) :: Digit e :: l | *) (* + entier sera traité plus tard *)
+      Digit e :: l -> boucle (e, l)
     | l -> Vide, l
-
-(*let reel l =
-  let open Nouveau_lexer in
-  match number l with
-    Integer e1, Separateur_unite :: l -> (
-      match number l with
-        Integer e2, l -> Reel (e1 ^ "," ^ e2), l
-      | Vide, l -> Integer e1, l
-      | e, l -> Vide, l
-      )
-  | Vide, Separateur_unite :: l -> (
-    match number l with
-      Integer e, l -> Reel ("," ^ e), l
-    | e, l -> Reel ("0,0"),  l (* , = 0,0 *)
-    )
-  | _ -> Vide, l*)
 
 let reel l =
   let open Nouveau_lexer in
   let e1, l =
-    match number l with
-      Integer e, l -> Integer e, l
+    match entier l with
+      Entier e, l -> Entier e, l
     | _ -> Vide, l
   in
   let virgule, e2, l =
     match l with
       Separateur_unite :: l -> (
-          match number l with
-            Integer e, l -> true, Integer e, l
+          match entier l with
+            Entier e, l -> true, Entier e, l
           | _ -> true, Vide, l
         )
     | l -> false, Vide, l
   in
     match e1, e2 with
-      Integer e1, Integer e2 -> Reel (e1 ^ "," ^ e2), l
-    | Integer e, Vide -> Integer e, l
-    | Vide, Integer e -> Reel ("," ^ e), l
+      Entier e1, Entier e2 -> Reel (e1 ^ "," ^ e2), l
+    | Entier e, Vide -> Entier e, l
+    | Vide, Entier e -> Reel ("," ^ e), l
     | Vide, Vide when virgule -> Reel ",", l
     | _, _ -> Vide, l
 
 let variable =
   let open Nouveau_lexer in
   function
-      Identifiant i :: l -> Var i, l
+      Identifiant i :: l -> Variable i, l
     | l -> Vide, l
 
 let tuple_de f l =
   let open Nouveau_lexer in
-  let rec loop n acc = (function
+  let rec boucle n acc = (function
   | Parenthese_fermante :: l -> n, List.rev acc, l
   | Separateur_liste :: l -> (
     match f l with
     | Vide, _ -> 1, [Vide], l
-    | e, l -> loop (n + 1) (e :: acc) l
+    | e, l -> boucle (n + 1) (e :: acc) l
     )
   | l ->
     let () = prerr_endline "Parenthese_fermante manquante" in
@@ -93,7 +77,7 @@ let tuple_de f l =
       match f l with
       | Vide, _ -> Vide, original_liste
       | e, l -> (
-        match loop 1 [e] l with
+        match boucle 1 [e] l with
           1, [e], l -> e, l
         | n, e, l -> Tuple (n, e), l
         )
@@ -115,7 +99,7 @@ and facteur l =
   let open Nouveau_lexer in
   match reel l with
     Vide, _ -> (
-      match number l with
+      match entier l with
         Vide, _ -> (
           match fonction l with
             Vide, _ -> (
@@ -131,16 +115,16 @@ and facteur l =
 
 and terme l =
   let open Nouveau_lexer in
-  let rec loop acc = function
+  let rec boucle acc = function
       (Operateur Fois | Blanc) :: l -> (
           match facteur l with
             Vide, _ -> [Vide], l
-          | e, l -> loop (e :: acc) l
+          | e, l -> boucle (e :: acc) l
         )
     | Operateur Division :: l -> (
         match facteur l with
           Vide, _ -> [Vide], l
-        | e, l -> loop (Inv e :: acc) l
+        | e, l -> boucle (Inverse e :: acc) l
       )
     | l -> List.rev acc, l
   in let inverse, l =
@@ -150,23 +134,23 @@ and terme l =
   in match facteur l with
     Vide, _ -> Vide, l (* todo error handling*)
   | e, l ->
-    match loop [if inverse then Inv e else e] l with
+    match boucle [if inverse then Inverse e else e] l with
       [e], l -> e, l
     | e, l -> Operation (`Multiplication, e), l
 
 and expression l =
   let open Nouveau_lexer in
-  let rec loop acc l =
+  let rec boucle acc l =
     match l with
       Operateur Plus :: l -> (
           match terme l with
             Vide, _ -> [Vide], l
-          | e, l -> loop (e :: acc) l
+          | e, l -> boucle (e :: acc) l
         )
     | Operateur Moins :: l -> (
         match terme l with
           Vide, _ -> [Vide], l
-        | e, l -> loop (Neg e :: acc) l
+        | e, l -> boucle (Negation e :: acc) l
       )
     | l -> List.rev acc, l
   in let negatif, l =
@@ -176,40 +160,14 @@ and expression l =
   in match terme l with
     Vide, _ -> Vide, l (* todo error handling*)
   | e, l ->
-    match loop [if negatif then Neg e else e] l with
+    match boucle [if negatif then Negation e else e] l with
       [e], l -> e, l
     | e, l -> Operation (`Addition, e), l
 
-(*let definition_simple l =
-  let open Nouveau_lexer in
-  match l with
-    (Identifiant i :: Operateur Definition :: l) as original_liste -> (
-      match expression l with
-        Vide, _ -> Vide, original_liste
-      | e, l -> Def ([Var i], [e]), l
-      )
-  | l -> Vide, l
-
-let expression_principale l =
-  match definition_simple l with
-    Vide, _ -> (match expression l with
-      Vide, _ -> Vide, l
-    | e, [] -> e, []
-    | e, l -> Vide, l)
-  | e, [] -> e, []
-  | e, l -> Vide, l*)
-
-let affectable l =
-  match fonction l with
-    Vide, _ -> variable l
-  | e, l -> e, l
-
-let tuple_d'affectable = tuple_de affectable
-
 let est_affectable e =
   match e with
-    Var x -> true
-  | Fonction (_, _, l) -> List.for_all (fun e -> match e with Var _ -> true | _ -> false) l
+    Variable _ -> true
+  | Fonction (_, _, l) -> List.for_all (fun e -> match e with Variable _ -> true | _ -> false) l
   | _ -> false
 
 let tous_affectable e =
@@ -217,16 +175,16 @@ let tous_affectable e =
     Tuple (_, l) -> List.for_all est_affectable l
   | e -> est_affectable e
 
-let exrp_l_to_string_l l = List.map (fun e -> match e with Var x -> x | _ -> "error") l
+let exrp_l_to_string_l l = List.map (fun e -> match e with Variable x -> x | _ -> "error") l
 
 let expr_to_def = function
-    Var x, e -> Def_Var x, e
-  | Fonction (name, _, l), e -> Def_fonction (name, exrp_l_to_string_l l), e
+    Variable x, e -> Definition_Variable x, e
+  | Fonction (name, _, l), e -> Definition_fonction (name, exrp_l_to_string_l l), e
   | _, _ -> Pas_affectable, Vide
 
 let exprs_to_def = function
-    Var x, e -> Definition [Def_Var x, e]
-  | Fonction (name, _, l), e -> Definition [Def_fonction (name, exrp_l_to_string_l l), e]
+    Variable x, e -> Definition [Definition_Variable x, e]
+  | Fonction (name, _, l), e -> Definition [Definition_fonction (name, exrp_l_to_string_l l), e]
   | Tuple(a, la), Tuple(b, lb) ->
     if a = b then
       Definition (List.map2 (fun a b -> expr_to_def (a, b)) la lb)
@@ -239,14 +197,15 @@ let expression_principale l =
     e, Nouveau_lexer.Operateur Nouveau_lexer.Definition :: l -> (
         if tous_affectable e then
           match expression l with
-            Vide, l -> Erreur ("membre droit incorrect", [])
+            Vide, _ -> Erreur ("membre droit incorrect", [])
           | e2, [] -> exprs_to_def (e, e2)
           | _, l -> Erreur ("caracteres restant", l)
         else
           Erreur ("membre de gauche non assignable", [])
       )
+  | Vide, l -> Erreur ("Erreur de syntaxe", l)
   | e, [] -> Expression e
-  | e, l -> Erreur ("caracteres restant", l)
+  | _, l -> Erreur ("caracteres restant", l)
 
 
 let filtre =

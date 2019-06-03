@@ -1,5 +1,3 @@
-
-
 (** grandentier est un tuple [(signe négatif, \[unité, dizaine, centaine, ...\], exposant base 10)]
 [-1,23] correspond à [(true, \[3; 2; 1\], -2)] *)
 type grandreel = bool * int list * int
@@ -27,12 +25,10 @@ let remove a =
   in r0 (List.rev a)
 
 
-let powerup a =
-  let rec cleaner = function
-      _, [], _ -> a
-    | s, 0 :: b, c -> cleaner (s, b, c + 1)
-    | s, e :: b, c -> s, e :: b, c
-  in cleaner a
+let rec powerup = function
+    _, [], _ -> false, [], 0
+  | s, 0 :: b, c -> powerup (s, b, c + 1)
+  | s, e :: b, c -> s, e :: b, c
 
 
 (*
@@ -64,18 +60,18 @@ let comparer_gr ga gb =
 let additionner ga gb =
   let (a, b, c), (d, e, _) = reunir_puissance ga gb in
   let a, b = additionner (a, b) (d, e) in
-  a, remove b, c
+  powerup (a, remove b, c)
 
 (** renvoie ga - gb *)
 let soustraire ga gb =
   let (a, b, c), (d, e, _) = reunir_puissance ga gb in
   let a, b = soustraire (a, b) (d, e) in
-  a, remove b, c
+  powerup (a, remove b, c)
 
 (** renvoie ga * gb *)
 let multiplier (a, b, c) (d, e, f) =
   let a, b = multiplier (a, b) (d, e) in
-  a, b, c + f
+  powerup (a, remove b, c + f)
 
 (** renvoie ga / gb *)
 let diviser (a, b, c) (d, e, f) =
@@ -84,19 +80,18 @@ let diviser (a, b, c) (d, e, f) =
       failwith "Nique ta gentil maman"
   in let signe = b <> [] (* 0 / a -> + *) && a <> d in
   let b = [] in
-  signe, b, c - f
+  powerup (signe, remove b, c - f)
 
 let grandReel_depuis_texte_transfo start ga =
   let max = String.length ga in
-  let rec grdt e cpt =
-    let a, b, c = e in
+  let rec grdt (a, b, c) cpt =
     if cpt = max then
       b, c
     else
       let next =
         match a, ga.[cpt] with
-          true, cha -> true, (int_of_char cha - 48) :: b, c - 1
-        | false, ((',' | '.') as cha) -> true, b, c
+          _, (',' | '.') -> true, b, c
+        | true, cha -> true, (int_of_char cha - 48) :: b, c - 1
         | false, cha -> false, (int_of_char cha - 48) :: b, c
       in grdt next (cpt + 1)
   in grdt (false, [], 0) start
@@ -109,7 +104,7 @@ let grandreel_depuis_texte sa =
     | '+' -> false, grandReel_depuis_texte_transfo 1
     | _ -> false, grandReel_depuis_texte_transfo 0
   in let mantisse, exposant = transfo sa in
-  signe, remove mantisse, exposant
+  (signe, remove mantisse, exposant) |> powerup
 
 (*Convertit basiquement le nombre*)
 let textedechiffre ga =
@@ -120,37 +115,35 @@ let textedechiffre ga =
 
 (** renvoie la représentation textuelle d'un grandentier *)
 let texte_depuis_grandentier ga =
-  let (a, b) = ga in
-  if a = true then
+  let a, b = ga in
+  if a then
     "-" ^ textedechiffre b
   else
     textedechiffre b
 
-let rec ajouterdes0  texte nbr =
+let rec ajouterdes0 texte nbr =
   if nbr = 0 then
     texte
   else
-    ajouterdes0 (texte ^ "0") (nbr - 1);;
+    ajouterdes0 (texte ^ "0") (nbr - 1)
 
-let rec tdgcs a b = match (a,b) with
-      ([],b) -> ""
-    | (e :: a,b) when b = 0 -> tdgcs  (e :: a) (b + 1) ^ ","
-    | (e :: a,b) -> tdgcs a (b + 1) ^string_of_int e
+let rec tdgcs = function
+    [], b -> ""
+  | a, 0 -> tdgcs (a, 1) ^ ","
+  | e :: a, b -> tdgcs (a, b + 1) ^ string_of_int e
 
 let texte_depuis_grandreel_cas_neg (a, b, c) =
+  let texte = tdgcs (b, c) in
   if a then
-    "-" ^ tdgcs b c
+    "-" ^ texte
   else
-    tdgcs b c
-
-
-
+    texte
 
 let texte_depuis_grandreel = function
-| false, [], 0 -> "0"
-| a, b, 0 -> texte_depuis_grandentier (a, b)
-| a, b, c when c > 0 -> ajouterdes0 (texte_depuis_grandentier (a, b)) c
-| ga -> texte_depuis_grandreel_cas_neg ga
+    false, [], 0 -> "0"
+  | a, b, 0 -> texte_depuis_grandentier (a, b)
+  | a, b, c when c > 0 -> ajouterdes0 (texte_depuis_grandentier (a, b)) c
+  | ga -> texte_depuis_grandreel_cas_neg ga
 
 (*
   let t_depart = "42,24"

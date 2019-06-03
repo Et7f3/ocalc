@@ -1,3 +1,5 @@
+
+
 (** grandentier est un tuple [(signe négatif, \[unité, dizaine, centaine, ...\], exposant base 10)]
 [-1,23] correspond à [(true, \[3; 2; 1\], -2)] *)
 type grandreel = bool * int list * int
@@ -16,6 +18,16 @@ let neg = function
     (_, [], _) -> false, [], 0
   | (s, m, e) -> not s, m, e
 
+  
+let remove a = 
+ let rec r0 c = match c with 
+      [] -> []
+    | e :: c -> 
+      if e = 0 then 
+        r0 c
+      else 
+        List.rev (e :: c) 
+  in r0 (List.rev a) 
 
 
 let powerup a =  
@@ -26,7 +38,7 @@ let powerup a =
           cleaner (s, b, c+1)
         else
           (s,e :: b,c)
-  in cleaner a;;
+  in cleaner a
 
 
 (*
@@ -58,13 +70,13 @@ let comparer_gr ga gb =
 let additionner ga gb =
   let (a, b, c), (d, e, _) = reunir_puissance ga gb in
   let a, b = additionner (a,b) (d,e) in
-  a, b, c
+  a,remove b, c
 
 (** renvoie ga - gb *)
 let soustraire ga gb =
   let (a, b, c), (d, e, _) = reunir_puissance ga gb in
   let a, b = soustraire (a,b) (d,e) in
-  a, b, c
+  a,remove b, c
 
 (** renvoie ga * gb *)
 let multiplier (a, b, c) (d, e, f) =
@@ -82,14 +94,14 @@ let diviser (a, b, c) (d, e, f) =
 
 let grandReel_depuis_texte_transfo ga start = 
   let rec grdt e max cpt = match e with 
-      (a,b,c) when cpt = max -> (a,b,c)
+      (a,b,c) when cpt = max -> (a,remove b,c)
     | (a,b,c) when a -> grdt  (a, (int_of_char ga.[cpt] - 48) :: b , c - 1) max (cpt + 1)   
     | (a,b,c) -> 
     if ga.[cpt] = ',' || ga.[cpt] = '.' then
       grdt (true, b, c) max (cpt + 1)
     else
       grdt (a, (int_of_char ga.[cpt] - 48) :: b, c) max (cpt + 1)
-  in grdt (false, [], 0) (String.length ga) start  ;;
+  in grdt (false, [], 0) (String.length ga) start 
 
 
 let grandreel_depuis_texte sa =
@@ -101,7 +113,7 @@ let grandreel_depuis_texte sa =
     false, a , b
   else
     let (_,a,b) = grandReel_depuis_texte_transfo sa 0 in 
-    false, a , b
+    false, remove a , b
 
 (*Convertit basiquement le nombre*)
 let textedechiffre ga =

@@ -15,6 +15,7 @@
         ]
     },
     "dependencies": {
+        "ejs": "^2.6.1"
     },
     "devDependencies": {
         "@esy-ocaml/reason": "3.4.0",
@@ -65,7 +66,16 @@
         "type": "git",
         "url": "ocal.github"
     },
-    "keywords": ["formal", "calculator", "ocaml"],
-    "maintainers": ["elie.brami", "alexandre.mourgues", "gautier.habermann", "quentin.feugueur"],
+    "keywords": [
+        "formal",
+        "calculator",
+        "ocaml"
+    ],
+    "maintainers": [
+        "elie.brami",
+        "alexandre.mourgues",
+        "gautier.habermann",
+        "quentin.feugueur"
+    ],
     "license": "ISC"
 }

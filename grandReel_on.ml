@@ -17,6 +17,18 @@ let neg = function
   | (s, m, e) -> not s, m, e
 
 
+
+let powerup a =  
+  let rec cleaner = function
+      (_,[],_) -> a
+    | (s,e :: b,c) -> 
+        if e = 0 then 
+          cleaner (s, b, c+1)
+        else
+          (s,e :: b,c)
+  in cleaner a;;
+
+
 (*
 Fonction Auxiliaire qui va mettre les deux valeurs sur la meme puissance
 On choisira toujours la plus grande

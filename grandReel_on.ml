@@ -140,7 +140,7 @@ let texte_depuis_grandreel_cas_neg (a, b, c) =
     texte
 
 let texte_depuis_grandreel = function
-    false, [], 0 -> "0"
+    _, [], _ -> "0"
   | a, b, 0 -> texte_depuis_grandentier (a, b)
   | a, b, c when c > 0 -> ajouterdes0 (texte_depuis_grandentier (a, b)) c
   | ga -> texte_depuis_grandreel_cas_neg ga

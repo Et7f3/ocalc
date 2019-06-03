@@ -196,18 +196,16 @@ let modulo ((a, _) as ga) ((_, d) as gb) =
     s, m
 
 (** renvoie pgcd(ga, gb) *)
-let rec pgcd ((_, b) as ga) ((_, d) as gb) = 
-  if comparer ga gb = 1 (*ga < gb*) then 
-    let ga, gb = gb, ga in 
-    if gb = zero then 
-      ga
+let rec pgcd ((_, b) as ga) ((_, d) as gb) =
+  let ga, gb =
+    if comparer ga gb = 1 (*ga < gb*) then
+      gb, ga
     else
-      pgcd gb (modulo ga gb)
-  else 
-    if gb = zero then 
-      ga
-    else
-      pgcd gb (modulo ga gb)
+      ga, gb
+  in if gb = zero then 
+    ga
+  else
+    pgcd gb (modulo ga gb)
 
 (** renvoie (nominateur, dénominateur) de la fraction ga / gb *)
 let diviser ga gb = let gc = pgcd ga gb in (diviser_multiple ga gc,diviser_multiple gb gc);;

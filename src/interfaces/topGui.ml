@@ -53,7 +53,7 @@ type matrice_state =
 
 type equation_state =
 {
-  mutable inconnu: char array;
+  mutable inconnu: string list;
   mutable nbr_inc: int;
   mutable mat1: string array array;
   mutable mat2: string array array;
@@ -102,7 +102,7 @@ end
 
 
 module Calcul = struct
-  let component = React.component "Equation"
+  let component = React.component "Calcul"
 
   type action =
       Vider
@@ -114,8 +114,7 @@ module Calcul = struct
       Vider -> {etat with valeur = ""}
     | MiseAJour valeur -> {etat with valeur} (* ici on met à jour notre état *)
     | Calculer ->
-      let rec restr strl =
-        match strl with
+      let rec restr = function
           [] -> ""
         | e :: l -> e ^ restr l
       in let res = etat.valeur in
@@ -156,13 +155,13 @@ module Calcul = struct
       component (function hooks ->
         let ({valeur; res; _} as etat, dispatch, hooks) =
           React.Hooks.reducer ~initialState reducer hooks
-        in let () = onUpdate (`Equation etat) in
+        in let () = onUpdate (`Calcul etat) in
         let bouton_calc =
           Text.createElement ~text:"Calculer"
             ~style:Style.[fontSize 25; fontFamily "Roboto-Regular.ttf"]
             ~onMouseUp:(fun _ -> dispatch Calculer) ~children:[] ()
         in let bouton_supp =
-          Text.createElement ~text:"Éffacer"
+          Text.createElement ~text:"Effacer"
             ~style:Style.[fontSize 25; fontFamily "Roboto-Regular.ttf";
               marginHorizontal 20]
             ~onMouseUp:(fun _ -> dispatch Vider) ~children:[] ()
@@ -816,10 +815,10 @@ module Equation = struct
         in let m1 =
           dessiner_matrice (1, etat.nbr_inc + 1) (fun i j -> Input.createElement
             ~style:Style.[color (Color.rgb 255. 255. 255.); width 100; margin2 ~horizontal:40 ~vertical:10]
-            ~value:etat.mat.(i).(j)
-            ~placeholder:etat.mat.(0).(j)
+            ~value:etat.mat1.(i).(j)
+            ~placeholder:etat.mat1.(0).(j)
             ~onChange:(fun {value; _} ->
-              if i = 0 && etat.mode = `Solveur then
+              if i = 0 then
                 dispatch(MiseAJourEntete (j, value(*, onUpdate *)))
               else
                 dispatch(MiseAJour (1, i, j, value(*, onUpdate *)))
@@ -828,36 +827,37 @@ module Equation = struct
         in let m2 =
           dessiner_matrice (1, 1) (fun i j -> Input.createElement
             ~style:Style.[color (Color.rgb 255. 255. 255.); width 100; margin2 ~horizontal:40 ~vertical:10]
-            ~value:etat.mat.(i).(j)
-            ~placeholder:etat.mat.(0).(j)
+            ~value:etat.mat2.(i).(j)
+            ~placeholder:etat.mat2.(0).(j)
             ~onChange:(fun {value; _} ->
-              if i = 0 && etat.mode = `Solveur then
+              if i = 0 then
                 dispatch(MiseAJourEntete (j, value(*, onUpdate *)))
               else
                 dispatch(MiseAJour (1, i, j, value(*, onUpdate *)))
             )
             ~children:[] ())
         in let add_inc () =
-          let inc = (int_of_char etat.inconnu.[0]) + 1 in
-          let inc = char_of_int (if inc > 122 then inc = inc - 26 else inc) in
+          let (suf :: _) = etat.inconnu in
+          let inc = (int_of_char suf.[0]) + 1 in
+          let inc = String.make 1 (char_of_int (if inc > 122 then inc - 26 else inc)) in
           let inc = (
-            if (Array.exist (fun a -> a == inc) etat.inconnu) then
-              inc ^ inc
+            if (List.exists (fun a -> String.equal a inc) etat.inconnu) then
+              String.make ((String.length (suf)) + 1) inc.[0]
             else
               inc)
           in let () = etat.inconnu <- inc :: etat.inconnu in
           etat.nbr_inc <- etat.nbr_inc + 1
         in let minus_inc () =
-          let e :: l = etat.inconnu in etat.inconnu <- l; etat.nbr_inc <- etat.nbr_inc - 1
+          let (e :: l) = etat.inconnu in etat.inconnu <- l; etat.nbr_inc <- etat.nbr_inc - 1
         in let boutton_addinc =
-          Text.createElement ~text:"+" ~onMouseUp:(fun () ->
-          add_inc (); etat.mat1 <- Array.make_matrix 1 (nbr_inc + 1) "0";
+          Text.createElement ~text:"+" ~onMouseUp:(fun _ ->
+          add_inc (); etat.mat1 <- Array.make_matrix 1 (etat.nbr_inc + 1) "0";
           let m1 = dessiner_matrice (1, etat.nbr_inc + 1) (fun i j -> Input.createElement
             ~style:Style.[color (Color.rgb 255. 255. 255.); width 100; margin2 ~horizontal:40 ~vertical:10]
-            ~value:etat.mat.(i).(j)
-            ~placeholder:etat.mat.(0).(j)
+            ~value:etat.mat1.(i).(j)
+            ~placeholder:etat.mat1.(0).(j)
             ~onChange:(fun {value; _} ->
-              if i = 0 && etat.mode = `Solveur then
+              if i = 0 then
                 dispatch(MiseAJourEntete (j, value(*, onUpdate *)))
               else
                 dispatch(MiseAJour (1, i, j, value(*, onUpdate *)))
@@ -865,14 +865,14 @@ module Equation = struct
             ~children:[] ()) in dispatch(MiseAJour (1, 0, 0, "")) )
           ~style:Style.[fontSize 25; fontFamily "Roboto-Regular.ttf"] ~children:[] ()
         in let boutton_mininc =
-          Texte.createElement ~text:"-" ~onMouseUp:(fun () ->
+          Text.createElement ~text:"-" ~onMouseUp:(fun _ ->
             minus_inc (); etat.mat1 <- Array.make_matrix 1 (etat.nbr_inc + 1) "0";
             let m1 = dessiner_matrice (1, etat.nbr_inc + 1) (fun i j -> Input.createElement
               ~style:Style.[color (Color.rgb 255. 255. 255.); width 100; margin2 ~horizontal:40 ~vertical:10]
-              ~value:etat.mat.(i).(j)
-              ~placeholder:etat.mat.(0).(j)
+              ~value:etat.mat1.(i).(j)
+              ~placeholder:etat.mat1.(0).(j)
               ~onChange:(fun {value; _} ->
-                if i = 0 && etat.mode = `Solveur then
+                if i = 0 then
                   dispatch(MiseAJourEntete (j, value(*, onUpdate *)))
                 else
                   dispatch(MiseAJour (1, i, j, value(*, onUpdate *)))
@@ -966,7 +966,7 @@ module Accueil = struct
           ]
         ]
       in
-      let bouton_equa =
+      let bouton_cal =
         Text.createElement ~text:"Accéder à la calculatrice"
          ~onMouseUp:(fun _  -> changerVue `VueCalcul)
          ~style:Style.[
@@ -982,11 +982,18 @@ module Accueil = struct
             position `Absolute; right 10; bottom 10;
           ]
           ~children:[] ()
+      in let bouton_equa =
+        Text.createElement ~text:"Accéder à Équation"
+          ~onMouseUp:(fun _ -> changerVue `VueEquation)
+          ~style:Style.[
+            fontSize 25; justifyContent `Center; fontFamily "Roboto-Regular.ttf"; color (Color.rgb 255. 120. 10.);
+            position `Absolute; bottom 40; left 10;]
+          ~children:[] ()
       in
      (hooks, View.createElement ~style:containerStyle ~children:[
         Image.createElement ~src:"pi.png" ~style:imageStyle2 ~children:[] ();
         Image.createElement ~src:"camel.png" ~style:imageStyle1 ~children:[] ();
-        bouton_equa; bouton_mat;
+        bouton_cal; bouton_equa; bouton_mat;
       ] ()))
 end
 
@@ -999,7 +1006,7 @@ module Application = struct
   let sauvegarde = ref {
     equation =
     {
-      inconnu = [||];
+      inconnu = ["x"];
       nbr_inc = 0;
       mat1 = [|[||]|];
       mat2 = [|[||]|];
@@ -1035,10 +1042,11 @@ module Application = struct
 
   let miseAJour = function
     `Calcul e ->
-      let () = sauvegarde := {!sauvegarde with calcul = e} in
+    let () = sauvegarde := {!sauvegarde with calcul = e} in
       !sauvegarde.historique.liste <- e.liste_historique
     | `Matrice e -> sauvegarde := {!sauvegarde with matrice = e}
     | `Accueil e -> sauvegarde := {!sauvegarde with accueil = e}
+    | `Equation e -> sauvegarde := {!sauvegarde with equation = e}
 
   let createElement =
     fun ~children:_ () ->

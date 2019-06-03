@@ -30,7 +30,14 @@ type historique_state =
   mutable liste: string list;
 }
 
-type matrice_mode = [`Solveur | `Addition | `Soustraction | `Multiplication | `Inverse]
+type matrice_mode =
+  [
+      `Solveur
+    | `Addition
+    | `Soustraction
+    | `Multiplication
+    | `Inverse
+  ]
 
 type matrice_state =
 {
@@ -108,73 +115,82 @@ module Calcul = struct
     | MiseAJour valeur -> {etat with valeur} (* ici on met à jour notre état *)
     | Calculer ->
       let rec restr strl =
-      match strl with
-      [] -> ""
-      |e :: l -> e ^ restr l
-      in
-      let res = etat.valeur in
+        match strl with
+          [] -> ""
+        | e :: l -> e ^ restr l
+      in let res = etat.valeur in
       let res = restr (String.split_on_char ' ' res) in
       let res, cxt =
         try
           Noyau.Moteur.evaluate_with_history res etat.context
         with Failure msg -> msg, etat.context (* old context *)
       in let res = etat.valeur ^ " = " ^ res in
-      {liste_historique = res :: etat.liste_historique; context = cxt; valeur = ""; res}
+      {
+        liste_historique = res :: etat.liste_historique;
+        context = cxt;
+        valeur = "";
+        res
+      }
 
   let createElement ~initialState ~changerVue ~onUpdate =
-  let containerStyle =
-    Style.[
-      position `Absolute;
-      justifyContent `Center;
-      alignItems `Center;
-      bottom 0;
-      top 0;
-      left 0;
-      right 0;
+    let containerStyle =
+      Style.[
+        position `Absolute;
+        justifyContent `Center;
+        alignItems `Center;
+        bottom 0;
+        top 0;
+        left 0;
+        right 0;
       ]
-  in
-  let textStyle =
-    Style.[
-    fontSize 25;
-    fontFamily "Roboto-Regular.ttf";
-    bottom 0;
-    top 0;
-    left 0;
-    right 0;]
-  in
-  fun ~children:_ () ->
-    component
-      (fun hooks  ->
-        let ({valeur; res; _} as etat, dispatch , hooks) =
+    in let textStyle =
+      Style.[
+        fontSize 25;
+        fontFamily "Roboto-Regular.ttf";
+        bottom 0;
+        top 0;
+        left 0;
+        right 0;
+      ]
+    in fun ~children:_ () ->
+      component (function hooks ->
+        let ({valeur; res; _} as etat, dispatch, hooks) =
           React.Hooks.reducer ~initialState reducer hooks
         in let () = onUpdate (`Equation etat) in
         let bouton_calc =
-          Text.createElement ~text:"Calculer" ~style:Style.[fontSize 25;
-          fontFamily "Roboto-Regular.ttf";] ~onMouseUp:(fun _ -> dispatch Calculer) ~children:[] ()
+          Text.createElement ~text:"Calculer"
+            ~style:Style.[fontSize 25; fontFamily "Roboto-Regular.ttf"]
+            ~onMouseUp:(fun _ -> dispatch Calculer) ~children:[] ()
+        in let bouton_supp =
+          Text.createElement ~text:"Éffacer"
+            ~style:Style.[fontSize 25; fontFamily "Roboto-Regular.ttf";
+              marginHorizontal 20]
+            ~onMouseUp:(fun _ -> dispatch Vider) ~children:[] ()
+        in let sous_bout =
+          View.createElement ~style:Style.[flexDirection `Row]
+            ~children:[bouton_calc; bouton_supp] ()
+        in let bouton_his =
+          Text.createElement ~text:"Accéder à l'historique"
+            ~style:Style.[fontSize 25; fontFamily "Roboto-Regular.ttf";
+              position `Absolute; left 10; bottom 10]
+              ~onMouseUp:(fun _  -> changerVue `VueHistorique) ~children:[] ()
+        in let bouton_acc =
+          Text.createElement ~text:"Revenir à l'accueil"
+            ~style:Style.[fontSize 25; fontFamily "Roboto-Regular.ttf";
+              position `Absolute; bottom 10; right 10]
+              ~onMouseUp:(fun _  -> changerVue `VueAccueil) ~children:[] ()
         in
-        let bouton_supp =
-          Text.createElement ~text:"Éffacer" ~style:Style.[fontSize 25;
-          fontFamily "Roboto-Regular.ttf"; marginHorizontal 20] ~onMouseUp:(fun _ -> dispatch Vider) ~children:[] ()
-        in
-        let sous_bout =
-          View.createElement ~style:Style.[flexDirection `Row;] ~children:[bouton_calc; bouton_supp] ()
-        in
-        let bouton_his =
-          Text.createElement ~text:"Accéder à l'historique" ~style:Style.[fontSize 25;
-          fontFamily "Roboto-Regular.ttf"; position `Absolute; left 10; bottom 10;]
-          ~onMouseUp:(fun _  -> changerVue `VueHistorique) ~children:[] ()
-        in
-        let bouton_acc =
-          Text.createElement ~text:"Revenir à l'accueil" ~style:Style.[fontSize 25;
-          fontFamily "Roboto-Regular.ttf"; position `Absolute; bottom 10; right 10;]
-          ~onMouseUp:(fun _  -> changerVue `VueAccueil) ~children:[] ()
-        in
-        (hooks,
+        hooks,
           View.createElement ~style:containerStyle ~children:[
-            Input.createElement ~style:Style.[color (Color.rgb 255. 255. 255.); bottom 0; top 0; left 0; right 0;]
-            ~value:valeur ~placeholder:"Entrer votre équation" ~onChange:(fun {value; _} -> dispatch(MiseAJour value)) ~children:[] ();
-            Text.createElement ~text:res(*retour du moteur*) ~style:textStyle ~children:[] ();
-            sous_bout; bouton_acc; bouton_his] ()))
+            Input.createElement
+              ~style:Style.[color (Color.rgb 255. 255. 255.); bottom 0; top 0;
+                left 0; right 0]
+              ~value:valeur ~placeholder:"Entrer votre équation"
+              ~onChange:(fun {value; _} -> dispatch(MiseAJour value))
+              ~children:[] ();
+            Text.createElement ~text:res(* retour du moteur *) ~style:textStyle
+              ~children:[] (); sous_bout; bouton_acc; bouton_his
+            ] ())
 end
 
 module Historique = struct
@@ -191,30 +207,29 @@ module Historique = struct
         left 0;
         right 0
         ]
-    in
-      let textStyle =
+    in let textStyle =
       Style.[
-      fontSize 25;
-      left 0;
-      right 0;
-      bottom 0;
-      top 0;
-      fontFamily "Roboto-Regular.ttf"
+        fontSize 25;
+        left 0;
+        right 0;
+        bottom 0;
+        top 0;
+        fontFamily "Roboto-Regular.ttf"
       ]
-    in
-    let histol hist =
-      List.map (fun a -> Text.createElement ~text:a ~style:textStyle ~children:[] ()) hist
-    in
-    fun ~children:_ () ->
-      component
-        (fun hooks ->
-          let bouton_retour = Text.createElement ~text:"Revenir au mode Calculatrice"
-          ~style:Style.[fontSize 25; fontFamily "Roboto-Regular.ttf";
-          position `Absolute; bottom 10; right 10;]
-               ~onMouseUp:(fun _  ->
-                          changerVue `VueCalcul)
-               ~children:[] () in
-          hooks, View.createElement ~style:containerStyle ~children:(bouton_retour :: (histol historique)) ())
+    in let histol hist =
+      let txt_gen = Text.createElement ~style:textStyle ~children:[] in
+      List.map (fun text -> txt_gen ~text ()) hist
+    in fun ~children:_ () ->
+      component (fun hooks ->
+        let bouton_retour =
+          Text.createElement ~text:"Revenir au mode Calculatrice"
+            ~style:Style.[fontSize 25; fontFamily "Roboto-Regular.ttf";
+              position `Absolute; bottom 10; right 10]
+            ~onMouseUp:(fun _  -> changerVue `VueCalcul) ~children:[] ()
+        in
+        hooks,
+          View.createElement ~style:containerStyle
+            ~children:(bouton_retour :: (histol historique)) ())
 end
 
 module Matrice = struct
@@ -266,41 +281,41 @@ module Matrice = struct
         let array_map2 f = Array.map (fun e -> Array.map f e) in
         let m1 = array_map2 float_of_string etat.matrice1 in
         let m2 = array_map2 float_of_string etat.matrice2 in
-        let f = (match etat.mode with
-            `Addition -> Modules.Matrix.Test_float_matrix.additioner
-          | `Soustraction -> Modules.Matrix.Test_float_matrix.soustraire
-          | `Multiplication -> Modules.Matrix.Test_float_matrix.multiplier
-          | _ -> Modules.Matrix.Test_float_matrix.additioner
-        ) in
-        let matrice_res = f m1 m2 in
+        let f =
+          (
+            match etat.mode with
+              `Addition -> Modules.Matrix.Test_float_matrix.additioner
+            | `Soustraction -> Modules.Matrix.Test_float_matrix.soustraire
+            | `Multiplication -> Modules.Matrix.Test_float_matrix.multiplier
+            | _ -> Modules.Matrix.Test_float_matrix.additioner
+          )
+        in let matrice_res = f m1 m2 in
         let matrice_res = array_map2 string_of_float matrice_res in
         {etat with matrice_res}
 
 
   let createElement ~initialState ~changerVue ~onUpdate =
-  fun ~children:_ () ->
-    component
-      (fun hooks ->
+    fun ~children:_ () ->
+      component (fun hooks ->
         let (etat (* nouvel etat *), dispatch, hooks) =
           React.Hooks.reducer ~initialState reducer hooks
         in let () = onUpdate (`Matrice etat) in
         let bouton_calc =
           Text.createElement ~text:"Calculer le résultat"
-           ~onMouseUp:(fun _ -> dispatch (Calculer etat.mode))
-           ~style:Style.[
-            fontSize 25; fontFamily "Roboto-Regular.ttf";
-            position `Absolute; bottom 10; right 10;]
-           ~children:[] ()
+            ~onMouseUp:(fun _ -> dispatch (Calculer etat.mode))
+            ~style:Style.[fontSize 25; fontFamily "Roboto-Regular.ttf";
+              position `Absolute; bottom 10; right 10]
+            ~children:[] ()
         in let bouton_retour =
           Text.createElement ~text:"Revenir à l'accueil"
             ~onMouseUp:(fun _  -> changerVue `VueAccueil)
-            ~style:Style.[
-              fontSize 25; fontFamily "Roboto-Regular.ttf";
-              position `Absolute; bottom 10; left 10;]
+            ~style:Style.[fontSize 25; fontFamily "Roboto-Regular.ttf";
+              position `Absolute; bottom 10; left 10]
             ~children:[] ()
         in let children1 = [bouton_retour; bouton_calc] in
         let dessiner_matrice (h, w) f =
           let input = ref [] in
+          let row_gen = View.createElement ~style:Style.[flexDirection(`Row)] in
           let () =
             for i = pred h downto 0 do
               let row = ref [] in
@@ -308,12 +323,15 @@ module Matrice = struct
                 for j = pred w downto 0 do
                   row := (f i j) :: !row
                 done
-              in input :=  (View.createElement ~style:Style.[flexDirection(`Row)] ~children:!row ()) :: !input
+              in input := (row_gen ~children:!row ()) :: !input
             done
           in (View.createElement ~children:!input) ()
+        in let input_gen =
+          Input.createElement
+            ~style:Style.[color (Color.rgb 255. 255. 255.); width 100;
+              margin2 ~horizontal:40 ~vertical:10]
         in let m1 =
-          dessiner_matrice etat.taille1 (fun i j -> Input.createElement
-            ~style:Style.[color (Color.rgb 255. 255. 255.); width 100; margin2 ~horizontal:40 ~vertical:10]
+          dessiner_matrice etat.taille1 (fun i j -> input_gen
             ~value:etat.matrice1.(i).(j)
             ~placeholder:etat.matrice1.(0).(j)
             ~onChange:(fun {value; _} ->
@@ -328,19 +346,18 @@ module Matrice = struct
           {value = "-"; label = "-                             ";};
           {value = "*"; label = "*                             ";};
           (*{value = "resoudre"; label = "resoudre               ";};*)
-
-        ] in
-        let dropdown = Dropdown.createElement ~items:op
-          ~onItemSelected:(fun {value = a; _} -> dispatch ((function
-          | "+" -> ChangerMode `Addition
-          | "-" -> ChangerMode `Soustraction
-          | "*" -> ChangerMode `Multiplication
-          | "resoudre" -> ChangerMode `Solveur
-          | _ -> failwith ("impossible")) a))
-          ~children:[] ()
+        ]
+        in let dropdown =
+          Dropdown.createElement ~items:op
+            ~onItemSelected:(fun {value = a; _} -> dispatch ((function
+                "+" -> ChangerMode `Addition
+              | "-" -> ChangerMode `Soustraction
+              | "*" -> ChangerMode `Multiplication
+              | "resoudre" -> ChangerMode `Solveur
+              | _ -> failwith "impossible") a))
+            ~children:[] ()
         in let m2 =
-          dessiner_matrice etat.taille2 (fun i j -> Input.createElement
-            ~style:Style.[color (Color.rgb 255. 255. 255.); width 100; margin2 ~horizontal:40 ~vertical:10]
+          dessiner_matrice etat.taille2 (fun i j -> input_gen
             ~value:etat.matrice2.(i).(j)
             ~placeholder:etat.matrice2.(0).(j)
             ~onChange:(fun {value; _} ->
@@ -352,36 +369,41 @@ module Matrice = struct
             )
             ~children:[] ())
         in let m_res =
-          dessiner_matrice etat.taille_res (fun i j -> Input.createElement
-            ~style:Style.[color (Color.rgb 255. 255. 255.); width 100; margin2 ~horizontal:40 ~vertical:10]
+          dessiner_matrice etat.taille_res (fun i j -> input_gen
             ~value:etat.matrice_res.(i).(j)
             ~children:[] ())
-        in let chmttaille  id c d (a, b) =
-        match id with
-        1 when d -> if c then
-                      etat.taille1 <- (a + 1, b)
-                      else if a > 1 then
-                      etat.taille1 <- (a - 1, b)
-        | 1 -> if c then
-                etat.taille1 <- (a, b + 1)
-                else if b > 1 then
-                etat.taille1 <- (a, b - 1)
-        | 2 when d -> if c then
-                        etat.taille2 <- (a + 1, b)
-                        else if a > 1 then
-                        etat.taille2 <- (a - 1, b)
-        | 2 -> if c then
-                etat.taille2 <- (a, b + 1)
-                else if b > 1 then
-                etat.taille2 <- (a, b - 1)
-        | 3 when d -> if c then
-                        etat.taille_res <- (a + 1, b)
-                        else if a > 1 then
-                        etat.taille_res <- (a - 1, b)
-        | _ -> if c then
-                  etat.taille_res <- (a , b + 1)
-                  else if b > 1 then
-                    etat.taille_res <- (a, b - 1)
+        in let chmttaille id c d (a, b) =
+          match id with
+            1 when d ->
+              if c then
+                etat.taille1 <- (a + 1, b)
+              else if a > 1 then
+                etat.taille1 <- (a - 1, b)
+          | 1 ->
+            if c then
+              etat.taille1 <- (a, b + 1)
+            else if b > 1 then
+              etat.taille1 <- (a, b - 1)
+          | 2 when d ->
+            if c then
+              etat.taille2 <- (a + 1, b)
+            else if a > 1 then
+              etat.taille2 <- (a - 1, b)
+          | 2 ->
+            if c then
+              etat.taille2 <- (a, b + 1)
+            else if b > 1 then
+              etat.taille2 <- (a, b - 1)
+          | 3 when d ->
+            if c then
+              etat.taille_res <- (a + 1, b)
+            else if a > 1 then
+              etat.taille_res <- (a - 1, b)
+          | _ ->
+            if c then
+              etat.taille_res <- (a , b + 1)
+            else if b > 1 then
+              etat.taille_res <- (a, b - 1)
         in let chmtmat id (a, b) =
           match id with
               1 -> etat.matrice1 <- Array.make_matrix a b "0"
@@ -392,23 +414,24 @@ module Matrice = struct
             1 -> chmttaille 1 signe true etat.taille1; chmttaille 1 signe false etat.taille1; chmtmat 1 etat.taille1
           | 2 -> chmttaille 2 signe true etat.taille2; chmttaille 2 signe false etat.taille2; chmtmat 2 etat.taille2
           | _ -> chmttaille 3 signe true etat.taille_res; chmttaille 3 signe false etat.taille_res; chmtmat 3 etat.taille_res*)
-        in let mat1cou = Text.createElement ~text:"+"
+        in let mat1cou =
+          Text.createElement ~text:"+"
             ~onMouseUp:(fun _ -> (*if etat.mode = `Multiplication then
               begin*)
-              chmttaille 1 true true etat.taille1; chmtmat 1 etat.taille1; (*chmttaille 3 true true etat.taille_res; chmtmat 3 etat.taille_res;*)
+              chmttaille 1 true true etat.taille1; chmtmat 1 etat.taille1;
+              (*chmttaille 3 true true etat.taille_res; chmtmat 3 etat.taille_res;*)
               let m1 =
-                dessiner_matrice etat.taille1 (fun i j -> Input.createElement
-                  ~style:Style.[color (Color.rgb 255. 255. 255.); width 100; margin2 ~horizontal:40 ~vertical:10]
+                dessiner_matrice etat.taille1 (fun i j -> input_gen
                   ~value:etat.matrice1.(i).(j)
                   ~placeholder:etat.matrice1.(0).(j)
                   ~onChange:(fun {value; _} ->
                     if i = 0 && etat.mode = `Solveur then
                       dispatch(MiseAJourEntete (j, value(*, onUpdate *)))
-                      else
+                    else
                       dispatch(MiseAJour (1, i, j, value(*, onUpdate *)))
                       )
-                      ~children:[] ()) in
-              dispatch(MiseAJour (1, 0, 0, etat.matrice1.(0).(0))) (* ;
+                    ~children:[] ())
+              in dispatch(MiseAJour (1, 0, 0, etat.matrice1.(0).(0))) (* ;
               let m_res =
                 dessiner_matrice etat.taille_res (fun i j -> Input.createElement
                   ~style:Style.[color (Color.rgb 255. 255. 255.); width 100; margin2 ~horizontal:40 ~vertical:10]
@@ -450,24 +473,24 @@ module Matrice = struct
               ~value:etat.matrice_res.(i).(j)
               ~children:[] ()) in ()
             end*) )
-            ~style:Style.[fontSize 25; fontFamily "Roboto-Regular.ttf";] ~children:[] ()
-        in let mat1cod = Text.createElement ~text:"-"
+            ~style:Style.[fontSize 25; fontFamily "Roboto-Regular.ttf"] ~children:[] ()
+        in let mat1cod =
+          Text.createElement ~text:"-"
             ~onMouseUp:(fun _ -> (*if etat.mode = `Multiplication then
               begin*)
               chmttaille 1 false true etat.taille1; chmtmat 1 etat.taille1; (*chmttaille 3 false true etat.taille_res; chmtmat 3 etat.taille_res;*)
               let m1 =
-              dessiner_matrice etat.taille1 (fun i j -> Input.createElement
-                ~style:Style.[color (Color.rgb 255. 255. 255.); width 100; margin2 ~horizontal:40 ~vertical:10]
-                ~value:etat.matrice1.(i).(j)
-                ~placeholder:etat.matrice1.(0).(j)
-                ~onChange:(fun {value; _} ->
-                  if i = 0 && etat.mode = `Solveur then
-                    dispatch(MiseAJourEntete (j, value(*, onUpdate *)))
+                dessiner_matrice etat.taille1 (fun i j -> input_gen
+                  ~value:etat.matrice1.(i).(j)
+                  ~placeholder:etat.matrice1.(0).(j)
+                  ~onChange:(fun {value; _} ->
+                    if i = 0 && etat.mode = `Solveur then
+                      dispatch(MiseAJourEntete (j, value(*, onUpdate *)))
                     else
-                    dispatch(MiseAJour (1, i, j, value(*, onUpdate *)))
+                      dispatch(MiseAJour (1, i, j, value(*, onUpdate *)))
                     )
-              ~children:[] ()) in
-            dispatch(MiseAJour (1, 0, 0, etat.matrice1.(0).(0))) (*;
+                ~children:[] ())
+              in dispatch(MiseAJour (1, 0, 0, etat.matrice1.(0).(0))) (*;
             let m_res =
               dessiner_matrice etat.taille_res (fun i j -> Input.createElement
                 ~style:Style.[color (Color.rgb 255. 255. 255.); width 100; margin2 ~horizontal:40 ~vertical:10]
@@ -542,11 +565,11 @@ module Matrice = struct
                       )
                 ~children:[] ())
               in dispatch(MiseAJour (2, 0, 0, etat.matrice2.(0).(0))) )
-              ~style:Style.[fontSize 25; fontFamily "Roboto-Regular.ttf";] ~children:[] ()
+              ~style:Style.[fontSize 25; fontFamily "Roboto-Regular.ttf"] ~children:[] ()
         in let boutton_mat2c = View.createElement ~style:Style.[flexDirection `RowReverse; marginHorizontal 50] ~children:((*if etat.mode = `Multiplication then*)
           [mat2cou; mat2cod]
           (*else [mat1cou; mat1cod]*)) ()
-        in let boutton_matc = View.createElement ~style:Style.[flexDirection`Row;] ~children:[boutton_mat1c; boutton_mat2c] ()
+        in let boutton_matc = View.createElement ~style:Style.[flexDirection`Row] ~children:[boutton_mat1c; boutton_mat2c] ()
         in let mat1liu = Text.createElement ~text:"+"
           ~onMouseUp:(fun _ -> (*if etat.mode = `Multiplication then
             begin*)
@@ -600,7 +623,7 @@ module Matrice = struct
             ~value:etat.matrice_res.(i).(j)
             ~children:[] ()) in ()
           end*) )
-          ~style:Style.[fontSize 25; fontFamily "Roboto-Regular.ttf";] ~children:[] ()
+          ~style:Style.[fontSize 25; fontFamily "Roboto-Regular.ttf"] ~children:[] ()
         in let mat1lid = Text.createElement ~text:"-"
             ~onMouseUp:(fun _ ->(*if etat.mode = `Multiplication then
               begin*)
@@ -654,7 +677,7 @@ module Matrice = struct
               ~value:etat.matrice_res.(i).(j)
               ~children:[] ()) in ()
             end*) )
-            ~style:Style.[fontSize 25; fontFamily "Roboto-Regular.ttf";] ~children:[] ()
+            ~style:Style.[fontSize 25; fontFamily "Roboto-Regular.ttf"] ~children:[] ()
         in let boutton_mat1l = View.createElement ~children:[mat1liu; mat1lid] ()
         in let mat2liu = Text.createElement ~text:"+"
           ~onMouseUp:(fun _  -> chmttaille 2 true false etat.taille2; chmtmat 2 etat.taille2; (*chmttaille 3 true false etat.taille_res; chmtmat 3 etat.taille_res;*)
@@ -676,7 +699,7 @@ module Matrice = struct
               ~style:Style.[color (Color.rgb 255. 255. 255.); width 100; margin2 ~horizontal:40 ~vertical:10]
               ~value:etat.matrice_res.(i).(j)
               ~children:[] ()) in ()*) )
-          ~style:Style.[fontSize 25; fontFamily "Roboto-Regular.ttf";] ~children:[] ()
+          ~style:Style.[fontSize 25; fontFamily "Roboto-Regular.ttf"] ~children:[] ()
         in let mat2lid = Text.createElement ~text:"-"
             ~onMouseUp:(fun _  -> chmttaille 2 false false etat.taille2; chmtmat 2 etat.taille2; (*chmttaille 3 false false etat.taille_res; chmtmat 3 etat.taille_res;*)
              let m2 =
@@ -697,12 +720,12 @@ module Matrice = struct
                 ~style:Style.[color (Color.rgb 255. 255. 255.); width 100; margin2 ~horizontal:40 ~vertical:10]
                 ~value:etat.matrice_res.(i).(j)
                 ~children:[] ()) in () *) )
-            ~style:Style.[fontSize 25; fontFamily "Roboto-Regular.ttf";] ~children:[] ()
+            ~style:Style.[fontSize 25; fontFamily "Roboto-Regular.ttf"] ~children:[] ()
         in let boutton_mat2l = View.createElement ~children:((*if etat.mode = `Multiplication then*)
           [mat2liu; mat2lid]
           (*else
           [mat1liu; mat1lid]*)) ()
-        in let children = View.createElement ~style:Style.[flexDirection `Row;] ~children:[boutton_mat1l; m1; dropdown; m2; boutton_mat2l] ()
+        in let children = View.createElement ~style:Style.[flexDirection `Row] ~children:[boutton_mat1l; m1; dropdown; m2; boutton_mat2l] ()
         in (hooks, View.createElement ~style:Style.[position `Absolute; alignItems `Center;
         bottom 0; top 0; left 0; right 0] ~children:(boutton_matc :: children :: m_res :: children1) ()))
 end
@@ -750,33 +773,31 @@ module Equation = struct
 
   let createElement ~initialState ~changerVue ~onUpdate =
     fun ~children:_ () ->
-      component
-      (fun hooks ->
+      component (fun hooks ->
         let (etat (* nouvel etat *), dispatch, hooks) =
           React.Hooks.reducer ~initialState reducer hooks
         in let () = onUpdate (`Equation etat) in
         let bouton_acc =
-        Text.createElement ~text:"Accéder à l'accueil"
-         ~onMouseUp:(fun _  -> changerVue `VueAccueil)
-         ~style:Style.[
-          fontSize 25; fontFamily "Roboto-Regular.ttf"; justifyContent `Center; color (Color.rgb 255. 120. 10.);
-          position `Absolute; bottom 10; left 0; right 0;]
-         ~children:[] ()
+          Text.createElement ~text:"Accéder à l'accueil"
+            ~onMouseUp:(fun _  -> changerVue `VueAccueil)
+            ~style:Style.[fontSize 25; fontFamily "Roboto-Regular.ttf";
+              justifyContent `Center; color (Color.rgb 255. 120. 10.);
+              position `Absolute; bottom 10; left 0; right 0]
+            ~children:[] ()
         in let bouton_calc =
-        Text.createElement ~text:"Calculer le résultat"
-         ~onMouseUp:(fun _ -> dispatch (Calculer etat.mode))
-         ~style:Style.[
-          fontSize 25; fontFamily "Roboto-Regular.ttf";
-          position `Absolute; bottom 10; right 10;]
-         ~children:[] ()
-        in let inc_to_list L =
-          match L with
+          Text.createElement ~text:"Calculer le résultat"
+          ~onMouseUp:(fun _ -> dispatch (Calculer etat.mode))
+          ~style:Style.[fontSize 25; fontFamily "Roboto-Regular.ttf";
+            position `Absolute; bottom 10; right 10]
+          ~children:[] ()
+        in let inc_to_list = function
             [] -> []
           | e :: l -> (View.createElement ~text:e ~style:Style.[
                         fontSize 25; fontFamily "Roboto-Regular.ttf";
                         position `Absolute; marginHorizontal 20]
                         ~children:[] ()) :: inc_to_list l
-        in let dessiner_matrice (h, w) f =
+        in let row_gen = View.createElement ~style:Style.[flexDirection(`Row)] in
+        let dessiner_matrice (h, w) f =
           let input = ref [] in
           let () =
             for i = pred h downto 0 do
@@ -785,7 +806,7 @@ module Equation = struct
                 for j = pred w downto 0 do
                   row := (f i j) :: !row
                 done
-              in input :=  (View.createElement ~style:Style.[flexDirection(`Row)] ~children:!row ()) :: !input
+              in input := (row_gen ~children:!row ()) :: !input
             done
           in (View.createElement ~children:!input) ()
         in let m1 =
@@ -814,18 +835,16 @@ module Equation = struct
             ~children:[] ())
         in let add_inc () =
           let inc = (int_of_char etat.inconnu.[0]) + 1 in
-          let inc = char_of_int (
-          if inc > 122 then
-            inc = inc - 26
-          else inc )
-          in let inc = (if (Array.exist (fun a -> a == inc) etat.inconnu) then
-            inc ^ inc
+          let inc = char_of_int (if inc > 122 then inc = inc - 26 else inc) in
+          let inc = (
+            if (Array.exist (fun a -> a == inc) etat.inconnu) then
+              inc ^ inc
             else
-            inc)
-          in let _ = etat.inconnu <- inc :: etat.inconnu
-          in let _ = etat.nbr_inc <- etat.nbr_inc + 1
+              inc)
+          in let () = etat.inconnu <- inc :: etat.inconnu in
+          etat.nbr_inc <- etat.nbr_inc + 1
         in let minus_inc () =
-          let (e :: l) = etat.inconnu in etat.inconnu <- l; etat.nbr_inc <- etat.nbr_inc - 1
+          let e :: l = etat.inconnu in etat.inconnu <- l; etat.nbr_inc <- etat.nbr_inc - 1
         in let boutton_addinc =
           Text.createElement ~text:"+" ~onMouseUp:(fun () ->
           add_inc (); etat.mat1 <- Array.make_matrix 1 (nbr_inc + 1) "0";
@@ -840,7 +859,7 @@ module Equation = struct
                 dispatch(MiseAJour (1, i, j, value(*, onUpdate *)))
             )
             ~children:[] ()) in dispatch(MiseAJour (1, 0, 0, "")) )
-          ~style:Style.[fontSize 25; fontFamily "Roboto-Regular.ttf";] ~children:[] ()
+          ~style:Style.[fontSize 25; fontFamily "Roboto-Regular.ttf"] ~children:[] ()
         in let boutton_mininc =
           Texte.createElement ~text:"-" ~onMouseUp:(fun () ->
             minus_inc (); etat.mat1 <- Array.make_matrix 1 (etat.nbr_inc + 1) "0";
@@ -855,12 +874,11 @@ module Equation = struct
                   dispatch(MiseAJour (1, i, j, value(*, onUpdate *)))
               )
               ~children:[] ()) in dispatch(MiseAJour (1, 0, 0, "")) )
-          ~style:Style.[fontSize 25; fontFamily "Roboto-Regular.ttf";] ~children:[] ()
-        in let children = View.createElement ~style:Style.[flexDirection `Row;] ~children:[m1; boutton_addinc; boutton_mininc; m2] ()
-        in let list_inc = View.createElement ~style:Style.[flexDirection `Row;] ~children:(inc_to_list etat.inconnu) ()
-        in (hooks, View.createElement ~style:Style.[position `Absolute; alignItems `Center;
-        bottom 0; top 0; left 0; right 0;] ~children:[list_inc; children] ()))
-
+          ~style:Style.[fontSize 25; fontFamily "Roboto-Regular.ttf"] ~children:[] ()
+        in let children = View.createElement ~style:Style.[flexDirection `Row] ~children:[m1; boutton_addinc; boutton_mininc; m2] ()
+        in let list_inc = View.createElement ~style:Style.[flexDirection `Row] ~children:(inc_to_list etat.inconnu) ()
+        in hooks, View.createElement ~style:Style.[position `Absolute; alignItems `Center;
+        bottom 0; top 0; left 0; right 0] ~children:[list_inc; children] ())
 end
 
 module Accueil = struct

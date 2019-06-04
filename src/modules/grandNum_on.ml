@@ -76,11 +76,20 @@ let diviser = function
 
 
 let opposer = function 
-	  E (signe,e1) -> E (not signe, e1)
-	| Q (signe,q1,q2) -> Q (not signe, q1, q2)
-	| R (signe,r,exp) -> R (not signe, r, exp)
+	  E (signe, e1) -> E (not signe, e1)
+	| Q (signe, q1, q2) -> Q (not signe, q1, q2)
+	| R (signe, r, exp) -> R (not signe, r, exp)
 
 let inverser = function
-	  E (signe,e1) ->  Q (signe, [1], e1)
-	| Q (signe,q1,q2) -> Q  (signe, q2, q1)
-	| R r1 -> let (a,b,c) = truc r1 in Q (a,c,b)
+	  E (signe, e1) ->  Q (signe, [1], e1)
+	| Q (signe, q1, q2) -> Q  (signe, q2, q1)
+	| R r1 -> let (a, b, c) = truc r1 in Q (a, c, b)
+let texte_depuis_num = function
+	  E e1 ->  GrandEntier_on.texte_depuis_grandentier e1
+	| R r1 -> GrandReel_on.texte_depuis_grandreel r1
+	| Q (signe, q1, q2) -> 
+	if signe then 
+	"-" ^ GrandEntier_on.texte_depuis_grandentier (false, q1) ^ "/" ^ GrandEntier_on.texte_depuis_grandentier (false, q2) 
+	else 
+	""  ^ GrandEntier_on.texte_depuis_grandentier (false, q1) ^ "/" ^ GrandEntier_on.texte_depuis_grandentier (false, q2)
+	

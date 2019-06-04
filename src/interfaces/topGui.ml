@@ -1038,7 +1038,7 @@ module Application = struct
     };
   }
 
-  let reducer action etat =
+  let reducer action _ (* etat *) =
     match action with
       ChangerVue v -> {(* etat with *) vue_courante = v}
 

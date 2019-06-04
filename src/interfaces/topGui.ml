@@ -1007,7 +1007,7 @@ module Application = struct
       valeur = "";
       res = " "(* trick to be displayed *);
       liste_historique = []; (* TODO: avoid this double list *)
-      context = Noyau.Moteur.empty_context
+      context = Commune.init_context
     };
     historique = {
       liste = [];

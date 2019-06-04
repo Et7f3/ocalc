@@ -2,32 +2,40 @@ let argv = Sys.argv
 let argc = Array.length argv
 let api_url = "https://api.github.com/repos/Et7f3/ocalc/releases"
 
+let liste_historique = ref []
+
+let evaluer_fichier fichier contexte =
+  if Revery.Environment.webGL then
+    contexte
+  else
+    if Filename.check_suffix fichier ".math" then
+      try
+        let fichier = open_in fichier in
+        let rec boucle f =
+          try
+            let entree = input_line fichier in
+            let sortie, f = Noyau.Moteur.evaluate_with_history entree f in
+            let hist = Printf.sprintf "%s = %s" entree sortie in
+            let () = liste_historique := hist :: !liste_historique in
+            let () = print_endline hist in
+            let () = flush stdout in
+            boucle f
+          with End_of_file ->
+            let () = close_in fichier in
+            f
+        in boucle contexte
+      with Sys_error _ ->
+        let () = prerr_string (fichier ^ " n'existe pas\n") in
+        contexte
+    else
+      let () = prerr_string (fichier ^ " n'as pas l'extension .math\n") in
+      contexte
+
 let init_context =
   if Revery.Environment.webGL then
     Noyau.Moteur.empty_context
   else
-    let evaluer_fichier fichier contexte =
-      if Filename.check_suffix fichier ".math" then
-        try
-          let fichier = open_in fichier in
-          let rec boucle f =
-            try
-              let entree = input_line fichier in
-              let sortie, f = Noyau.Moteur.evaluate_with_history entree f in
-              let () = Printf.printf "%s = %s\n" entree sortie in
-              let () = flush stdout in
-              boucle f
-            with End_of_file ->
-              let () = close_in fichier in
-              f
-          in boucle contexte
-        with Sys_error _ ->
-          let () = prerr_string (fichier ^ " n'existe pas\n") in
-          contexte
-      else
-        let () = prerr_string (fichier ^ " n'as pas l'extension .math\n") in
-        contexte
-    in let evaluate_arg f max =
+    let evaluate_arg f max =
       let rec evaluate_arg f i =
         if i = max then
           let () = flush stdout in

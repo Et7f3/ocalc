@@ -1006,7 +1006,7 @@ module Application = struct
     calcul = {
       valeur = "";
       res = " "(* trick to be displayed *);
-      liste_historique = []; (* TODO: avoid this double list *)
+      liste_historique = !Commune.liste_historique; (* TODO: avoid this double list *)
       context = Commune.init_context
     };
     historique = {

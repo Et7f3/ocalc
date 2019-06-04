@@ -62,7 +62,7 @@
         "format:windows": "esy b .ci/format.sh",
         "doc": "refmterr esy dune build @doc --root .",
         "create-release": "bash ./create-release.sh",
-        "run": "esy x OCalc"
+        "run": "esy x OCalc #{self.bin}/include.math"
     },
     "repository": {
         "type": "git",

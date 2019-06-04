@@ -28,7 +28,7 @@ let rec eval =
   | Inv (Neg e) -> Neg (Inv e)
   | Neg (Neg e) -> e
   | Inv (Inv e) -> e
-  | (C _ | Var _ | E _ | R _) as e -> e
+  | (C _ | N _ | Var _ ) as e -> e
   | T (n, l) -> T (n, List.map eval l)
   | Fx (nom, n, l) -> Fx (nom, n, List.map eval l)
   | Op (`Addition, l) -> Op (`Addition, List.map eval l |> additioner [])
@@ -40,7 +40,7 @@ and additioner acc liste_expr =
   let open Nouveau_type in
   match acc, liste_expr with
     acc, Op (`Addition, l) :: l' -> additioner acc (l @ l')
-  | E e1 :: acc, E e2 :: l -> additioner acc ((E (GrandEntier.additioner e1 e2)) :: l)
+  | N e1 :: acc, N e2 :: l -> additioner acc ((N (GrandNum.additioner (e1, e2))) :: l)
   | acc, e :: l -> additioner (e :: acc) l
   | acc, [] -> List.rev acc
 
@@ -62,8 +62,7 @@ and texte_depuis_expr =
   let open Nouveau_type in
   let open Lien in
   function
-    E e -> GrandEntier.texte_depuis_grandentier e
-  | R r -> GrandReel.texte_depuis_grandreel r
+    N n -> GrandNum.texte_depuis_num n
   | C Pi -> "pi"
   | C I -> "i"
   | C J -> "j"

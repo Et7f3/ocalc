@@ -11,7 +11,9 @@ let init_context =
         let fichier = open_in fichier in
         let rec boucle f =
           try
-            let _ = input_line fichier in
+            let entree = input_line fichier in
+            let sortie, f = Noyau.Moteur.evaluate_with_history entree f in
+            let () = Printf.printf "%s = %s" entree sortie in
             boucle f
           with End_of_file ->
             let () = close_in fichier in
@@ -24,6 +26,7 @@ let init_context =
       let rec evaluate_arg f i =
         let () = Array.iter print_endline Sys.argv in
         if i = max then
+          let () = flush stdout in
           f
         else
           let f = evaluer_fichier Sys.argv.(i) f in

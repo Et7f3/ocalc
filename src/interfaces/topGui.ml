@@ -739,7 +739,6 @@ module Equation = struct
 
   type 'a action =
       MiseAJour of int * int * int * string
-    | MiseAJourEntete of int * string
     | Calculer of matrice_mode
 
   let reducer action etat =
@@ -760,9 +759,6 @@ module Equation = struct
           {etat with mat1 = mat}
         else
           {etat with mat2 = mat}
-      | MiseAJourEntete (j, v(*, f*)) ->
-        let () = etat.mat1.(0).(j) <- v in
-        {etat with mat1 = etat.mat1}
       | Calculer _ ->
         let array_map2 f = Array.map (fun e -> Array.map f e) in
         let m1 = array_map2 float_of_string etat.mat1 in
@@ -814,28 +810,21 @@ module Equation = struct
               in input := (row_gen ~children:!row ()) :: !input
             done
           in (View.createElement ~children:!input) ()
-        in let input_gen =
-          Input.createElement
+          in let m1 =
+          dessiner_matrice (1, etat.nbr_inc) (fun i j -> Input.createElement
             ~style:Style.[color (Color.rgb 255. 255. 255.); width 100;
               margin2 ~horizontal:40 ~vertical:10]
-          in let m1 =
-          dessiner_matrice (1, etat.nbr_inc) (fun i j -> input_gen
             ~value:etat.mat1.(i).(j)
             ~placeholder:etat.mat1.(i).(j)
-            ~onChange:(fun {value; _} ->
-              if i = 0 then
-                dispatch(MiseAJourEntete (j, value(*, onUpdate *)))
-              else
-                dispatch(MiseAJour (1, i, j, value(*, onUpdate *)))
-            )
+            ~onChange:(fun {value; _} -> dispatch(MiseAJour (1, i, j, value)))
             ~children:[] ())
         in let m2 =
-          dessiner_matrice (1, 1) (fun i j -> input_gen
+          dessiner_matrice (1, 1) (fun i j -> Input.createElement
+            ~style:Style.[color (Color.rgb 255. 255. 255.); width 100;
+              margin2 ~horizontal:40 ~vertical:10]
             ~value:etat.mat2.(i).(j)
             ~placeholder:etat.mat2.(i).(j)
-            ~onChange:(fun {value; _} ->
-                dispatch(MiseAJour (2, i, j, value(*, onUpdate *)))
-            )
+            ~onChange:(fun {value; _} -> dispatch(MiseAJour (2, i, j, value)))
             ~children:[] ())
         in let add_inc () =
           let suf = List.nth etat.inconnu (etat.nbr_inc - 1)
@@ -853,36 +842,31 @@ module Equation = struct
         in let boutton_addinc =
           Text.createElement ~text:"+" ~onMouseUp:(fun _ ->
           add_inc (); etat.mat1 <- Array.make_matrix 1 etat.nbr_inc "0";
-          let m1 = dessiner_matrice (1, etat.nbr_inc) (fun i j -> input_gen
+          let m1 = dessiner_matrice (1, etat.nbr_inc) (fun i j -> Input.createElement
+            ~style:Style.[color (Color.rgb 255. 255. 255.); width 100;
+              margin2 ~horizontal:40 ~vertical:10]
             ~value:etat.mat1.(i).(j)
             ~placeholder:etat.mat1.(i).(j)
-            ~onChange:(fun {value; _} ->
-              if i = 0 then
-                dispatch(MiseAJourEntete (j, value(*, onUpdate *)))
-              else
-                dispatch(MiseAJour (1, i, j, value(*, onUpdate *)))
-            )
-            ~children:[] ()) in dispatch(MiseAJour (1, 0, 0, "")) )
+            ~onChange:(fun {value; _} -> dispatch(MiseAJour (1, i, j, value)))
+            ~children:[] ()) in dispatch(MiseAJour (1, 0, 0, etat.mat1.(0).(0))) )
           ~style:Style.[fontSize 25; fontFamily "Roboto-Regular.ttf"; marginHorizontal 10;] ~children:[] ()
         in let boutton_mininc =
           Text.createElement ~text:"-" ~onMouseUp:(fun _ ->
             minus_inc ();
-            let m1 = dessiner_matrice (1, etat.nbr_inc) (fun i j -> input_gen
+            let m1 = dessiner_matrice (1, etat.nbr_inc) (fun i j -> Input.createElement
+              ~style:Style.[color (Color.rgb 255. 255. 255.); width 100;
+                margin2 ~horizontal:40 ~vertical:10]
               ~value:etat.mat1.(i).(j)
               ~placeholder:etat.mat1.(i).(j)
-              ~onChange:(fun {value; _} ->
-                if i = 0 then
-                  dispatch(MiseAJourEntete (j, value(*, onUpdate *)))
-                else
-                  dispatch(MiseAJour (1, i, j, value(*, onUpdate *)))
-              )
-              ~children:[] ()) in dispatch(MiseAJour (1, 0, 0, "")) )
+              ~onChange:(fun {value; _} -> dispatch(MiseAJour (1, i, j, value)))
+              ~children:[] ()) in dispatch(MiseAJour (1, 0, 0, etat.mat1.(0).(0))) )
           ~style:Style.[fontSize 25; fontFamily "Roboto-Regular.ttf"; marginHorizontal 10;] ~children:[] ()
         in let children = View.createElement ~children:[boutton_addinc; boutton_mininc] ()
         in let list_inc = View.createElement ~style:Style.[flexDirection `Row; alignSelf `FlexStart;] ~children:(children :: (inc_to_list etat.inconnu)) ()
         in let children = View.createElement ~style:Style.[flexDirection `Row; alignSelf `FlexStart;] ~children:[m1; egal; m2] ()
+        in let resultat = Text.createElement ~text:etat.res ~style:Style.[fontSize 25; fontFamily "Roboto-Regular.ttf";] ~children:[] ()
         in hooks, View.createElement ~style:Style.[position `Absolute; alignItems `Center;
-        bottom 0; top 0; left 0; right 0] ~children:[list_inc; children; bouton_acc; bouton_calc] ())
+        bottom 0; top 0; left 0; right 0] ~children:[list_inc; children; resultat; bouton_acc; bouton_calc] ())
 end
 
 module Accueil = struct
@@ -934,53 +918,14 @@ module Accueil = struct
       in let scale, hooks =
         Hooks.animation (Animated.floatValue 0.)
         {
-          toValue = 0.2;
-          duration = Seconds 1.;
+          toValue = 1.;
+          duration = Seconds 5.;
           delay = Seconds 2.5;
           repeat = false;
           easing = Easing.linear;
           direction = `Normal
         } hooks
-      in let scale1, hooks =
-        Hooks.animation (Animated.floatValue 1.)
-        {
-          toValue = 1.5;
-          duration = Seconds 1.;
-          delay = Seconds 3.5;
-          repeat = false;
-          easing = Easing.linear;
-          direction = `Normal
-        } hooks
-      in let scale2, hooks =
-        Hooks.animation (Animated.floatValue 1.)
-        {
-          toValue = 1.5;
-          duration = Seconds 1.;
-          delay = Seconds 4.5;
-          repeat = false;
-          easing = Easing.linear;
-          direction = `Normal
-        } hooks
-      in let scale3, hooks =
-        Hooks.animation (Animated.floatValue 1.)
-        {
-          toValue = 1.5;
-          duration = Seconds 1.;
-          delay = Seconds 5.5;
-          repeat = false;
-          easing = Easing.linear;
-          direction = `Normal
-        } hooks
-      in let scale4, hooks =
-        Hooks.animation (Animated.floatValue 1.)
-        {
-          toValue = 1.5;
-          duration = Seconds 1.;
-          delay = Seconds 6.5;
-          repeat = false;
-          easing = Easing.linear;
-          direction = `Normal
-        } hooks
+
       in let imageStyle1 =
         Style.[
           bottom 0;
@@ -1003,14 +948,6 @@ module Accueil = struct
           Transform.TranslateY translate2;
           Transform.ScaleX scale;
           Transform.ScaleY scale;
-          Transform.ScaleX scale1;
-          Transform.ScaleY scale1;
-          Transform.ScaleX scale2;
-          Transform.ScaleY scale2;
-          Transform.ScaleX scale3;
-          Transform.ScaleY scale3;
-          Transform.ScaleX scale4;
-          Transform.ScaleY scale4;
           ];
         ]
       in
@@ -1059,7 +996,7 @@ module Application = struct
       nbr_inc = 1;
       mat1 = Array.make_matrix 1 2 "0";
       mat2 = Array.make_matrix 1 1 "0";
-      res =" string";
+      res ="";
     };
     calcul = {
       valeur = "";

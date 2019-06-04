@@ -184,7 +184,7 @@ module Calcul = struct
             Input.createElement
               ~style:Style.[color (Color.rgb 255. 255. 255.); bottom 0; top 0;
                 left 0; right 0]
-              ~value:valeur ~placeholder:"Entrer votre équation"
+              ~value:valeur ~placeholder:"Entrer votre calcul"
               ~onChange:(fun {value; _} -> dispatch(MiseAJour value))
               ~children:[] ();
             Text.createElement ~text:res(* retour du moteur *) ~style:textStyle
@@ -221,7 +221,7 @@ module Historique = struct
     in fun ~children:_ () ->
       component (fun hooks ->
         let bouton_retour =
-          Text.createElement ~text:"Revenir au mode Calculatrice"
+          Text.createElement ~text:"Revenir au mode de calcul simple"
             ~style:Style.[fontSize 25; fontFamily "Roboto-Regular.ttf";
               position `Absolute; bottom 10; right 10]
             ~onMouseUp:(fun _  -> changerVue `VueCalcul) ~children:[] ()
@@ -913,6 +913,22 @@ module Accueil = struct
           left 0;
           right 0
           ]
+      in let rec scalep hooks gmax max min delay =
+        match max with
+        a when a = gmax -> []
+        | _ -> (Hooks.animation (Animated.floatValue min)
+                {
+                  toValue = max;
+                  duration = Seconds 0.5;
+                  delay = Seconds delay;
+                  repeat = false;
+                  easing = Easing.linear;
+                  direction = `Normal;
+                } hooks) :: scalep hooks gmax (max *. 2.) (min *. 2.) (delay +. 0.5)
+      in let rec transformsc l =
+      match l with
+      [] -> []
+      |e :: k ->[Transform.ScaleX e; Transform.ScaleY e] @ transformsc k
       in let translate1, hooks =
         Hooks.animation (Animated.floatValue (-250.))
         {

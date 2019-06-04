@@ -11,3 +11,4 @@ val additioner : num * num -> num
 val diviser : num * num -> num
 val opposer : num -> num
 val inverser : num -> num
+val texte_depuis_num : num -> string

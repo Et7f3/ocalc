@@ -6,7 +6,7 @@ let empty_context = [], Hashtbl.create 20
 
 let remplace_inconnu contexte =
   let open Nouveau_type in
-  let rec ri = function
+  let (* rec *) ri = function
       Var s when Hashtbl.find_opt contexte (Def_Var s) <> None ->
         Hashtbl.find contexte (Def_Var s)
     (*| Fx (nom, n, _) when Hashtbl.find_opt s (Nouveau_type.Def_Fx (nom, n)) <> None ->
@@ -35,11 +35,20 @@ and texte_depuis_expr =
   | Inv e -> "/" ^ texte_depuis_expr e
   | Neg e -> "-" ^ texte_depuis_expr e
 
-let evaluate_with_history s (history, def as context) =
+let evaluate_with_history s context =
+  let history, def = context in
   let open Nouveau_parser in
   match parse s with
     Erreur (s, _ (* TODO: convert l *)) -> s, context
   | Expression e ->
     let e = Nouveau_type.expr_depuis_expression e in
+    let e = remplace_inconnu def e in
     texte_depuis_expr e, (e :: history, def)
-  | Definition l -> "definition valide", context (* TODO: evaluate definitions vefore storing them *)
+  | Definition l ->
+    let l = List.map (function
+      a, e ->
+        let a = Nouveau_type.affe_depuis_affectable a
+        and e = Nouveau_type.expr_depuis_expression e in
+        a, remplace_inconnu def e) l
+    in let () = List.iter (fun (a, e) -> Hashtbl.add def a e) l in
+    "definition valide", (history, def) (* TODO: evaluate definitions vefore storing them *)

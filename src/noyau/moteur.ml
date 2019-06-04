@@ -29,13 +29,20 @@ let rec eval =
   | (C _ | Var _ | E _ | R _) as e -> e
   | T (n, l) -> T (n, List.map eval l)
   | Fx (nom, n, l) -> Fx (nom, n, List.map eval l)
-  | Op (`Addition, l) -> Op (`Addition, l)
-  | Op (`Multiplication, l) -> Op (`Multiplication, l)
+  | Op (`Addition, l) -> Op (`Addition, List.map eval l |> additioner [])
+  | Op (`Multiplication, l) -> Op (`Multiplication, List.map eval l)
   | Inv e -> Inv e
   | Neg e -> Neg e
 
+and additioner acc liste_expr =
+  let open Nouveau_type in
+  match acc, liste_expr with
+    acc, Op (`Addition, l) :: l' -> additioner acc (l @ l')
+  | acc, e :: l -> additioner (e :: acc) l
+  | acc, [] -> List.rev acc
+
 let rec text_depuis_expr_liste sep l =
-  String.concat sep (List.map texte_depuis_expr l)
+  "(" ^ String.concat sep (List.map texte_depuis_expr l) ^ ")"
 
 and texte_depuis_expr =
   let open Nouveau_type in

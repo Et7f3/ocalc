@@ -96,7 +96,6 @@ let rec fonction l =
   | l -> Vide, l
 
 and facteur l =
-  let open Nouveau_lexer in
   match reel l with
     Vide, _ -> (
       match entier l with
@@ -119,6 +118,7 @@ and terme l =
       (Operateur Fois | Blanc) :: l -> (
           match facteur l with
             Vide, _ -> [Vide], l
+          (*| (Entier _ | Reel _) as e, Identifiant i :: l -> boucle (Variable i :: e :: acc) l*)
           | e, l -> boucle (e :: acc) l
         )
     | Operateur Division :: l -> (

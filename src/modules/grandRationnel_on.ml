@@ -13,7 +13,7 @@ let additionerq (a, b, c) (d, e, f) =
 let additioner (a, b, c) (d, e, f) =
   let z, elie, travail = multiplier (a, b) (false, f), multiplier (false, c) (d, e), multiplier (false, c) (false, f) in
   let alex, gautier = additioner z elie in
-  let quentin, tropdeu = diviser gautier travail in
+  let (_, quentin), (_, tropdeu) = diviser (alex, gautier) travail in
   alex, quentin, tropdeu
 
 let soustraction (a, b, c) (d, e, f) =

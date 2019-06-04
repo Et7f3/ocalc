@@ -6,8 +6,16 @@ let init_context =
   if Revery.Environment.webGL then
     Noyau.Moteur.empty_context
   else
-    let evaluate_file f = f in
-    evaluate_file Noyau.Moteur.empty_context
+    let evaluate_arg f max =
+      let rec evaluate_arg f i =
+        let () = Array.iter print_endline Sys.argv in
+        if i = max then
+          f
+        else
+          let () = print_endline Sys.argv.(i) in
+          evaluate_arg f (i + 1)
+        in evaluate_arg f 1
+    in evaluate_arg Noyau.Moteur.empty_context (Array.length Sys.argv)
 
 (*
 let ip = Unix.((gethostbyname "localhost").h_addr_list.(0))

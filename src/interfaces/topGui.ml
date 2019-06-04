@@ -180,7 +180,12 @@ module Calcul = struct
           View.createElement ~style:containerStyle ~children:[
             Input.createElement
               ~style:Style.[color (Color.rgb 255. 255. 255.); bottom 0; top 0;
-                left 0; right 0; width (dimensions.width / 2 - 20);]
+                left 0; right 0; width (
+                  if 200 + (String.length valeur) * 10 < dimensions.width / 2 - 20 then
+                    200 + (String.length valeur) * 10
+                    else
+                    dimensions.width / 2 - 20
+                );]
               ~value:valeur ~placeholder:"Entrer votre calcul"
               ~onChange:(fun {value; _} -> dispatch(MiseAJour value))
               ~children:[] ();
@@ -750,10 +755,10 @@ module Equation = struct
           else
             etat.mat2
         in let _ =
-          (*try
-            let _ = float_of_string v in*)
+          try
+            let _ = float_of_string v in
             mat.(i).(j) <- v
-          (*with Failure _ -> ()*)
+          with Failure _ -> ()
         in
         if id = 1 then
           {etat with mat1 = mat}
@@ -848,7 +853,7 @@ module Equation = struct
             ~value:etat.mat1.(i).(j)
             ~placeholder:etat.mat1.(i).(j)
             ~onChange:(fun {value; _} -> dispatch(MiseAJour (1, i, j, value)))
-            ~children:[] ()) in dispatch(MiseAJour (1, 0, 0, etat.mat1.(0).(0))) )
+            ~children:[] ()) in dispatch(MiseAJour (1, 0, 0, "")) )
           ~style:Style.[fontSize 25; fontFamily "Roboto-Regular.ttf"; marginHorizontal 10;] ~children:[] ()
         in let boutton_mininc =
           Text.createElement ~text:"-" ~onMouseUp:(fun _ ->
@@ -859,7 +864,7 @@ module Equation = struct
               ~value:etat.mat1.(i).(j)
               ~placeholder:etat.mat1.(i).(j)
               ~onChange:(fun {value; _} -> dispatch(MiseAJour (1, i, j, value)))
-              ~children:[] ()) in dispatch(MiseAJour (1, 0, 0, etat.mat1.(0).(0))) )
+              ~children:[] ()) in dispatch(MiseAJour (1, 0, 0,"")) )
           ~style:Style.[fontSize 25; fontFamily "Roboto-Regular.ttf"; marginHorizontal 10;] ~children:[] ()
         in let children = View.createElement ~children:[boutton_addinc; boutton_mininc] ()
         in let list_inc = View.createElement ~style:Style.[flexDirection `Row; alignSelf `FlexStart;] ~children:(children :: (inc_to_list etat.inconnu)) ()

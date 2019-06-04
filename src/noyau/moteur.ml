@@ -1,3 +1,5 @@
+open Lien
+
 type context =
     Nouveau_type.expr list (* history *)
   * (Nouveau_type.affe, Nouveau_type.expr) Hashtbl.t (* definitions *)
@@ -38,6 +40,7 @@ and additioner acc liste_expr =
   let open Nouveau_type in
   match acc, liste_expr with
     acc, Op (`Addition, l) :: l' -> additioner acc (l @ l')
+  | E e1 :: acc, E e2 :: l -> additioner acc ((E (GrandEntier.additionner e1 e2)) :: l)
   | acc, e :: l -> additioner (e :: acc) l
   | acc, [] -> List.rev acc
 

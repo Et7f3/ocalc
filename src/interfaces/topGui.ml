@@ -913,22 +913,6 @@ module Accueil = struct
           left 0;
           right 0
           ]
-      in let rec scalep hooks gmax max min delay =
-        match max with
-        a when a = gmax -> []
-        | _ -> (Hooks.animation (Animated.floatValue min)
-                {
-                  toValue = max;
-                  duration = Seconds 0.5;
-                  delay = Seconds delay;
-                  repeat = false;
-                  easing = Easing.linear;
-                  direction = `Normal;
-                } hooks) :: scalep hooks gmax (max *. 2.) (min *. 2.) (delay +. 0.5)
-      in let rec transformsc l =
-      match l with
-      [] -> []
-      |e :: k ->[Transform.ScaleX e; Transform.ScaleY e] @ transformsc k
       in let translate1, hooks =
         Hooks.animation (Animated.floatValue (-250.))
         {
@@ -942,8 +926,8 @@ module Accueil = struct
       in let translate2, hooks =
         Hooks.animation (Animated.floatValue 150.)
         {
-          toValue = -50.;
-          duration = Seconds 5.;
+          toValue = -90.;
+          duration = Seconds 6.;
           delay = Seconds 2.5;
           repeat = false;
           easing = Easing.linear;
@@ -952,9 +936,49 @@ module Accueil = struct
       in let scale, hooks =
         Hooks.animation (Animated.floatValue 0.)
         {
-          toValue = 1.;
-          duration = Seconds 0.5;
+          toValue = 0.2;
+          duration = Seconds 1.;
           delay = Seconds 2.5;
+          repeat = false;
+          easing = Easing.linear;
+          direction = `Normal
+        } hooks
+      in let scale1, hooks =
+        Hooks.animation (Animated.floatValue 1.)
+        {
+          toValue = 1.5;
+          duration = Seconds 1.;
+          delay = Seconds 3.5;
+          repeat = false;
+          easing = Easing.linear;
+          direction = `Normal
+        } hooks
+      in let scale2, hooks =
+        Hooks.animation (Animated.floatValue 1.)
+        {
+          toValue = 1.5;
+          duration = Seconds 1.;
+          delay = Seconds 4.5;
+          repeat = false;
+          easing = Easing.linear;
+          direction = `Normal
+        } hooks
+      in let scale3, hooks =
+        Hooks.animation (Animated.floatValue 1.)
+        {
+          toValue = 1.5;
+          duration = Seconds 1.;
+          delay = Seconds 5.5;
+          repeat = false;
+          easing = Easing.linear;
+          direction = `Normal
+        } hooks
+      in let scale4, hooks =
+        Hooks.animation (Animated.floatValue 1.)
+        {
+          toValue = 1.5;
+          duration = Seconds 1.;
+          delay = Seconds 6.5;
           repeat = false;
           easing = Easing.linear;
           direction = `Normal
@@ -978,15 +1002,23 @@ module Accueil = struct
           width 75;
           height 75;
           transform [
-            Transform.TranslateY translate2;
-            Transform.ScaleX scale;
-            Transform.ScaleY scale
-          ]
+          Transform.TranslateY translate2;
+          Transform.ScaleX scale;
+          Transform.ScaleY scale;
+          Transform.ScaleX scale1;
+          Transform.ScaleY scale1;
+          Transform.ScaleX scale2;
+          Transform.ScaleY scale2;
+          Transform.ScaleX scale3;
+          Transform.ScaleY scale3;
+          Transform.ScaleX scale4;
+          Transform.ScaleY scale4;
+          ];
         ]
       in
       let bouton_cal =
         Text.createElement ~text:"Accéder à calcul simple"
-         ~onMouseUp:(fun _  -> changerVue `VueCalcul)
+         ~onMouseUp:(fun _ -> changerVue `VueCalcul)
          ~style:Style.[
           fontSize 25; fontFamily "Roboto-Regular.ttf"; justifyContent `Center; color (Color.rgb 255. 120. 10.);
           position `Absolute; bottom 10; left 10;

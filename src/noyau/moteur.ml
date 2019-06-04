@@ -30,9 +30,9 @@ let rec eval =
   | Inv (Inv e) -> e
   | (C _ | Var _ | E _ | R _) as e -> e
   | T (n, l) -> T (n, List.map eval l)
-  | Fx (nom, n, l) -> Fx (nom, n, List.map eval l |> multiplier [])
+  | Fx (nom, n, l) -> Fx (nom, n, List.map eval l)
   | Op (`Addition, l) -> Op (`Addition, List.map eval l |> additioner [])
-  | Op (`Multiplication, l) -> Op (`Multiplication, List.map eval l)
+  | Op (`Multiplication, l) -> Op (`Multiplication, List.map eval l |> multiplier [])
   | Inv e -> Inv e
   | Neg e -> Neg e
 
@@ -48,6 +48,10 @@ and multiplier acc liste_expr =
   let open Nouveau_type in
   match acc, liste_expr with
     acc, Op (`Multiplication, l) :: l' -> multiplier acc (l @ l')
+  | C I :: acc, C J :: l ->
+    multiplier acc ((C K) :: l)
+  | C J :: acc, C I :: l ->
+    multiplier acc ((Neg (C K)) :: l)
   | acc, e :: l -> multiplier (e :: acc) l
   | acc, [] -> List.rev acc
 

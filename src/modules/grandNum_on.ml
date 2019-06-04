@@ -73,3 +73,14 @@ let diviser = function
   | Q q1, E (signe, e1) -> Q (GrandRationnel_on.diviser q1 (signe, e1, [1]))
   | R r1, Q q1 -> Q (GrandRationnel_on.diviser q1 (truc r1))
   | Q q1, R r1 -> Q (GrandRationnel_on.diviser q1 (truc r1))
+
+
+let opposer = function 
+	  E (signe,e1) -> E (not signe, e1)
+	| Q (signe,q1,q2) -> Q (not signe, q1, q2)
+	| R (signe,r,exp) -> R (not signe, r, exp)
+
+let inverser = function
+	  E (signe,e1) ->  Q (signe, [1], e1)
+	| Q (signe,q1,q2) -> Q  (signe, q2, q1)
+	| R r1 -> let (a,b,c) = truc r1 in Q (a,c,b)

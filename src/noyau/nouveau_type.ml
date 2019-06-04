@@ -19,7 +19,7 @@ type expr =
 
 type affe =
     Def_Var of string
-  | Def_Fx of string * int
+  | Def_Fx of string * int * string list
 
 let rec expr_depuis_expression =
   let open Nouveau_parser in
@@ -43,4 +43,4 @@ let affe_depuis_affectable =
   function
     Pas_affectable -> failwith "impossible de convertir Pas_affectable"
   | Definition_Variable s -> Def_Var s
-  | Definition_fonction (f, l) -> Def_Fx (f, List.length l)
+  | Definition_fonction (f, n, l) -> Def_Fx (f, n, l)

@@ -11,7 +11,7 @@ type expression =
 type affectable =
     Pas_affectable
   | Definition_Variable of string
-  | Definition_fonction of string * string list
+  | Definition_fonction of string * int * string list
 type entre_valide =
     Erreur of string * Nouveau_lexer.token list
   | Expression of expression

@@ -12,7 +12,7 @@ type expression =
 type affectable =
     Pas_affectable
   | Definition_Variable of string
-  | Definition_fonction of string * string list
+  | Definition_fonction of string * int * string list
 
 type entre_valide =
     Erreur of string * Nouveau_lexer.token list
@@ -179,12 +179,12 @@ let exrp_l_to_string_l l = List.map (fun e -> match e with Variable x -> x | _ -
 
 let expr_to_def = function
     Variable x, e -> Definition_Variable x, e
-  | Fonction (name, _, l), e -> Definition_fonction (name, exrp_l_to_string_l l), e
+  | Fonction (name, n, l), e -> Definition_fonction (name, n, exrp_l_to_string_l l), e
   | _, _ -> Pas_affectable, Vide
 
 let exprs_to_def = function
     Variable x, e -> Definition [Definition_Variable x, e]
-  | Fonction (name, _, l), e -> Definition [Definition_fonction (name, exrp_l_to_string_l l), e]
+  | Fonction (name, n, l), e -> Definition [Definition_fonction (name, n, exrp_l_to_string_l l), e]
   | Tuple(a, la), Tuple(b, lb) ->
     if a = b then
       Definition (List.map2 (fun a b -> expr_to_def (a, b)) la lb)

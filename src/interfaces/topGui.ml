@@ -286,7 +286,10 @@ module Matrice = struct
           )
         in let matrice_res = f m1 m2 in
         let matrice_res = array_map2 string_of_float matrice_res in
-        {etat with matrice_res}
+        {
+          etat with matrice_res;
+          taille_res = (Array.length matrice_res, Array.length matrice_res.(0));
+        }
 
 
   let createElement ~initialState ~changerVue ~onUpdate =
@@ -295,19 +298,6 @@ module Matrice = struct
         let (etat (* nouvel etat *), dispatch, hooks) =
           React.Hooks.reducer ~initialState reducer hooks
         in let () = onUpdate (`Matrice etat) in
-        let bouton_calc =
-          Text.createElement ~text:"Calculer le résultat"
-            ~onMouseUp:(fun _ -> dispatch (Calculer etat.mode))
-            ~style:Style.[fontSize 25; fontFamily "Roboto-Regular.ttf";
-              position `Absolute; bottom 10; right 10]
-            ~children:[] ()
-        in let bouton_retour =
-          Text.createElement ~text:"Revenir à l'accueil"
-            ~onMouseUp:(fun _  -> changerVue `VueAccueil)
-            ~style:Style.[fontSize 25; fontFamily "Roboto-Regular.ttf";
-              position `Absolute; bottom 10; left 10]
-            ~children:[] ()
-        in let children1 = [bouton_retour; bouton_calc] in
         let dessiner_matrice (h, w) f =
           let input = ref [] in
           let row_gen = View.createElement ~style:Style.[flexDirection(`Row)] in
@@ -367,6 +357,23 @@ module Matrice = struct
           dessiner_matrice etat.taille_res (fun i j -> input_gen
             ~value:etat.matrice_res.(i).(j)
             ~children:[] ())
+        in let bouton_calc =
+          Text.createElement ~text:"Calculer le résultat"
+            ~onMouseUp:(fun _ -> dispatch (Calculer etat.mode);
+            let m_res =
+            dessiner_matrice etat.taille_res (fun i j -> input_gen
+              ~value:etat.matrice_res.(i).(j)
+              ~children:[] ())in())
+            ~style:Style.[fontSize 25; fontFamily "Roboto-Regular.ttf";
+              position `Absolute; bottom 10; right 10]
+            ~children:[] ()
+        in let bouton_retour =
+          Text.createElement ~text:"Revenir à l'accueil"
+            ~onMouseUp:(fun _  -> changerVue `VueAccueil)
+            ~style:Style.[fontSize 25; fontFamily "Roboto-Regular.ttf";
+              position `Absolute; bottom 10; left 10]
+            ~children:[] ()
+        in let children1 = [bouton_retour; bouton_calc]
         in let chmttaille id c d (a, b) =
           match id with
             1 when d ->

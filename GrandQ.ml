@@ -14,9 +14,10 @@ let soustractionq (a, b, c) (d, e, f) =
   let quentin, tropdeu = diviser (false, gautier) (false, travail) in
   alex, quentin, tropdeu
 
+(**
 let soustractionq (a, b, c) (d, e, f) =
   additionnerq (a, b, c) (not d, e, f)
-
+**)
 
 let multiplierq (a, b, c) (d, e, f) =
   let z, y = bigint_times b e, bigint_times c f in

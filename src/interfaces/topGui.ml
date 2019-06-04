@@ -114,11 +114,7 @@ module Calcul = struct
       Vider -> {etat with valeur = ""}
     | MiseAJour valeur -> {etat with valeur} (* ici on met à jour notre état *)
     | Calculer ->
-      let rec restr = function
-          [] -> ""
-        | e :: l -> e ^ restr l
-      in let res = etat.valeur in
-      let res = restr (String.split_on_char ' ' res) in
+      let res = etat.valeur in
       let res, cxt =
         try
           Noyau.Moteur.evaluate_with_history res etat.context
@@ -1041,9 +1037,9 @@ module Accueil = struct
           ~children:[] ()
       in
      (hooks, View.createElement ~style:containerStyle ~children:[
+        Image.createElement ~src:"drapeau_fr.png" ~style:Style.[position `Absolute; top 10; right 10; height 25; width 38;] ~children:[] ();
         Image.createElement ~src:"pi.png" ~style:imageStyle2 ~children:[] ();
         Image.createElement ~src:"camel.png" ~style:imageStyle1 ~children:[] ();
-        (*Image.createElement ~src:"setting.png" ~style:Style.[top 10; right 10; height 25; width 25;] ~children:[] ()*)
         bouton_cal; bouton_equa; bouton_mat;
       ] ()))
 end

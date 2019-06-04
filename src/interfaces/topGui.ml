@@ -927,7 +927,7 @@ module Accueil = struct
         Hooks.animation (Animated.floatValue 150.)
         {
           toValue = -90.;
-          duration = Seconds 6.;
+          duration = Seconds 5.;
           delay = Seconds 2.5;
           repeat = false;
           easing = Easing.linear;
@@ -1043,6 +1043,7 @@ module Accueil = struct
      (hooks, View.createElement ~style:containerStyle ~children:[
         Image.createElement ~src:"pi.png" ~style:imageStyle2 ~children:[] ();
         Image.createElement ~src:"camel.png" ~style:imageStyle1 ~children:[] ();
+        (*Image.createElement ~src:"setting.png" ~style:Style.[top 10; right 10; height 25; width 25;] ~children:[] ()*)
         bouton_cal; bouton_equa; bouton_mat;
       ] ()))
 end

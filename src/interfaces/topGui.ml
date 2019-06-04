@@ -838,11 +838,8 @@ module Equation = struct
             )
             ~children:[] ())
         in let add_inc () =
-          let suf =
-            match etat.inconnu with
-            [] -> "x"
-            |e :: _ -> e
-          in let inc = (int_of_char suf.[etat.nbr_inc - 1]) + 1 in
+          let suf = List.nth etat.inconnu (etat.nbr_inc - 1)
+          in let inc = (int_of_char suf.[0]) + 1 in
           let inc = String.make 1 (char_of_int (if inc > 122 then inc - 26 else inc)) in
           let inc = (
             if (List.exists (fun a -> String.equal a inc) etat.inconnu) then

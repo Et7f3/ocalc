@@ -93,7 +93,7 @@ let rec sous = function
 let sous a = sous a |> nettoyer_zero
 
 (** renvoie ga + gb *)
-let additionner ga gb =
+let additioner ga gb =
   match ga, gb with
     (true, b), (false, d) | (false, d), (true, b) ->
       if comparer_nbr_abs b d = -1 then
@@ -177,13 +177,13 @@ let div_eucl_fix = function
     (a, m), (a <> c, div)
   | (true as a, b), (c, d) ->
     let m, div = div_mul b d in
-    additionner (a, m) (false, d), additionner (a <> c, div) (not c, [1])
+    additioner (a, m) (false, d), additioner (a <> c, div) (not c, [1])
 
 (** renvoie ga / gb où ga est multiple de gb *)
 let diviser_multiple ((a, _) as ga) ((c, _) as gb) =
   let _, (s, div) = div_eucl (ga, gb) in
   if a then
-    additionner (a <> c, div) (not c, [1])
+    additioner (a <> c, div) (not c, [1])
   else
     s, div
 
@@ -191,7 +191,7 @@ let diviser_multiple ((a, _) as ga) ((c, _) as gb) =
 let modulo ((a, _) as ga) ((_, d) as gb) =
   let (s, m), _ = div_eucl (ga, gb) in
   if a then
-    additionner (a, m) (false, d)
+    additioner (a, m) (false, d)
   else
     s, m
 

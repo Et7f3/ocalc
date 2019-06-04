@@ -171,15 +171,15 @@ let () = test_unitaire_assert (comparer d e) 0
 
 let () = fin_suite ()
 
-let () = init_suite "additionner"
+let () = init_suite "additioner"
 
-let () = test_unitaire_assert (additionner a b) (grandentier_depuis_texte "-55")
-let () = test_unitaire_assert (additionner b a) (grandentier_depuis_texte "-55")
-let () = test_unitaire_assert (additionner c a) d
-let () = test_unitaire_assert (additionner a c) d
+let () = test_unitaire_assert (additioner a b) (grandentier_depuis_texte "-55")
+let () = test_unitaire_assert (additioner b a) (grandentier_depuis_texte "-55")
+let () = test_unitaire_assert (additioner c a) d
+let () = test_unitaire_assert (additioner a c) d
 let () = if mechant then
-    test_unitaire_assert (additionner a d) a
-let () = test_unitaire_assert (additionner d e) d
+    test_unitaire_assert (additioner a d) a
+let () = test_unitaire_assert (additioner d e) d
 
 let () = fin_suite ()
 

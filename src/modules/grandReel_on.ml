@@ -59,9 +59,9 @@ let comparer ga gb =
   comparer (a, b) (d, e)
 
 (** renvoie ga + gb *)
-let additionner ga gb =
+let additioner ga gb =
   let (a, b, c), (d, e, _) = reunir_puissance ga gb in
-  let a, b = additionner (a, b) (d, e) in
+  let a, b = additioner (a, b) (d, e) in
   powerup (a, remove b, c)
 
 (** renvoie ga - gb *)

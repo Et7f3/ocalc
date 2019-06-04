@@ -1,17 +1,17 @@
 open Lien
 open Type
 
-let rec additionner = function
+let rec additioner = function
     [], [] -> failwith "Chut OCaml: additioner rien du tout ?"
-  | [], e :: l -> additionner ([eval e], l)
+  | [], e :: l -> additioner ([eval e], l)
   | acc, [] -> List.rev acc
   | e :: acc, (a :: l) ->
     match eval e, eval a with
-    | Entier a, Variable e -> additionner (Variable e :: acc, Entier a :: l)
+    | Entier a, Variable e -> additioner (Variable e :: acc, Entier a :: l)
     | Entier e, Entier a ->
-      let res = Entier (GrandEntier.additionner e a) in
-      additionner (res :: acc, l)
-    | e, a -> additionner (a :: e :: acc, l)
+      let res = Entier (GrandEntier.additioner e a) in
+      additioner (res :: acc, l)
+    | e, a -> additioner (a :: e :: acc, l)
 
 and multiplier = function
     [], [] -> failwith "Chut OCaml: multiplier rien du tout ?"
@@ -40,7 +40,7 @@ and eval = function
   | Operation ("+", [e]) -> eval e
   | Operation ("+", e :: l) ->
     let acc = [eval e] in
-    (match additionner (acc, l) with
+    (match additioner (acc, l) with
        [e] -> e
      | l -> Operation ("+", l))
   | Operation ("*", []) -> failwith "euh il y a un problème"

@@ -1,4 +1,4 @@
-type grandreel
+type grandreel = bool * int list * int
 val zero : grandreel
 val unit : grandreel
 val est_negatif : grandreel -> bool

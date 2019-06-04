@@ -175,7 +175,7 @@ let to_lexbuf s =
   let l = String.length s in
   let rec boucle acc start =
     match symbole_suivant s l start with
-      start, EOI -> List.rev acc
-    | start, Erreur -> [] (* comment je gère ? *)
+      _, EOI -> List.rev acc
+    | _, Erreur -> [] (* comment je gère ? *)
     | start, qqch -> boucle (qqch :: acc) start
   in boucle [] start

@@ -22,4 +22,4 @@
  (modules TopGui)
  (public_name OCalc)
  (package OCalc)
- (libraries js_of_ocaml Revery Commune Noyau))
+ (libraries js_of_ocaml Revery Commune Noyau Minesweeper.lib))

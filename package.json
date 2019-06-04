@@ -38,7 +38,8 @@
         "@opam/dune": "^1.5.0",
         "@opam/odoc": "*",
         "@opam/yojson": "^1.7.0",
-        "@opam/lambda-term": "1.13"
+        "@opam/lambda-term": "1.13",
+        "minesweeper": "*"
     },
     "resolutions": {
         "@opam/dune": "1.7.3",
@@ -47,7 +48,8 @@
         "@opam/js_of_ocaml": "github:ocsigen/js_of_ocaml:js_of_ocaml.opam#db257ce",
         "@opam/js_of_ocaml-compiler": "github:ocsigen/js_of_ocaml:js_of_ocaml-compiler.opam#db257ce",
         "@brisk/brisk-reconciler": "github:briskml/brisk-reconciler#dd933fc",
-        "revery": "github:revery-ui/revery#ea61525eb266b8c7b478558bad5686acdccc10c4"
+        "revery": "github:revery-ui/revery#ea61525eb266b8c7b478558bad5686acdccc10c4",
+        "minesweeper": "github:Et7f3/minesweeper#6a8400b33c0bafddb3ecb5a43d5b27a113549644"
     },
     "scripts": {
         "test": "echo \"Error: no test specified\" && exit 1",

@@ -214,11 +214,11 @@ let diviser ga gb =
 
 (** renvoie le grandentier à partir de sa représentation textuelle *)
 let cse_rec a n =
-  let rec abc a i =
+  let rec abc i =
     match i with
       i when i = n - 1 -> []
-    | _ -> (int_of_char a.[i]) - 48 :: abc a (i - 1)
-  in abc a (String.length a - 1) |> nettoyer_zero
+    | _ -> (int_of_char a.[i]) - 48 :: abc (i - 1)
+  in abc (String.length a - 1) |> nettoyer_zero
 
 let grandentier_depuis_texte sa =
   if sa.[0] = '-' then

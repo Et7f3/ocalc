@@ -6,11 +6,17 @@ let empty_context = [], Hashtbl.create 20
 
 let remplace_inconnu contexte =
   let open Nouveau_type in
-  let (* rec *) ri = function
+  let rec ri = function
       Var s when Hashtbl.find_opt contexte (Def_Var s) <> None ->
         Hashtbl.find contexte (Def_Var s)
     (*| Fx (nom, n, _) when Hashtbl.find_opt s (Nouveau_type.Def_Fx (nom, n)) <> None ->
       Hashtbl.find s (Nouveau_type.Def_Fx (nom, n)) *)
+    | T (n, l) -> T (n, List.map ri l)
+    | Fx (nom, n, l) -> Fx (nom, n, List.map ri l)
+    | Op (`Multiplication, l) -> Op (`Multiplication, List.map ri l)
+    | Op (`Addition, l) -> Op (`Addition, List.map ri l)
+    | Inv e -> Inv (ri e)
+    | Neg e -> Neg (ri e)
     | e -> e
   in ri
 

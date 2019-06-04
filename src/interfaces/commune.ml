@@ -7,26 +7,31 @@ let init_context =
     Noyau.Moteur.empty_context
   else
     let evaluer_fichier fichier contexte =
-      try
-        let fichier = open_in fichier in
-        let rec boucle f =
-          try
-            let entree = input_line fichier in
-            let sortie, f = Noyau.Moteur.evaluate_with_history entree f in
-            let () = Printf.printf "%s = %s" entree sortie in
-            boucle f
-          with End_of_file ->
-            let () = close_in fichier in
-            f
-        in boucle contexte
-      with Sys_error _ ->
-        let () = prerr_string (fichier ^ " n'existe pas\n") in
+      if Filename.check_suffix fichier ".math" then
+        try
+          let fichier = open_in fichier in
+          let rec boucle f =
+            try
+              let entree = input_line fichier in
+              let sortie, f = Noyau.Moteur.evaluate_with_history entree f in
+              let () = Printf.printf "%s = %s\n" entree sortie in
+              let () = flush stdout in
+              boucle f
+            with End_of_file ->
+              let () = close_in fichier in
+              f
+          in boucle contexte
+        with Sys_error _ ->
+          let () = prerr_string (fichier ^ " n'existe pas\n") in
+          contexte
+      else
+        let () = prerr_string (fichier ^ " n'as pas l'extension .math\n") in
         contexte
     in let evaluate_arg f max =
       let rec evaluate_arg f i =
-        let () = Array.iter print_endline Sys.argv in
         if i = max then
           let () = flush stdout in
+          let () = flush stderr in
           f
         else
           let f = evaluer_fichier Sys.argv.(i) f in

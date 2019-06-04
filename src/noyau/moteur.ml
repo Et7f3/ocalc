@@ -1,6 +1,6 @@
 type context =
     Nouveau_type.expr list (* history *)
-  * (Nouveau_parser.affectable, Nouveau_type.expr) Hashtbl.t (* definitions *)
+  * (Nouveau_type.affe, Nouveau_type.expr) Hashtbl.t (* definitions *)
 
 let empty_context = [], Hashtbl.create 20
 
@@ -28,7 +28,7 @@ and texte_depuis_expr =
 let evaluate_with_history s (history, def as context) =
   let open Nouveau_parser in
   match parse s with
-    Erreur (s, l) -> s, context
+    Erreur (s, _ (* TODO: convert l *)) -> s, context
   | Expression e ->
     let e = Nouveau_type.expr_depuis_expression e in
     texte_depuis_expr e, (e :: history, def)

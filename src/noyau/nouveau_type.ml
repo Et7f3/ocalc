@@ -18,6 +18,10 @@ type expr =
   | Inv of expr
   | Neg of expr
 
+type affe =
+    Def_Var of string
+  | Def_Fx of string * int
+
 let rec expr_depuis_expression =
   let open Nouveau_parser in
   function
@@ -34,3 +38,10 @@ let rec expr_depuis_expression =
   | Operation (a, l) -> Op (a, List.map expr_depuis_expression l)
   | Inverse e -> Inv (expr_depuis_expression e)
   | Negation e -> Neg (expr_depuis_expression e)
+
+let affe_depuis_affectable =
+  let open Nouveau_parser in
+  function
+    Pas_affectable -> failwith "impossible de convertir Pas_affectable"
+  | Definition_Variable s -> Def_Var s
+  | Definition_fonction (f, l) -> Def_Fx (f, List.length l)

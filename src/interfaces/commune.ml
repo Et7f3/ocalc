@@ -6,13 +6,27 @@ let init_context =
   if Revery.Environment.webGL then
     Noyau.Moteur.empty_context
   else
-    let evaluate_arg f max =
+    let evaluer_fichier fichier contexte =
+      try
+        let fichier = open_in fichier in
+        let rec boucle f =
+          try
+            let _ = input_line fichier in
+            boucle f
+          with End_of_file ->
+            let () = close_in fichier in
+            f
+        in boucle contexte
+      with Sys_error _ ->
+        let () = prerr_string (fichier ^ " n'existe pas\n") in
+        contexte
+    in let evaluate_arg f max =
       let rec evaluate_arg f i =
         let () = Array.iter print_endline Sys.argv in
         if i = max then
           f
         else
-          let () = print_endline Sys.argv.(i) in
+          let f = evaluer_fichier Sys.argv.(i) f in
           evaluate_arg f (i + 1)
         in evaluate_arg f 1
     in evaluate_arg Noyau.Moteur.empty_context (Array.length Sys.argv)

@@ -174,18 +174,19 @@ module Calcul = struct
             ~style:Style.[fontSize 25; fontFamily "Roboto-Regular.ttf";
               position `Absolute; bottom 10; right 10]
               ~onMouseUp:(fun _  -> changerVue `VueAccueil) ~children:[] ()
-        in
-        hooks,
+        in let dimensions: Monitor.size =
+          (Monitor.getPrimaryMonitor ()) |> Monitor.getSize in
+        (hooks,
           View.createElement ~style:containerStyle ~children:[
             Input.createElement
               ~style:Style.[color (Color.rgb 255. 255. 255.); bottom 0; top 0;
-                left 0; right 0]
+                left 0; right 0; width (dimensions.width / 2 - 20);]
               ~value:valeur ~placeholder:"Entrer votre calcul"
               ~onChange:(fun {value; _} -> dispatch(MiseAJour value))
               ~children:[] ();
             Text.createElement ~text:res(* retour du moteur *) ~style:textStyle
               ~children:[] (); sous_bout; bouton_acc; bouton_his
-            ] ())
+            ] ()))
 end
 
 module Historique = struct
@@ -749,11 +750,11 @@ module Equation = struct
             etat.mat1
           else
             etat.mat2
-        in let () =
-          try
-            let _ = float_of_string v in
+        in let _ =
+          (*try
+            let _ = float_of_string v in*)
             mat.(i).(j) <- v
-          with Failure _ -> ()
+          (*with Failure _ -> ()*)
         in
         if id = 1 then
           {etat with mat1 = mat}
@@ -792,7 +793,7 @@ module Equation = struct
             position `Absolute; bottom 10; right 10]
           ~children:[] ()
         in let egal = Text.createElement ~text:"=" ~style:Style.[
-                      fontSize 25; fontFamily "Roboto-Regular.ttf";] ~children:[] ()
+                      fontSize 25; fontFamily "Roboto-Regular.ttf"; marginVertical 15;] ~children:[] ()
         in let rec inc_to_list = function
             [] -> []
           | e :: l -> (Text.createElement ~text:e ~style:Style.[
@@ -818,9 +819,9 @@ module Equation = struct
             ~style:Style.[color (Color.rgb 255. 255. 255.); width 100;
               margin2 ~horizontal:40 ~vertical:10]
           in let m1 =
-          dessiner_matrice (1, etat.nbr_inc + 1) (fun i j -> input_gen
+          dessiner_matrice (1, etat.nbr_inc) (fun i j -> input_gen
             ~value:etat.mat1.(i).(j)
-            ~placeholder:etat.mat1.(0).(j)
+            ~placeholder:etat.mat1.(i).(j)
             ~onChange:(fun {value; _} ->
               if i = 0 then
                 dispatch(MiseAJourEntete (j, value(*, onUpdate *)))
@@ -831,11 +832,8 @@ module Equation = struct
         in let m2 =
           dessiner_matrice (1, 1) (fun i j -> input_gen
             ~value:etat.mat2.(i).(j)
-            ~placeholder:etat.mat2.(0).(j)
+            ~placeholder:etat.mat2.(i).(j)
             ~onChange:(fun {value; _} ->
-              if i = 0 then
-                dispatch(MiseAJourEntete (j, value(*, onUpdate *)))
-              else
                 dispatch(MiseAJour (2, i, j, value(*, onUpdate *)))
             )
             ~children:[] ())
@@ -844,23 +842,23 @@ module Equation = struct
             match etat.inconnu with
             [] -> "x"
             |e :: _ -> e
-          in let inc = (int_of_char suf.[0]) + 1 in
+          in let inc = (int_of_char suf.[etat.nbr_inc - 1]) + 1 in
           let inc = String.make 1 (char_of_int (if inc > 122 then inc - 26 else inc)) in
           let inc = (
             if (List.exists (fun a -> String.equal a inc) etat.inconnu) then
               String.make ((String.length (suf)) + 1) inc.[0]
             else
               inc)
-          in let _ = etat.inconnu <- inc :: etat.inconnu in
-          etat.nbr_inc <- etat.nbr_inc + 1 in let _ = etat.mat1 <- Array.make_matrix 1 (etat.nbr_inc + 1) "0"
-        in let minus_inc () = if etat.nbr_inc > 0 then
-          begin let (e :: l) = etat.inconnu in etat.inconnu <- l; etat.nbr_inc <- etat.nbr_inc - 1; etat.mat1 <- Array.make_matrix 1 (etat.nbr_inc + 1) "0" end
+          in let _ = etat.inconnu <- etat.inconnu @ [inc] in
+          etat.nbr_inc <- etat.nbr_inc + 1 in let _ = etat.mat1 <- Array.make_matrix 1 etat.nbr_inc "0"
+        in let minus_inc () = if etat.nbr_inc > 1 then
+          begin let (e :: l) = etat.inconnu in etat.inconnu <- l; etat.nbr_inc <- etat.nbr_inc - 1; etat.mat1 <- Array.make_matrix 1 etat.nbr_inc "0" end
         in let boutton_addinc =
           Text.createElement ~text:"+" ~onMouseUp:(fun _ ->
-          add_inc (); etat.mat1 <- Array.make_matrix 1 (etat.nbr_inc + 1) "0";
-          let m1 = dessiner_matrice (1, etat.nbr_inc + 1) (fun i j -> input_gen
+          add_inc (); etat.mat1 <- Array.make_matrix 1 etat.nbr_inc "0";
+          let m1 = dessiner_matrice (1, etat.nbr_inc) (fun i j -> input_gen
             ~value:etat.mat1.(i).(j)
-            ~placeholder:etat.mat1.(0).(j)
+            ~placeholder:etat.mat1.(i).(j)
             ~onChange:(fun {value; _} ->
               if i = 0 then
                 dispatch(MiseAJourEntete (j, value(*, onUpdate *)))
@@ -872,9 +870,9 @@ module Equation = struct
         in let boutton_mininc =
           Text.createElement ~text:"-" ~onMouseUp:(fun _ ->
             minus_inc ();
-            let m1 = dessiner_matrice (1, etat.nbr_inc + 1) (fun i j -> input_gen
+            let m1 = dessiner_matrice (1, etat.nbr_inc) (fun i j -> input_gen
               ~value:etat.mat1.(i).(j)
-              ~placeholder:etat.mat1.(0).(j)
+              ~placeholder:etat.mat1.(i).(j)
               ~onChange:(fun {value; _} ->
                 if i = 0 then
                   dispatch(MiseAJourEntete (j, value(*, onUpdate *)))
@@ -884,8 +882,8 @@ module Equation = struct
               ~children:[] ()) in dispatch(MiseAJour (1, 0, 0, "")) )
           ~style:Style.[fontSize 25; fontFamily "Roboto-Regular.ttf"; marginHorizontal 10;] ~children:[] ()
         in let children = View.createElement ~children:[boutton_addinc; boutton_mininc] ()
-        in let list_inc = View.createElement ~style:Style.[flexDirection `Row; alignSelf `FlexStart;] ~children:(children :: (inc_to_list etat.inconnu) @ [egal]) ()
-        in let children = View.createElement ~style:Style.[flexDirection `Row; alignSelf `FlexStart;] ~children:[m1; m2] ()
+        in let list_inc = View.createElement ~style:Style.[flexDirection `Row; alignSelf `FlexStart;] ~children:(children :: (inc_to_list etat.inconnu)) ()
+        in let children = View.createElement ~style:Style.[flexDirection `Row; alignSelf `FlexStart;] ~children:[m1; egal; m2] ()
         in hooks, View.createElement ~style:Style.[position `Absolute; alignItems `Center;
         bottom 0; top 0; left 0; right 0] ~children:[list_inc; children; bouton_acc; bouton_calc] ())
 end

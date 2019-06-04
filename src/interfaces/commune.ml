@@ -2,6 +2,13 @@ let argv = Sys.argv
 let argc = Array.length argv
 let api_url = "https://api.github.com/repos/Et7f3/ocalc/releases"
 
+let init_context =
+  if Revery.Environment.webGL then
+    Noyau.Moteur.empty_context
+  else
+    let evaluate_file f = f in
+    evaluate_file Noyau.Moteur.empty_context
+
 (*
 let ip = Unix.((gethostbyname "localhost").h_addr_list.(0))
 let addr = Unix.ADDR_INET (ip, 80)

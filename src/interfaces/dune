@@ -1,7 +1,7 @@
 (library
  (name Commune)
  (modules Commune)
- (libraries Yojson))
+ (libraries Yojson Revery Noyau))
 
 (executable
  (name topCmd)

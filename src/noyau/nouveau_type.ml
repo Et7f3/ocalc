@@ -8,8 +8,7 @@ type constantes =
   | K
 
 type expr =
-    E of GrandEntier.grandentier
-  | R of GrandReel.grandreel
+    N of GrandNum.num
   | C of constantes
   | Var of string
   | T of int * expr list
@@ -26,8 +25,8 @@ let rec expr_depuis_expression =
   let open Nouveau_parser in
   function
     Vide -> failwith "impossible de convertir Vide"
-  | Entier s -> E (GrandEntier.grandentier_depuis_texte s)
-  | Reel s -> R (GrandReel.grandreel_depuis_texte s)
+  | Entier s -> N (GrandNum.E (GrandEntier.grandentier_depuis_texte s))
+  | Reel s -> N (GrandNum.R (GrandReel.grandreel_depuis_texte s))
   | Variable ("pi" | "pI" | "Pi" | "PI") -> C Pi
   | Variable ("i" | "I") -> C I
   | Variable ("j" | "J") -> C J

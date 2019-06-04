@@ -33,6 +33,8 @@ let rec eval =
   | Fx (nom, n, l) -> Fx (nom, n, List.map eval l)
   | Op (`Addition, l) -> Op (`Addition, List.map eval l |> additioner [])
   | Op (`Multiplication, l) -> Op (`Multiplication, List.map eval l |> multiplier [])
+  | Inv (N n) -> N (GrandNum.inverser n)
+  | Neg (N n) -> N (GrandNum.opposer n)
   | Inv e -> Inv e
   | Neg e -> Neg e
 
@@ -40,7 +42,10 @@ and additioner acc liste_expr =
   let open Nouveau_type in
   match acc, liste_expr with
     acc, Op (`Addition, l) :: l' -> additioner acc (l @ l')
-  | N e1 :: acc, N e2 :: l -> additioner acc ((N (GrandNum.additioner (e1, e2))) :: l)
+  | N n :: acc, Var v :: l -> additioner (Var v :: acc) (N n :: l)
+  | N n1 :: acc, N n2 :: l ->
+    let n = GrandNum.additioner (n1, n2) in
+    additioner acc ((N n) :: l)
   | acc, e :: l -> additioner (e :: acc) l
   | acc, [] -> List.rev acc
 
@@ -48,6 +53,10 @@ and multiplier acc liste_expr =
   let open Nouveau_type in
   match acc, liste_expr with
     acc, Op (`Multiplication, l) :: l' -> multiplier acc (l @ l')
+  | N n :: acc, Var v :: l -> multiplier (Var v :: acc) (N n :: l)
+  | N n1 :: acc, N n2 :: l ->
+    let n = GrandNum.multiplier (n1, n2) in
+    multiplier acc ((N n) :: l)
   | C I :: acc, C J :: l ->
     multiplier acc ((C K) :: l)
   | C J :: acc, C I :: l ->

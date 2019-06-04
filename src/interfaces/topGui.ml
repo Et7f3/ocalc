@@ -849,7 +849,7 @@ module Equation = struct
           in let _ = etat.inconnu <- etat.inconnu @ [inc] in
           etat.nbr_inc <- etat.nbr_inc + 1 in let _ = etat.mat1 <- Array.make_matrix 1 etat.nbr_inc "0"
         in let minus_inc () = if etat.nbr_inc > 1 then
-          begin let (e :: l) = etat.inconnu in etat.inconnu <- l; etat.nbr_inc <- etat.nbr_inc - 1; etat.mat1 <- Array.make_matrix 1 etat.nbr_inc "0" end
+          begin let (e :: l) = List.rev etat.inconnu in etat.inconnu <- List.rev l; etat.nbr_inc <- etat.nbr_inc - 1; etat.mat1 <- Array.make_matrix 1 etat.nbr_inc "0" end
         in let boutton_addinc =
           Text.createElement ~text:"+" ~onMouseUp:(fun _ ->
           add_inc (); etat.mat1 <- Array.make_matrix 1 etat.nbr_inc "0";

@@ -2,9 +2,9 @@ type grandq = bool * int list * int list
 
 
 
-let additionnerq (a, b, c) (d, e, f) =
+let additionerq (a, b, c) (d, e, f) =
   let z, elie, travail = bigint_times b f, bigint_times e c, bigint_times c f in
-  let alex, gautier = additionner (a, z) (d, elie) in
+  let alex, gautier = additioner (a, z) (d, elie) in
   let quentin, tropdeu = diviser (false, gautier) (false, travail) in
   alex, quentin, tropdeu
 
@@ -16,7 +16,7 @@ let soustractionq (a, b, c) (d, e, f) =
 
 (**
 let soustractionq (a, b, c) (d, e, f) =
-  additionnerq (a, b, c) (not d, e, f)
+  additionerq (a, b, c) (not d, e, f)
 **)
 
 let multiplierq (a, b, c) (d, e, f) =

@@ -1,6 +1,6 @@
 open GrandEntier_on
 
-(** grandentier est un tuple [(signe négatif, \[unité, dizaine, centaine, ...\], exposant base 10)]
+(** grandreel est un tuple [(signe négatif, \[unité, dizaine, centaine, ...\], exposant base 10)]
 [-1,23] correspond à [(true, \[3; 2; 1\], -2)] *)
 type grandreel = bool * int list * int
 
@@ -59,9 +59,9 @@ let comparer ga gb =
   comparer (a, b) (d, e)
 
 (** renvoie ga + gb *)
-let additionner ga gb =
+let additioner ga gb =
   let (a, b, c), (d, e, _) = reunir_puissance ga gb in
-  let a, b = additionner (a, b) (d, e) in
+  let a, b = additioner (a, b) (d, e) in
   powerup (a, remove b, c)
 
 (** renvoie ga - gb *)

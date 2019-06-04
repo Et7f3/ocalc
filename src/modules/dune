@@ -1,4 +1,4 @@
 (library
  (name Modules)
  (wrapped true)
- (modules GrandEntier_on GrandReel_on Matrix))
+ (modules GrandNum_on GrandEntier_on GrandReel_on GrandRationnel_on Matrix))

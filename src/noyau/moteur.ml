@@ -1,62 +1,94 @@
 open Lien
-open Type
 
-let rec additionner = function
-    [], [] -> failwith "Chut OCaml: additioner rien du tout ?"
-  | [], e :: l -> additionner ([eval e], l)
+type context =
+    Nouveau_type.expr list (* history *)
+  * (Nouveau_type.affe, Nouveau_type.expr) Hashtbl.t (* definitions *)
+
+let empty_context = [], Hashtbl.create 20
+
+let remplace_inconnu contexte =
+  let open Nouveau_type in
+  let rec ri = function
+      Var s when Hashtbl.find_opt contexte (Def_Var s) <> None ->
+        Hashtbl.find contexte (Def_Var s)
+    (*| Fx (nom, n, _) when Hashtbl.find_opt s (Nouveau_type.Def_Fx (nom, n)) <> None ->
+      Hashtbl.find s (Nouveau_type.Def_Fx (nom, n)) *)
+    | T (n, l) -> T (n, List.map ri l)
+    | Fx (nom, n, l) -> Fx (nom, n, List.map ri l)
+    | Op (`Multiplication, l) -> Op (`Multiplication, List.map ri l)
+    | Op (`Addition, l) -> Op (`Addition, List.map ri l)
+    | Inv e -> Inv (ri e)
+    | Neg e -> Neg (ri e)
+    | e -> e
+  in ri
+
+let rec eval =
+  let open Nouveau_type in
+  function
+  | Inv (Neg e) -> Neg (Inv e)
+  | Neg (Neg e) -> e
+  | Inv (Inv e) -> e
+  | (C _ | Var _ | E _ | R _) as e -> e
+  | T (n, l) -> T (n, List.map eval l)
+  | Fx (nom, n, l) -> Fx (nom, n, List.map eval l |> multiplier [])
+  | Op (`Addition, l) -> Op (`Addition, List.map eval l |> additioner [])
+  | Op (`Multiplication, l) -> Op (`Multiplication, List.map eval l)
+  | Inv e -> Inv e
+  | Neg e -> Neg e
+
+and additioner acc liste_expr =
+  let open Nouveau_type in
+  match acc, liste_expr with
+    acc, Op (`Addition, l) :: l' -> additioner acc (l @ l')
+  | E e1 :: acc, E e2 :: l -> additioner acc ((E (GrandEntier.additioner e1 e2)) :: l)
+  | acc, e :: l -> additioner (e :: acc) l
   | acc, [] -> List.rev acc
-  | e :: acc, (a :: l) ->
-    match eval e, eval a with
-    | Entier a, Variable e -> additionner (Variable e :: acc, Entier a :: l)
-    | Entier e, Entier a ->
-      let res = Entier (GrandEntier.additionner e a) in
-      additionner (res :: acc, l)
-    | e, a -> additionner (a :: e :: acc, l)
 
-and multiplier = function
-    [], [] -> failwith "Chut OCaml: multiplier rien du tout ?"
-  | [], e :: l -> multiplier ([eval e], l)
+and multiplier acc liste_expr =
+  let open Nouveau_type in
+  match acc, liste_expr with
+    acc, Op (`Multiplication, l) :: l' -> multiplier acc (l @ l')
+  | acc, e :: l -> multiplier (e :: acc) l
   | acc, [] -> List.rev acc
-  | e :: acc, Inv a :: l when (match e with Inv _ -> false | _ -> true) ->
-    multiplier (acc, Inv a :: e :: l)
-  | e :: acc, (a :: l) ->
-    match eval e, eval a with
-    | Entier a, Variable e -> multiplier (Variable e :: acc, Entier a :: l)
-    | Entier e, Entier a ->
-      let res = Entier (GrandEntier.multiplier e a)
-      in multiplier (res :: acc, l)
-    | Entier e, Inv (Entier a) | Inv (Entier a), Entier e ->
-      (match GrandEntier.diviser e a with
-          e, x when x = GrandEntier.unit -> multiplier ((Entier e) :: acc, l)
-        | x, a when x = GrandEntier.unit -> multiplier (acc, Inv (Entier a) :: l)
-        | e, a -> multiplier ((Entier e) :: Inv (Entier a) :: acc, l))
-    | Inv (Entier e), Inv (Entier a) ->
-      let res = GrandEntier.multiplier e a in
-      multiplier (acc, Inv (Entier res) :: l)
-    | e, a -> multiplier (a :: e :: acc, l)
 
-and eval = function
-    Operation ("+", []) -> failwith "euh il y a un problème"
-  | Operation ("+", [e]) -> eval e
-  | Operation ("+", e :: l) ->
-    let acc = [eval e] in
-    (match additionner (acc, l) with
-       [e] -> e
-     | l -> Operation ("+", l))
-  | Operation ("*", []) -> failwith "euh il y a un problème"
-  | Operation ("*", [e]) -> eval e
-  | Operation ("*", e :: l) ->
-    let acc = [eval e] in
-    (match multiplier (acc, l) with
-       [e] -> e
-     | l -> Operation ("*", l))
-  | Neg (Neg e) -> eval e
-  | a -> a
+let rec text_depuis_expr_liste sep l =
+  "(" ^ String.concat sep (List.map texte_depuis_expr l) ^ ")"
 
-type context = expr list
+and texte_depuis_expr =
+  let open Nouveau_type in
+  let open Lien in
+  function
+    E e -> GrandEntier.texte_depuis_grandentier e
+  | R r -> GrandReel.texte_depuis_grandreel r
+  | C Pi -> "pi"
+  | C I -> "i"
+  | C J -> "j"
+  | C K -> "k"
+  | Var s -> s
+  | T (_, l) -> "(" ^ (text_depuis_expr_liste ";" l) ^ ")"
+  | Fx (nom, _, l) -> nom ^ "(" ^ (text_depuis_expr_liste ";" l) ^ ")"
+  | Op (`Multiplication, l) -> text_depuis_expr_liste "*" l
+  | Op (`Addition, l) -> text_depuis_expr_liste "+" l
+  | Inv e -> "/" ^ texte_depuis_expr e
+  | Neg e -> "-" ^ texte_depuis_expr e
 
-let empty_context = []
-
-let evaluate_with_history str context =
-    let e = eval (Parser.expr_de_texte str) in
-    Parser.texte_de_expr e, e :: context
+let evaluate_with_history s context =
+  let history, def = context in
+  let open Nouveau_parser in
+  match parse s with
+    Erreur (s, _ (* TODO: convert l *)) -> s, context
+  | Expression e ->
+    let e = Nouveau_type.expr_depuis_expression e in
+    let e = remplace_inconnu def e in
+    let e = eval e in
+    texte_depuis_expr e, (e :: history, def)
+  | Definition l ->
+    let l = List.map (function
+      a, e ->
+        let a = Nouveau_type.affe_depuis_affectable a
+        and e = Nouveau_type.expr_depuis_expression e in
+        let e = remplace_inconnu def e in
+        let e = eval e in
+        a, e) l
+    in let () = List.iter (fun (a, e) -> Hashtbl.add def a e) l in
+    "definition valide", (history, def) (* TODO: evaluate definitions vefore storing them *)

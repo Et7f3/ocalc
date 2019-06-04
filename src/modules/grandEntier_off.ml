@@ -21,7 +21,7 @@ let comparer ga gb =
     -1
 (** 1 si ga < gb sinon 0 si ga = gb sinon -1 *)
 
-let additionner ga gb = ga + gb
+let additioner ga gb = ga + gb
 (** renvoie ga + gb *)
 
 let soustraire ga gb = ga - gb

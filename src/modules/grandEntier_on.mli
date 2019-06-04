@@ -4,7 +4,7 @@ val unit : grandentier
 val est_negatif : grandentier -> bool
 val neg : grandentier -> grandentier
 val comparer : grandentier -> grandentier -> int
-val additionner : grandentier -> grandentier -> grandentier
+val additioner : grandentier -> grandentier -> grandentier
 val soustraire : grandentier -> grandentier -> grandentier
 val multiplier : grandentier -> grandentier -> grandentier
 val pgcd : grandentier -> grandentier -> grandentier

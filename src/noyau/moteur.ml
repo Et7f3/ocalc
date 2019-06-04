@@ -20,6 +20,20 @@ let remplace_inconnu contexte =
     | e -> e
   in ri
 
+let rec eval =
+  let open Nouveau_type in
+  function
+  | Inv (Neg e) -> Neg (Inv e)
+  | Neg (Neg e) -> e
+  | Inv (Inv e) -> e
+  | (C _ | Var _ | E _ | R _) as e -> e
+  | T (n, l) -> T (n, List.map eval l)
+  | Fx (nom, n, l) -> Fx (nom, n, List.map eval l)
+  | Op (`Addition, l) -> Op (`Addition, l)
+  | Op (`Multiplication, l) -> Op (`Multiplication, l)
+  | Inv e -> Inv e
+  | Neg e -> Neg e
+
 let rec text_depuis_expr_liste sep l =
   String.concat sep (List.map texte_depuis_expr l)
 
@@ -49,12 +63,15 @@ let evaluate_with_history s context =
   | Expression e ->
     let e = Nouveau_type.expr_depuis_expression e in
     let e = remplace_inconnu def e in
+    let e = eval e in
     texte_depuis_expr e, (e :: history, def)
   | Definition l ->
     let l = List.map (function
       a, e ->
         let a = Nouveau_type.affe_depuis_affectable a
         and e = Nouveau_type.expr_depuis_expression e in
-        a, remplace_inconnu def e) l
+        let e = remplace_inconnu def e in
+        let e = eval e in
+        a, e) l
     in let () = List.iter (fun (a, e) -> Hashtbl.add def a e) l in
     "definition valide", (history, def) (* TODO: evaluate definitions vefore storing them *)

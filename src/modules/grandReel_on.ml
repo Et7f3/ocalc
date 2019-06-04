@@ -1,6 +1,6 @@
 open GrandEntier_on
 
-(** grandentier est un tuple [(signe négatif, \[unité, dizaine, centaine, ...\], exposant base 10)]
+(** grandreel est un tuple [(signe négatif, \[unité, dizaine, centaine, ...\], exposant base 10)]
 [-1,23] correspond à [(true, \[3; 2; 1\], -2)] *)
 type grandreel = bool * int list * int
 

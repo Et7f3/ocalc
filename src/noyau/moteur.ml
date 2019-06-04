@@ -4,6 +4,16 @@ type context =
 
 let empty_context = [], Hashtbl.create 20
 
+let remplace_inconnu contexte =
+  let open Nouveau_type in
+  let rec ri = function
+      Var s when Hashtbl.find_opt contexte (Def_Var s) <> None ->
+        Hashtbl.find contexte (Def_Var s)
+    (*| Fx (nom, n, _) when Hashtbl.find_opt s (Nouveau_type.Def_Fx (nom, n)) <> None ->
+      Hashtbl.find s (Nouveau_type.Def_Fx (nom, n)) *)
+    | e -> e
+  in ri
+
 let rec text_depuis_expr_liste sep l =
   String.concat sep (List.map texte_depuis_expr l)
 

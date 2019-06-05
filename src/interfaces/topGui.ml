@@ -23,6 +23,7 @@ type vue =
     | `VueMatrice
     | `VueAccueil
     | `VueEquation
+    | `VueBonus
   ]
 
 (*
@@ -115,6 +116,11 @@ module VueParDefaut = struct
 end
 *)
 
+module VueBonus = struct
+  let component = React.component "VueBonus"
+
+  let createElement ~changerVue:_ ~onUpdate:_ ~children:_ () = Minesweeper_lib.MineSweeper.createElement ~children:[] ()
+end
 
 module Calcul = struct
   let component = React.component "Calcul"
@@ -528,14 +534,10 @@ module Equation = struct
       MiseAJour (i, j, v) ->
         let mat = etat.mat1
         in let _ = mat.(i).(j) <- v in
-        let () = Printf.printf "i: %d, j: %d, v: %s, value: %s\n" i j v mat.(i).(j) in
-        let () = flush stdout in
         {etat with mat1 = mat}
       | MiseAJourVariable (i, j, v) ->
         let mat = etat.mat2
         in let _ = mat.(i).(j) <- v in
-        let () = Printf.printf "i: %d, j: %d, v: %s, value: %s\n" i j v mat.(i).(j) in
-        let () = flush stdout in
         {etat with mat2 = mat}
       | Calculer _ ->
         let array_map2 f = Array.map (fun e -> Array.map f e) in
@@ -592,10 +594,7 @@ module Equation = struct
               margin2 ~horizontal:40 ~vertical:10]
             ~value:etat.mat1.(i).(j)
             ~placeholder:etat.mat1.(i).(j)
-            ~onChange:(fun {value; _} ->
-               let () = Printf.printf "i: %d, j: %d, v: %s, value: %s\n" i j value etat.mat1.(i).(j) in
-               let () = flush stdout in
-             dispatch(MiseAJour (i, j, value)))
+            ~onChange:(fun {value; _} -> dispatch(MiseAJour (i, j, value)))
             ~children:[] ())
         in let m2 =
           dessiner_matrice (etat.lines, 1) (fun i j -> Input.createElement
@@ -603,10 +602,7 @@ module Equation = struct
               margin2 ~horizontal:40 ~vertical:10]
             ~value:etat.mat2.(i).(j)
             ~placeholder:etat.mat2.(i).(j)
-            ~onChange:(fun {value; _} ->
-                 let () = Printf.printf "i: %d, j: %d, v: %s, value: %s\n" i j value etat.mat2.(i).(j) in
-                 let () = flush stdout in
-               dispatch(MiseAJourVariable (i, j, value)))
+            ~onChange:(fun {value; _} -> dispatch(MiseAJourVariable (i, j, value)))
             ~children:[] ())
         in let add_inc () =
           let suf = List.nth etat.inconnu (etat.nbr_inc - 1)
@@ -634,7 +630,7 @@ module Equation = struct
             minus_inc ();
             dispatch(MiseAJour (0, 0, etat.mat1.(0).(0))) )
           ~style:Style.[fontSize 25; fontFamily "Roboto-Regular.ttf"; marginHorizontal 10;] ~children:[] ()
-      (*  in let boutton_addline =
+      (*in let boutton_addline =
           Text.createElement ~text:"+" ~onMouseUp:(fun _ ->
             etat.lines <- etat.lines + 1;
             etat.mat1 <- Array.make_matrix etat.lines etat.nbr_inc "0";
@@ -768,7 +764,8 @@ module Accueil = struct
       in
      (hooks, View.createElement ~style:containerStyle ~children:[
         Image.createElement ~src:"drapeau_fr.png" ~style:Style.[position `Absolute; top 10; right 10; height 25; width 38;] ~children:[] ();
-        Image.createElement ~src:"pi.png" ~style:imageStyle2 ~children:[] ();
+        Image.createElement
+          ~onMouseUp:(fun _ -> changerVue `VueBonus) ~src:"pi.png" ~style:imageStyle2 ~children:[] ();
         Image.createElement ~src:"camel.png" ~style:imageStyle1 ~children:[] ();
         bouton_cal; bouton_equa; bouton_mat;
       ] ()))
@@ -838,6 +835,7 @@ module Application = struct
             | `VueMatrice -> Matrice.createElement ~initialState:(!sauvegarde.matrice)
             | `VueAccueil -> Accueil.createElement ~initialState:(!sauvegarde.accueil)
             | `VueEquation -> Equation.createElement ~initialState:(!sauvegarde.equation)
+            | `VueBonus -> VueBonus.createElement
           in hooks, (choisir_vue vue_courante)
           ~changerVue:(fun v -> dispatch (ChangerVue v))
           ~onUpdate:miseAJour

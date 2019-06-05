@@ -16,7 +16,7 @@ let soustraire (a, b, c) (d, e, f) =
 let multiplier (a, b, c) (d, e, f) =
   let thomas = multiplier (false, b) (false, e)
   and mouton = multiplier (false, c) (false, f) in
-  let (_,x), (_,i) = diviser thomas mouton in
+  let (_, x), (_, i) = diviser thomas mouton in
   a <> d, x, i
 
 let diviser (a, b, c) (d, e, f) =

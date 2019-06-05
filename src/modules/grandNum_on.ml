@@ -27,6 +27,22 @@ let zero = E (GrandEntier_on.grandentier_depuis_texte "0")
 
 let unit = E (GrandEntier_on.grandentier_depuis_texte "1")
 
+let vers_grandentier = function
+    E _ as e -> e
+  | R (_, [], _) -> zero
+  | R (s, mantisse, exp) as r ->
+    if exp > 0 then
+      let s, mantisse, exp = up (s, mantisse, exp) in
+      if exp = [1] then (* Should always be true *)
+        E (s, mantisse)
+      else
+        r
+    else
+      r
+  | Q (_, [], _) -> zero
+  | Q (signe, nom, [1]) -> E (signe, nom)
+  | Q _ as q -> q
+
 let multiplier = function
     E e1, E e2 -> E (GrandEntier_on.multiplier e1 e2)
   | R r1, R r2 -> R (GrandReel_on.multiplier r1 r2)
@@ -37,6 +53,8 @@ let multiplier = function
   | Q q1, E (signe, e1) -> Q (GrandRationnel_on.multiplier q1 (signe, e1, [1]))
   | R r1, Q q1 -> Q (GrandRationnel_on.multiplier q1 (q_depuis_r r1))
   | Q q1, R r1 -> Q (GrandRationnel_on.multiplier q1 (q_depuis_r r1))
+
+let multiplier e = multiplier e |> vers_grandentier
 
 let soustraire = function
     E e1, E e2 -> E (GrandEntier_on.soustraire e1 e2)
@@ -49,6 +67,8 @@ let soustraire = function
   | R r1, Q q1 -> Q (GrandRationnel_on.soustraire q1 (q_depuis_r r1))
   | Q q1, R r1 -> Q (GrandRationnel_on.soustraire q1 (q_depuis_r r1))
 
+let soustraire e = soustraire e |> vers_grandentier
+
 let additioner = function
     E e1, E e2 -> E (GrandEntier_on.additioner e1 e2)
   | R r1, R r2 -> R (GrandReel_on.additioner r1 r2)
@@ -59,6 +79,8 @@ let additioner = function
   | Q q1, E (signe, e1) -> Q (GrandRationnel_on.additioner q1 (signe, e1, [1]))
   | R r1, Q q1 -> Q (GrandRationnel_on.additioner q1 (q_depuis_r r1))
   | Q q1, R r1 -> Q (GrandRationnel_on.additioner q1 (q_depuis_r r1))
+
+let additioner e = additioner e |> vers_grandentier
 
 let diviser = function
     E (signe1, e1), E (signe2, e2) -> Q (signe1 <> signe2, e1, e2)
@@ -71,10 +93,14 @@ let diviser = function
   | R r1, Q q1 -> Q (GrandRationnel_on.diviser q1 (q_depuis_r r1))
   | Q q1, R r1 -> Q (GrandRationnel_on.diviser q1 (q_depuis_r r1))
 
+let diviser e = diviser e |> vers_grandentier
+
 let opposer = function
     E (signe, e1) -> E (not signe, e1)
   | Q (signe, q1, q2) -> Q (not signe, q1, q2)
   | R (signe, r, exp) -> R (not signe, r, exp)
+
+let opposer e = opposer e |> vers_grandentier
 
 let inverser = function
     E (signe, e1) -> Q (signe, [1], e1)
@@ -82,6 +108,8 @@ let inverser = function
   | R r1 ->
     let a, b, c = q_depuis_r r1 in
     Q (a, c, b)
+
+let inverser e = inverser e |> vers_grandentier
 
 let texte_depuis_num = function
     E e1 ->  GrandEntier_on.texte_depuis_grandentier e1

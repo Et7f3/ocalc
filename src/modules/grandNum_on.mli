@@ -6,7 +6,7 @@ val zero : num
 val unit : num
 val powerabs : int -> int list
 val up : 'a * int list * int -> 'a * int list * int list
-val truc : 'a * int list * int -> 'a * int list * int list
+val q_depuis_r : GrandReel_on.grandreel -> GrandRationnel_on.grandrationnel
 val multiplier : num * num -> num
 val soustraire : num * num -> num
 val additioner : num * num -> num

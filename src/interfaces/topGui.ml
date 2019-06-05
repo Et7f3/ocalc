@@ -5,10 +5,10 @@ open Revery.UI.Components
 
 let bgColor =
 (*
-  if Environment.webGL then*)
+  if Environment.webGL then
     Color.hex("#ffffff")
-  (*else
-    Color.hex("#212733")*)
+  else*)
+    Color.hex("#212733")
 
 let txtColor =
   (*if Environment.webGL then

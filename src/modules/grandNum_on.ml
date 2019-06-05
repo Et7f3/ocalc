@@ -96,6 +96,6 @@ let texte_depuis_num = function
       q
 
 let est_negatif = function
-	  E (signe,_) -> signe
-	| Q (signe,_,_) -> signe
-	| R (signe,_,_) -> signe
+    E (signe, _) -> signe
+  | Q (signe, _, _) -> signe
+  | R (signe, _, _) -> signe

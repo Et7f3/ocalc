@@ -450,7 +450,7 @@ module Matrice = struct
               etat.taille_res <- (a - 1, b)
           | _ ->
             if c then
-              etat.taille_res <- (a , b + 1)
+              etat.taille_res <- (a, b + 1)
             else if b > 1 then
               etat.taille_res <- (a, b - 1)
         in let chmtmat id (a, b) =
@@ -679,7 +679,7 @@ module Equation = struct
               etat.lines <- etat.lines - 1;
               etat.mat1 <- Array.make_matrix etat.lines etat.nbr_inc "0";
               etat.mat2 <- Array.make_matrix etat.lines 1 "0";
-              dispatch(MiseAJour (1, 0, 0,"0"))
+              dispatch(MiseAJour (1, 0, 0, "0"))
               end )
           ~style:Style.[fontSize 25; fontFamily "Roboto-Regular.ttf"; marginHorizontal 10;] ~children:[] ()*)
         in let children = View.createElement ~children:[boutton_addinc; boutton_mininc] ()

@@ -25,9 +25,21 @@ let remplace_inconnu contexte =
 let rec eval =
   let open Nouveau_type in
   function
-  | Inv (Neg e) -> Neg (eval (Inv (eval e)))
-  | Neg (Neg e) -> eval e
-  | Inv (Inv e) -> eval e
+| Inv e ->
+  (
+    match eval e with
+      Inv e -> e
+    | N (n) -> N (GrandNum.inverser n)
+    | Neg e -> Neg (Inv e)
+    | e -> Inv e
+  )
+| Neg e ->
+  (
+    match eval e with
+      Neg e -> e
+    | N (n) -> N (GrandNum.opposer n)
+    | e -> Inv e
+  )
   | (C _ | N _ | Var _ ) as e -> e
   | T (n, l) -> T (n, List.map eval l)
   | Fx ("sin", 1, [C Pi]) -> N (GrandNum.zero)
@@ -50,10 +62,6 @@ let rec eval =
       | [e] -> e
       | l -> Op (`Multiplication, l)
     )
-  | Inv (N n) -> N (GrandNum.inverser n)
-  | Neg (N n) -> N (GrandNum.opposer n)
-  | Inv e -> Inv (eval e)
-  | Neg e -> Neg (eval e)
 
 and additioner acc liste_expr =
   let open Nouveau_type in

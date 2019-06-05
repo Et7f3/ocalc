@@ -3,11 +3,11 @@ type num =
   | R of GrandReel_on.grandreel
   | Q of GrandRationnel_on.grandrationnel
 
-let powerabs c =
-  let rec pa i = function
+let power c =
+  let rec p i = function
       0 -> i
-    | c -> pa (0 :: i) (c - 1)
-  in pa [1] (abs c)
+    | c -> p (0 :: i) (c - 1)
+  in p [1] c
 
 let rec up (a, b, c) =
   if c <= 0 then
@@ -21,7 +21,7 @@ let q_depuis_r (a, b, c) =
   else if c > 0 then
     up (a, b, c)
   else
-    a, b, powerabs c
+    a, b, power ~-c
 
 let zero = E (GrandEntier_on.grandentier_depuis_texte "0")
 

@@ -94,3 +94,8 @@ let texte_depuis_num = function
       "-" ^ q
     else
       q
+
+let est_negatif = function
+	  E (signe,_) -> signe
+	| Q (signe,_,_) -> signe
+	| R (signe,_,_) -> signe

@@ -239,7 +239,9 @@ let textedechiffre ga =
 (** renvoie la représentation textuelle d'un grandentier *)
 let texte_depuis_grandentier ga =
   let a, b = ga in
-  if a then
+  if b = [] then
+    "0"
+  else if a then
     "-" ^ textedechiffre b
   else
     textedechiffre b

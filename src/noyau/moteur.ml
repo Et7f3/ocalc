@@ -81,7 +81,17 @@ and multiplier acc liste_expr =
   | acc, e :: l -> multiplier (e :: acc) l
   | acc, [] -> List.rev acc
 
-let rec text_depuis_expr_liste sep l =
+let rec text_de_multiplication l =
+  let open Nouveau_type in
+  let rec boucle acc = function
+      [] -> acc
+    | Inv e :: l -> boucle (acc ^ "/" ^ (texte_depuis_expr e)) l
+    | e :: l -> boucle (acc ^ "*" ^ (texte_depuis_expr e)) l
+  in match l with
+    [] -> boucle "" l
+  | Inv e :: l -> boucle ("1/" ^ (texte_depuis_expr e)) l
+  | e :: l -> boucle (texte_depuis_expr e) l
+and text_depuis_expr_liste sep l =
   "(" ^ String.concat sep (List.map texte_depuis_expr l) ^ ")"
 
 and texte_depuis_expr =
@@ -96,9 +106,10 @@ and texte_depuis_expr =
   | Var s -> s
   | T (_, l) -> (text_depuis_expr_liste ";" l)
   | Fx (nom, _, l) -> nom ^ (text_depuis_expr_liste ";" l)
-  | Op (`Multiplication, l) -> text_depuis_expr_liste "*" l
+  | Op (`Multiplication, l) -> text_de_multiplication l
   | Op (`Addition, l) -> text_depuis_expr_liste "+" l
   | Inv e -> "/" ^ texte_depuis_expr e
+  | Neg (Op (`Multiplication, l)) ->"-(" ^ (text_de_multiplication l) ^ ")"
   | Neg e -> "-" ^ texte_depuis_expr e
 
 let evaluate_with_history s context =

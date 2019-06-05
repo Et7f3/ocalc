@@ -13,6 +13,8 @@ let unit = false, [1], 0
 (** renvoie [grandreel < 0] *)
 let est_negatif (s, _, _) = s
 
+(* let is_nul (a,b,c) = b = [] *)
+
 (** renvoie l'oposé *)
 let neg = function
     _, [], _ -> false, [], 0

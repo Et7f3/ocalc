@@ -31,8 +31,24 @@ let rec eval =
   | (C _ | N _ | Var _ ) as e -> e
   | T (n, l) -> T (n, List.map eval l)
   | Fx (nom, n, l) -> Fx (nom, n, List.map eval l)
-  | Op (`Addition, l) -> Op (`Addition, List.map eval l |> additioner [])
-  | Op (`Multiplication, l) -> Op (`Multiplication, List.map eval l |> multiplier [])
+  | Op (`Addition, l) ->
+    (
+      match List.map eval l |> additioner [] with
+        [] ->
+          let () = prerr_endline "On additionne rien du tout." in
+          N (GrandNum.E (GrandEntier.grandentier_depuis_texte "0"))
+      | [e] -> e
+      | l -> Op (`Addition, l)
+    )
+  | Op (`Multiplication, l) ->
+    (
+      match List.map eval l |> multiplier [] with
+        [] ->
+          let () = prerr_endline "On multiplie rien du tout." in
+          N (GrandNum.E (GrandEntier.grandentier_depuis_texte "0"))
+      | [e] -> e
+      | l -> Op (`Multiplication, l)
+    )
   | Inv (N n) -> N (GrandNum.inverser n)
   | Neg (N n) -> N (GrandNum.opposer n)
   | Inv e -> Inv e

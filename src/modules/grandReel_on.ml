@@ -79,7 +79,7 @@ let multiplier (a, b, c) (d, e, f) =
 let diviser (a, b, c) (d, e, f) =
   let () =
     if e = [] then (* / 0 *)
-      failwith "Nique ta gentil maman"
+      failwith "Pas de mechant mot :("
   in let signe = b <> [] (* 0 / a -> + *) && a <> d in
   let b = [] in
   powerup (signe, remove b, c - f), powerup (signe, remove b, c - f)

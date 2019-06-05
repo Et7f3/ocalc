@@ -94,7 +94,7 @@ and texte_depuis_expr =
   | C J -> "j"
   | C K -> "k"
   | Var s -> s
-  | T (_, l) -> "(" ^ (text_depuis_expr_liste ";" l) ^ ")"
+  | T (_, l) -> (text_depuis_expr_liste ";" l)
   | Fx (nom, _, l) -> nom ^ (text_depuis_expr_liste ";" l)
   | Op (`Multiplication, l) -> text_depuis_expr_liste "*" l
   | Op (`Addition, l) -> text_depuis_expr_liste "+" l

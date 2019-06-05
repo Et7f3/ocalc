@@ -4,13 +4,12 @@ open Revery.UI.Components
 
 
 let bgColor =
-(*
-  if Environment.webGL then
+  (*if Environment.webGL then
     Color.hex("#ffffff")
   else*)
     Color.hex("#212733")
 
-let txtColor =
+let _ (* txtColor *) =
   (*if Environment.webGL then
     Color.rgb 0. 0. 0.
   else*)
@@ -119,12 +118,14 @@ end
 module VueBonus = struct
   let component = React.component "VueBonus"
 
-  let createElement ~changerVue ~onUpdate:_ ~children:_ () = Minesweeper_lib.MineSweeper.createElement ~children:[
-    Text.createElement ~text:"Revenir à l'accueil"
-      ~onMouseUp:(fun _ -> changerVue `VueAccueil)
-      ~style:Style.[fontSize 25; fontFamily "Roboto-Regular.ttf";
-        position `Absolute; bottom 10; right 10] ~children:[] ()
-        ] ()
+  let createElement ~changerVue ~onUpdate:_ ~children:_ () =
+    let retour_maison =
+      Text.createElement ~text:"Revenir à l'accueil"
+        ~onMouseUp:(fun _ -> changerVue `VueAccueil)
+        ~style:Style.[fontSize 25; fontFamily "Roboto-Regular.ttf";
+          position `Absolute; bottom 10; right 10]
+        ~children:[] ()
+    in Minesweeper_lib.MineSweeper.createElement ~children:[retour_maison] ()
 end
 
 module Calcul = struct
@@ -231,8 +232,8 @@ module Calcul = struct
 end
 
 module Historique = struct
-  let component =
-    React.component "Historique"
+  let component = React.component "Historique"
+
   let createElement historique ~changerVue ~onUpdate:_ =
     let containerStyle =
       Style.[

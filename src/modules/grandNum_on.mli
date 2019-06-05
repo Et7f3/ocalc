@@ -2,6 +2,8 @@ type num =
     E of GrandEntier_on.grandentier
   | R of GrandReel_on.grandreel
   | Q of GrandRationnel_on.grandrationnel
+val zero : num
+val unit : num
 val powerabs : int -> int list
 val up : 'a * int list * int -> 'a * int list * int list
 val truc : 'a * int list * int -> 'a * int list * int list

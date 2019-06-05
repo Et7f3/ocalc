@@ -23,6 +23,10 @@ let truc (a, b, c) =
   else
     a, b, powerabs c
 
+let zero = E (GrandEntier_on.grandentier_depuis_texte "0")
+
+let unit = E (GrandEntier_on.grandentier_depuis_texte "1")
+
 let multiplier = function
     E e1, E e2 -> E (GrandEntier_on.multiplier e1 e2)
   | R r1, R r2 -> R (GrandReel_on.multiplier r1 r2)

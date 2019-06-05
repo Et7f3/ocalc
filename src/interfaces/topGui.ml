@@ -2,6 +2,20 @@ open Revery
 open Revery.UI
 open Revery.UI.Components
 
+
+let bgColor =
+(*
+  if Environment.webGL then*)
+    Color.hex("#ffffff")
+  (*else
+    Color.hex("#212733")*)
+
+let txtColor =
+  (*if Environment.webGL then
+    Color.rgb 0. 0. 0.
+  else*)
+    Color.rgb 255. 255. 255.
+
 type vue =
   [
       `VueCalcul
@@ -180,7 +194,7 @@ module Calcul = struct
         (hooks,
           View.createElement ~style:containerStyle ~children:[
             Input.createElement
-              ~style:Style.[color (Color.rgb 255. 255. 255.); bottom 0; top 0;
+              ~style:Style.[color (Color.rgb 25. 5. 5.); bottom 0; top 0;
                 left 0; right 0; width (
                   if 200 + (String.length valeur) * 10 < dimensions.width / 2 - 20 then
                     200 + (String.length valeur) * 10
@@ -848,12 +862,7 @@ let init app =
     (Monitor.getPrimaryMonitor ()) |> Monitor.getSize in
   let windowWidth = dimensions.width / 2 in
   let windowHeight = dimensions.height / 2 in
-  let bgColor =
-    if Environment.webGL then
-      Color.hex("#ffffff")
-    else
-      Color.hex("#212733")
-  in let options_fen = WindowCreateOptions.create ~width:windowWidth
+  let options_fen = WindowCreateOptions.create ~width:windowWidth
                          ~height:windowHeight ~maximized ~icon:(Some "logo.png") ~backgroundColor:bgColor () in
   let fen = App.createWindow ~createOptions:options_fen app "OCalc" in
   let () =

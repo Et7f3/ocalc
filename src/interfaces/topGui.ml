@@ -195,24 +195,34 @@ module Calcul = struct
             ~style:Style.[fontSize 25; fontFamily "Roboto-Regular.ttf";
               position `Absolute; bottom 10; right 10]
               ~onMouseUp:(fun _  -> changerVue `VueAccueil) ~children:[] ()
-        in let dimensions: Monitor.size =
-          (Monitor.getPrimaryMonitor ()) |> Monitor.getSize in
-        (hooks,
-          View.createElement ~style:containerStyle ~children:[
-            Input.createElement
-              ~style:Style.[color (Color.rgb 25. 5. 5.); bottom 0; top 0;
-                left 0; right 0; width (
-                  if 200 + (String.length valeur) * 10 < dimensions.width / 2 - 20 then
-                    200 + (String.length valeur) * 10
-                    else
-                    dimensions.width / 2 - 20
-                );]
-              ~value:valeur ~placeholder:"Entrer votre calcul"
-              ~onChange:(fun {value; _} -> dispatch(MiseAJour value))
-              ~children:[] ();
-            Text.createElement ~text:res(* retour du moteur *) ~style:textStyle
-              ~children:[] (); sous_bout; bouton_acc; bouton_his
-            ] ()))
+        in let boutton_mat = Text.createElement ~text:"Accéder aux matrices"
+          ~onMouseUp:(fun _ -> changerVue `VueMatrice)
+          ~style:Style.[fontSize 25; fontFamily "Roboto-Regular.ttf";
+            justifyContent `Center; position `Absolute; bottom 50; right 10;]
+          ~children:[] ()
+      in let boutton_equ = Text.createElement ~text:"Accéder aux équations"
+        ~onMouseUp:(fun _ -> changerVue `VueEquation)
+        ~style:Style.[fontSize 25; fontFamily "Roboto-Regular.ttf";
+          justifyContent `Center; position `Absolute; bottom 90; right 10;]
+        ~children:[] ()
+      in let dimensions: Monitor.size =
+        (Monitor.getPrimaryMonitor ()) |> Monitor.getSize in
+      (hooks,
+        View.createElement ~style:containerStyle ~children:[
+          Input.createElement
+            ~style:Style.[color (Color.rgb 25. 5. 5.); bottom 0; top 0;
+              left 0; right 0; width (
+                if 200 + (String.length valeur) * 10 < dimensions.width / 2 - 20 then
+                  200 + (String.length valeur) * 10
+                  else
+                  dimensions.width / 2 - 20
+              );]
+            ~value:valeur ~placeholder:"Entrer votre calcul"
+            ~onChange:(fun {value; _} -> dispatch(MiseAJour value))
+            ~children:[] ();
+          Text.createElement ~text:res(* retour du moteur *) ~style:textStyle
+            ~children:[] (); sous_bout; bouton_acc; bouton_his; boutton_equ; boutton_mat
+          ] ()))
 end
 
 module Historique = struct
@@ -395,7 +405,17 @@ module Matrice = struct
             ~style:Style.[fontSize 25; fontFamily "Roboto-Regular.ttf";
               position `Absolute; bottom 10; left 10]
             ~children:[] ()
-        in let children1 = [bouton_retour; bouton_calc]
+        in let boutton_equ = Text.createElement ~text:"Accéder aux équations"
+          ~onMouseUp:(fun _ -> changerVue `VueEquation)
+          ~style:Style.[fontSize 25; fontFamily "Roboto-Regular.ttf";
+            justifyContent `Center; position `Absolute; bottom 90; left 10;]
+          ~children:[] ()
+        in let boutton_cal = Text.createElement ~text:"Accéder aux calculs simples"
+          ~onMouseUp:(fun _ -> changerVue `VueCalcul)
+          ~style:Style.[fontSize 25; fontFamily "Roboto-Regular.ttf";
+            justifyContent `Center; position `Absolute; bottom 50; left 10;]
+          ~children:[] ()
+        in let children1 = [bouton_retour; bouton_calc; boutton_cal; boutton_equ]
         in let chmttaille id c d (a, b) =
           match id with
             1 when d ->
@@ -568,6 +588,16 @@ module Equation = struct
           ~children:[] ()
         in let egal = Text.createElement ~text:"=" ~style:Style.[
                       fontSize 25; fontFamily "Roboto-Regular.ttf"; marginVertical 15;] ~children:[] ()
+        in let boutton_mat = Text.createElement ~text:"Accéder aux matrices"
+          ~onMouseUp:(fun _ -> changerVue `VueMatrice)
+          ~style:Style.[fontSize 25; fontFamily "Roboto-Regular.ttf";
+            justifyContent `Center; position `Absolute; bottom 90; left 10;]
+          ~children:[] ()
+        in let boutton_cal = Text.createElement ~text:"Accéder aux calculs simples"
+          ~onMouseUp:(fun _ -> changerVue `VueCalcul)
+          ~style:Style.[fontSize 25; fontFamily "Roboto-Regular.ttf";
+            justifyContent `Center; position `Absolute; bottom 50; left 10;]
+          ~children:[] ()
         in let rec inc_to_list = function
             [] -> []
           | e :: l -> (Text.createElement ~text:e ~style:Style.[
@@ -653,7 +683,7 @@ module Equation = struct
         (*in let line = View.createElement ~style:Style.[flexDirection `Row; alignSelf `FlexStart;] ~children:[boutton_addline; boutton_minline] ()*)
         in let resultat = Text.createElement ~text:etat.res ~style:Style.[fontSize 25; fontFamily "Roboto-Regular.ttf";] ~children:[] ()
         in hooks, View.createElement ~style:Style.[position `Absolute; alignItems `Center;
-        bottom 0; top 0; left 0; right 0] ~children:[list_inc; children; resultat; (*line;*) bouton_acc; bouton_calc] ())
+        bottom 0; top 0; left 0; right 0] ~children:[list_inc; children; resultat; (*line;*) bouton_acc; boutton_cal; boutton_mat; bouton_calc] ())
 end
 
 module Accueil = struct

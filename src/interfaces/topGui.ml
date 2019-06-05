@@ -119,7 +119,11 @@ end
 module VueBonus = struct
   let component = React.component "VueBonus"
 
-  let createElement ~changerVue:_ ~onUpdate:_ ~children:_ () = Minesweeper_lib.MineSweeper.createElement ~children:[] ()
+  let createElement ~changerVue:_ ~onUpdate:_ ~children:_ () = Minesweeper_lib.MineSweeper.createElement ~children:[
+    Text.createElement ~text:"Revenir à l'accueil"
+      ~style:Style.[fontSize 25; fontFamily "Roboto-Regular.ttf";
+        position `Absolute; bottom 10; right 10] ~children:[] ()
+        ] ()
 end
 
 module Calcul = struct
@@ -769,7 +773,7 @@ module Accueil = struct
         ]
       in
       let bouton_cal =
-        Text.createElement ~text:"Accéder à calcul simple"
+        Text.createElement ~text:"Accéder aux calculs simples"
          ~onMouseUp:(fun _ -> changerVue `VueCalcul)
          ~style:Style.[
           fontSize 25; fontFamily "Roboto-Regular.ttf"; justifyContent `Center; color (Color.rgb 255. 120. 10.);

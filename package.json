@@ -49,7 +49,7 @@
         "@opam/js_of_ocaml-compiler": "github:ocsigen/js_of_ocaml:js_of_ocaml-compiler.opam#db257ce",
         "@brisk/brisk-reconciler": "github:briskml/brisk-reconciler#dd933fc",
         "revery": "github:revery-ui/revery#ea61525eb266b8c7b478558bad5686acdccc10c4",
-        "minesweeper": "github:Et7f3/minesweeper#6a8400b33c0bafddb3ecb5a43d5b27a113549644"
+        "minesweeper": "github:Et7f3/minesweeper#6bb8fde5b4556f7b209ad85cb8aba66b480d6dc6"
     },
     "scripts": {
         "test": "echo \"Error: no test specified\" && exit 1",

@@ -1,6 +1,8 @@
 type grandentier = bool * int list
 (** grandentier est un tuple [(signe négatif, \[unité, dizaine, centaine, ...\])]
     [ - 123] correspond à [(true, \[3; 2; 1\])] *)
+    
+(** https://www.youtube.com/watch?v=ih9zBLDr_ro Ca détend  **)
 
 let zero = false, []
 
@@ -59,6 +61,7 @@ let comparer ga gb =
    0 : ga = gb
    -1 : ga > gb*)
 
+(** Merci la prog :D**)
 let bigint_sum big1 big2 =
   let rec add = function
       [], r | r, [] -> r
@@ -228,7 +231,7 @@ let grandentier_depuis_texte sa =
   else
     false, cse_rec sa 0
 
-
+(* A QUE COUCOU BOP*)
 (*Convertit basiquement le nombre*)
 let textedechiffre ga =
   let rec tdc acc = function

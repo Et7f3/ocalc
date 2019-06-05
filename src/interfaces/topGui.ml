@@ -119,8 +119,9 @@ end
 module VueBonus = struct
   let component = React.component "VueBonus"
 
-  let createElement ~changerVue:_ ~onUpdate:_ ~children:_ () = Minesweeper_lib.MineSweeper.createElement ~children:[
+  let createElement ~changerVue ~onUpdate:_ ~children:_ () = Minesweeper_lib.MineSweeper.createElement ~children:[
     Text.createElement ~text:"Revenir à l'accueil"
+      ~onMouseUp:(fun _ -> changerVue `VueAccueil)
       ~style:Style.[fontSize 25; fontFamily "Roboto-Regular.ttf";
         position `Absolute; bottom 10; right 10] ~children:[] ()
         ] ()

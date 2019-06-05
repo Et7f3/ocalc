@@ -40,6 +40,7 @@ let vers_grandentier = function
     else
       r
   | Q (_, [], _) -> zero
+  | Q (_, _, []) -> raise Division_by_zero
   | Q (signe, nom, [1]) -> E (signe, nom)
   | Q _ as q -> q
 

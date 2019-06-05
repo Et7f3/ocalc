@@ -145,7 +145,9 @@ module Calcul = struct
       let res, cxt =
         try
           Noyau.Moteur.evaluate_with_history res etat.context
-        with Failure msg -> msg, etat.context (* old context *)
+        with
+          Failure msg -> msg, etat.context (* old context *)
+        | Division_by_zero -> "Division par zéro", etat.context (* old context *)
       in let res = etat.valeur ^ " = " ^ res in
       {
         liste_historique = res :: etat.liste_historique;

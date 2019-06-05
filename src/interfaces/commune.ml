@@ -14,8 +14,11 @@ let evaluer_fichier fichier contexte =
         let rec boucle f =
           try
             let entree = input_line fichier in
-            let sortie, f = Noyau.Moteur.evaluate_with_history entree f in
-            let hist = Printf.sprintf "%s = %s" entree sortie in
+            let sortie, f =
+              try
+                Noyau.Moteur.evaluate_with_history entree f
+              with Division_by_zero -> "Division par zéro", f
+            in let hist = Printf.sprintf "%s = %s" entree sortie in
             let () = liste_historique := hist :: !liste_historique in
             let () = print_endline hist in
             let () = flush stdout in

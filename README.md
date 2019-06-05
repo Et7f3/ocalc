@@ -1,10 +1,10 @@
 # ocalc
 
-This project is OCaml calculator
+This project is a formal calculator made in OCaml
 
-## how to install on Windows
-1) download as zip
-2) unzip
-3) execute install_deps.bat (by clicking on it. It will install the cygwin dependencies only choose the mirror and then next ... next)
-4) execute compile.bat (by clicking on it. It will compile out project.)
-5) launch by clicking on launch.bat
+## How to install on Windows
+
+1. Download as a zip and unzip or clone the repository
+2. Execute `install_deps.bat` (It will install the cygwin dependencies, only choose the mirror and then next ... next)
+3. Execute `compile.bat` (It will compile the project)
+4. Launch by executing `launch.bat`

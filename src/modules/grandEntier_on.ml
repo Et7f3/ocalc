@@ -1,7 +1,7 @@
 type grandentier = bool * int list
 (** grandentier est un tuple [(signe négatif, \[unité, dizaine, centaine, ...\])]
     [ - 123] correspond à [(true, \[3; 2; 1\])] *)
-    
+
 (** https://www.youtube.com/watch?v=ih9zBLDr_ro Ca détend  **)
 
 let zero = false, []
@@ -10,6 +10,8 @@ let unit = false, [1]
 
 (** renvoie [grandentier < 0] *)
 let est_negatif (signe, _) = signe
+
+(** ah **)
 
 (** renvoie l'oposé *)
 let neg (a, b) =
@@ -217,11 +219,13 @@ let diviser ga gb =
 
 (** renvoie le grandentier à partir de sa représentation textuelle *)
 let cse_rec a n =
-  let rec abc a i =
-    match i with
-      i when i = n - 1 -> []
-    | _ -> (int_of_char a.[i]) - 48 :: abc a (i - 1)
-  in abc a (String.length a - 1) |> nettoyer_zero
+  let n = n - 1 in
+  let rec abc acc i =
+    if i = n then
+      List.rev acc
+    else
+      abc ((int_of_char a.[i]) - 48 :: acc) (i - 1)
+  in abc [] (String.length a - 1) |> nettoyer_zero
 
 let grandentier_depuis_texte sa =
   if sa.[0] = '-' then
@@ -240,8 +244,7 @@ let textedechiffre ga =
   in tdc "" ga
 
 (** renvoie la représentation textuelle d'un grandentier *)
-let texte_depuis_grandentier ga =
-  let a, b = ga in
+let texte_depuis_grandentier (a, b) =
   if b = [] then
     "0"
   else if a then

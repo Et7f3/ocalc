@@ -30,6 +30,7 @@ let rec eval =
   | Inv (Inv e) -> eval e
   | (C _ | N _ | Var _ ) as e -> e
   | T (n, l) -> T (n, List.map eval l)
+  | Fx ("sin", 1, [C Pi]) -> N (GrandNum.zero)
   | Fx (nom, n, l) -> Fx (nom, n, List.map eval l)
   | Op (`Addition, l) ->
     (

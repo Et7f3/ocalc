@@ -850,8 +850,13 @@ let init app =
     (Monitor.getPrimaryMonitor ()) |> Monitor.getSize in
   let windowWidth = dimensions.width / 2 in
   let windowHeight = dimensions.height / 2 in
-  let options_fen = WindowCreateOptions.create ~width:windowWidth
-                         ~height:windowHeight ~maximized ~icon:(Some "logo.png") ~backgroundColor:(Color.hex("#212733")) () in
+  let bgColor =
+    if Environment.webGL then
+      Color.hex("#ffffff")
+    else
+      Color.hex("#212733")
+  in let options_fen = WindowCreateOptions.create ~width:windowWidth
+                         ~height:windowHeight ~maximized ~icon:(Some "logo.png") ~backgroundColor:bgColor () in
   let fen = App.createWindow ~createOptions:options_fen app "OCalc" in
   let () =
     if not Environment.webGL then

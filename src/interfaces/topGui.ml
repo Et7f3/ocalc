@@ -367,8 +367,7 @@ module Matrice = struct
             ~value:etat.matrice2.(i).(j)
             ~placeholder:etat.matrice2.(0).(j)
             ~onChange:(fun {value; _} ->
-              if i = 0 && etat.mode = `Solveur && false then
-                let () = Printf.printf "i, j : %d, %d\n" i j in
+              if i = 0 && etat.mode = `Solveur then
                 dispatch(MiseAJourEntete (j, value(*, onUpdate *)))
               else
                 dispatch(MiseAJour (2, i, j, value(*, onUpdate *)))
@@ -520,22 +519,24 @@ module Equation = struct
   let component = React.component "Equation"
 
   type 'a action =
-      MiseAJour of int * int * int * string
+      MiseAJour of int * int * string
+    | MiseAJourVariable of int * int * string
     | Calculer of int
 
   let reducer action etat =
     match action with
-      MiseAJour (id, i, j, v) ->
-        let mat =
-          if id = 1 then
-            etat.mat1
-            else
-            etat.mat2
+      MiseAJour (i, j, v) ->
+        let mat = etat.mat1
         in let _ = mat.(i).(j) <- v in
-        if id = 1 then
-          {etat with mat1 = mat}
-          else
-          {etat with mat2 = mat}
+        let () = Printf.printf "i: %d, j: %d, v: %s, value: %s\n" i j v mat.(i).(j) in
+        let () = flush stdout in
+        {etat with mat1 = mat}
+      | MiseAJourVariable (i, j, v) ->
+        let mat = etat.mat2
+        in let _ = mat.(i).(j) <- v in
+        let () = Printf.printf "i: %d, j: %d, v: %s, value: %s\n" i j v mat.(i).(j) in
+        let () = flush stdout in
+        {etat with mat2 = mat}
       | Calculer _ ->
         let array_map2 f = Array.map (fun e -> Array.map f e) in
         let m1 = array_map2 float_of_string etat.mat1 in
@@ -585,13 +586,16 @@ module Equation = struct
               in input := (row_gen ~children:!row ()) :: !input
             done
           in (View.createElement ~children:!input) ()
-          in let m1 =
+        in let m1 =
           dessiner_matrice (etat.lines, etat.nbr_inc) (fun i j -> Input.createElement
             ~style:Style.[color (Color.rgb 255. 255. 255.); width 100;
               margin2 ~horizontal:40 ~vertical:10]
             ~value:etat.mat1.(i).(j)
             ~placeholder:etat.mat1.(i).(j)
-            ~onChange:(fun {value; _} -> dispatch(MiseAJour (1, i, j, value)))
+            ~onChange:(fun {value; _} ->
+               let () = Printf.printf "i: %d, j: %d, v: %s, value: %s\n" i j value etat.mat1.(i).(j) in
+               let () = flush stdout in
+             dispatch(MiseAJour (i, j, value)))
             ~children:[] ())
         in let m2 =
           dessiner_matrice (etat.lines, 1) (fun i j -> Input.createElement
@@ -599,7 +603,10 @@ module Equation = struct
               margin2 ~horizontal:40 ~vertical:10]
             ~value:etat.mat2.(i).(j)
             ~placeholder:etat.mat2.(i).(j)
-            ~onChange:(fun {value; _} -> dispatch(MiseAJour (2, i, j, value)))
+            ~onChange:(fun {value; _} ->
+                 let () = Printf.printf "i: %d, j: %d, v: %s, value: %s\n" i j value etat.mat2.(i).(j) in
+                 let () = flush stdout in
+               dispatch(MiseAJourVariable (i, j, value)))
             ~children:[] ())
         in let add_inc () =
           let suf = List.nth etat.inconnu (etat.nbr_inc - 1)
@@ -611,7 +618,7 @@ module Equation = struct
             else
               inc)
           in let _ = etat.inconnu <- etat.inconnu @ [inc] in
-          etat.nbr_inc <- etat.nbr_inc + 1 in let _ = etat.mat1 <- Array.make_matrix 1 etat.nbr_inc "0"
+          etat.nbr_inc <- etat.nbr_inc + 1
         in let minus_inc () = if etat.nbr_inc > 1 then
           begin
             let (_ :: l) = List.rev etat.inconnu in etat.inconnu <- List.rev l;
@@ -619,13 +626,13 @@ module Equation = struct
           end
         in let boutton_addinc =
           Text.createElement ~text:"+" ~onMouseUp:(fun _ ->
-          add_inc (); etat.mat1 <- Array.make_matrix 1 etat.nbr_inc "0";
-          dispatch(MiseAJour (1, 0, 0, "0")) )
+          add_inc (); etat.mat1 <- Array.make_matrix etat.lines etat.nbr_inc "0";
+          dispatch(MiseAJour (0, 0, etat.mat1.(0).(0))))
           ~style:Style.[fontSize 25; fontFamily "Roboto-Regular.ttf"; marginHorizontal 10;] ~children:[] ()
         in let boutton_mininc =
           Text.createElement ~text:"-" ~onMouseUp:(fun _ ->
             minus_inc ();
-            dispatch(MiseAJour (1, 0, 0,"0")) )
+            dispatch(MiseAJour (0, 0, etat.mat1.(0).(0))) )
           ~style:Style.[fontSize 25; fontFamily "Roboto-Regular.ttf"; marginHorizontal 10;] ~children:[] ()
       (*  in let boutton_addline =
           Text.createElement ~text:"+" ~onMouseUp:(fun _ ->
@@ -779,9 +786,9 @@ module Application = struct
       inconnu = ["x"];
       nbr_inc = 1;
       lines = 1;
-      mat1 = Array.make_matrix 1 2 "0";
+      mat1 = Array.make_matrix 1 1 "0";
       mat2 = Array.make_matrix 1 1 "0";
-      res ="";
+      res = "";
     };
     calcul = {
       valeur = "";

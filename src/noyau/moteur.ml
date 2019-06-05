@@ -85,11 +85,19 @@ let rec text_de_multiplication l =
   let open Nouveau_type in
   let rec boucle acc = function
       [] -> acc
+    | Op (`Addition, l) :: k -> boucle (acc ^ "(" ^ texte_de_addition l ^ ")") k
+    | Inv (Op (_, _) as e) :: l ->
+      let e = texte_depuis_expr e in
+      boucle (acc ^ " / " ^ e) l
     | Inv e :: l -> boucle (acc ^ " / " ^ (texte_depuis_expr e)) l
     | e :: l -> boucle (acc ^ " * " ^ (texte_depuis_expr e)) l
   in match l with
     [] -> boucle "" l
-  | Inv e :: l -> boucle ("1/" ^ (texte_depuis_expr e)) l
+  | Op (`Addition, l) :: k -> boucle ("(" ^ texte_de_addition l ^ ")") k
+  | Inv (Op (_, _) as e) :: l ->
+    let e = texte_depuis_expr e in
+    boucle ("1 / " ^ e) l
+  | Inv e :: l -> boucle ("1 / " ^ (texte_depuis_expr e)) l
   | e :: l -> boucle (texte_depuis_expr e) l
 
 and texte_de_addition l =
@@ -112,7 +120,12 @@ and texte_depuis_expr =
   let open Nouveau_type in
   let open Lien in
   function
-    N n -> GrandNum.texte_depuis_num n
+    N n ->
+      let e = GrandNum.texte_depuis_num n in
+      if GrandNum.est_negatif n then
+        "(" ^ e ^ ")"
+      else
+        e
   | C Pi -> "pi"
   | C I -> "i"
   | C J -> "j"
@@ -122,7 +135,7 @@ and texte_depuis_expr =
   | Fx (nom, _, l) -> nom ^ (text_depuis_expr_liste ";" l)
   | Op (`Multiplication, l) -> text_de_multiplication l
   | Op (`Addition, l) -> texte_de_addition l
-  | Inv e -> "/" ^ texte_depuis_expr e
+  | Inv e -> " / " ^ texte_depuis_expr e
   | Neg e -> "-" ^ texte_depuis_expr e
 
 let evaluate_with_history s context =

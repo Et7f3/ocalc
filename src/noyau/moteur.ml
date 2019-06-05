@@ -42,10 +42,10 @@ and additioner acc liste_expr =
   let open Nouveau_type in
   match acc, liste_expr with
     acc, Op (`Addition, l) :: l' -> additioner acc (l @ l')
-  | N n :: acc, Var v :: l -> additioner (Var v :: acc) (N n :: l)
   | N n1 :: acc, N n2 :: l ->
     let n = GrandNum.additioner (n1, n2) in
     additioner acc ((N n) :: l)
+  | N n :: acc, e :: l -> additioner acc (e :: N n :: l)
   | acc, e :: l -> additioner (e :: acc) l
   | acc, [] -> List.rev acc
 
@@ -53,10 +53,10 @@ and multiplier acc liste_expr =
   let open Nouveau_type in
   match acc, liste_expr with
     acc, Op (`Multiplication, l) :: l' -> multiplier acc (l @ l')
-  | N n :: acc, Var v :: l -> multiplier (Var v :: acc) (N n :: l)
   | N n1 :: acc, N n2 :: l ->
     let n = GrandNum.multiplier (n1, n2) in
     multiplier acc ((N n) :: l)
+  | N n :: acc, e :: l -> multiplier acc (e :: N n :: l)
   | C I :: acc, C J :: l ->
     multiplier acc ((C K) :: l)
   | C J :: acc, C I :: l ->

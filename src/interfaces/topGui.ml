@@ -874,12 +874,10 @@ module Accueil = struct
           ~style:Style.[justifyContent `Center; color (Color.rgb 255. 120. 10.);
             position `Absolute; bottom 10; left 10] ()
       in let bouton_mat =
-        Text.createElement ~text:(I18n.menu_matrices ())
+        Bouton.menu_matrices
           ~onMouseUp:(fun _ -> changerVue `VueMatrice)
-          ~style:Style.[fontSize 25; justifyContent `Center;
-            fontFamily "Roboto-Regular.ttf"; color (Color.rgb 255. 120. 10.);
-            position `Absolute; right 10; bottom 10]
-          ~children:[] ()
+          ~style:Style.[justifyContent `Center; color (Color.rgb 255. 120. 10.);
+            position `Absolute; right 10; bottom 10] ()
       in let bouton_equa =
         Bouton.menu_equations
           ~onMouseUp:(fun _ -> changerVue `VueEquation)

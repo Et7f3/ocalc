@@ -30,6 +30,10 @@ val sortir_2 : unit -> string
 
 val mauvais_parenthesage : unit -> string
 
+val erreur_de_syntaxe : unit -> string
+
+val definition_valide : unit -> string
+
 val retour : unit -> string
 
 val calculer : unit -> string
@@ -39,6 +43,8 @@ val effacer : unit -> string
 val menu_historique : unit -> string
 
 val menu_accueil : unit -> string
+
+val menu_calcul : unit -> string
 
 val menu_matrices : unit -> string
 

@@ -77,7 +77,7 @@ type equation_state =
 
 type accueil_state =
 {
-  nothing: unit
+  lang : I18n.lang;
 }
 
 type application_state =
@@ -145,6 +145,11 @@ module Bouton = struct
 
   let menu_accueil ~onMouseUp ?(style=[]) () =
     Text.createElement ~text:(I18n.menu_accueil ()) ~onMouseUp
+      ~style:(style @ style_btn)
+      ~children:[] ()
+
+  let menu_calcul ~onMouseUp ?(style=[]) () =
+    Text.createElement ~text:(I18n.menu_calcul ()) ~onMouseUp
       ~style:(style @ style_btn)
       ~children:[] ()
 
@@ -445,18 +450,17 @@ module Matrice = struct
             ~onMouseUp:(fun _ -> dispatch (Calculer etat.mode))
             ~style:Style.[position `Absolute; bottom 10; right 10] ()
         in let bouton_retour =
-          Bouton.menu_retour
+          Bouton.menu_accueil
             ~onMouseUp:(fun _ -> changerVue `VueAccueil)
             ~style:Style.[position `Absolute; bottom 10; left 10] ()
         in let boutton_equ =
           Bouton.menu_equations ~onMouseUp:(fun _ -> changerVue `VueEquation)
             ~style:Style.[justifyContent `Center; position `Absolute;
               bottom 90; left 10] ()
-        in let boutton_cal = Text.createElement ~text:"Calculs simples"
-          ~onMouseUp:(fun _ -> changerVue `VueCalcul)
-          ~style:Style.[fontSize 25; fontFamily "Roboto-Regular.ttf";
-            justifyContent `Center; position `Absolute; bottom 50; left 10]
-          ~children:[] ()
+        in let boutton_cal =
+          Bouton.menu_calcul ~onMouseUp:(fun _ -> changerVue `VueCalcul)
+          ~style:Style.[justifyContent `Center; position `Absolute;
+            bottom 50; left 10] ()
         in let children1 = [bouton_retour; bouton_calc; boutton_cal; boutton_equ]
         in let chmttaille id c d (a, b) =
           match id with
@@ -628,11 +632,9 @@ module Equation = struct
           ~style:Style.[justifyContent `Center; position `Absolute;
             bottom 90; left 10] ()
         in let boutton_cal =
-          Text.createElement ~text:"Calculs simples"
-            ~onMouseUp:(fun _ -> changerVue `VueCalcul)
-            ~style:Style.[fontSize 25; fontFamily "Roboto-Regular.ttf";
-              justifyContent `Center; position `Absolute; bottom 50; left 10]
-            ~children:[] ()
+          Bouton.menu_calcul ~onMouseUp:(fun _ -> changerVue `VueCalcul)
+            ~style:Style.[justifyContent `Center; position `Absolute;
+              bottom 50; left 10] ()
         in let rec inc_to_list = function
             [] -> []
           | e :: l -> (Text.createElement ~text:e ~style:Style.[
@@ -722,17 +724,20 @@ end
 module Accueil = struct
   let component = React.component "Accueil"
 
-  type action = Nope
+  type action =
+    ChangerLangue of I18n.lang
 
   let reducer action etat =
     match action with
-    Nope -> etat
+      ChangerLangue lang ->
+        let () = I18n.definir_lang lang in
+        {lang}
 
   let createElement ~initialState ~changerVue ~onUpdate =
   fun ~children:_ () ->
     component
     (fun hooks ->
-      let (etat (* nouvel etat *), _ (* dispatch *), hooks) =
+      let (etat (* nouvel etat *), dispatch, hooks) =
         React.Hooks.reducer ~initialState reducer hooks
       in let () = onUpdate (`Accueil etat) in
       let containerStyle =
@@ -775,7 +780,6 @@ module Accueil = struct
           easing = Easing.linear;
           direction = `Normal
         } hooks
-
       in let imageStyle1 =
         Style.[
           bottom 0;
@@ -800,15 +804,10 @@ module Accueil = struct
           Transform.ScaleY scale;
           ];
         ]
-      in
-      let bouton_cal =
-        Text.createElement ~text:"Calculs simples"
-         ~onMouseUp:(fun _ -> changerVue `VueCalcul)
-         ~style:Style.[
-          fontSize 25; fontFamily "Roboto-Regular.ttf"; justifyContent `Center; color (Color.rgb 255. 120. 10.);
-          position `Absolute; bottom 10; left 10;
-        ]
-         ~children:[] ()
+      in let bouton_cal =
+        Bouton.menu_calcul ~onMouseUp:(fun _ -> changerVue `VueCalcul)
+         ~style:Style.[justifyContent `Center; color (Color.rgb 255. 120. 10.);
+          position `Absolute; bottom 10; left 10] ()
       in let bouton_mat =
         Text.createElement ~text:(I18n.menu_matrices ())
           ~onMouseUp:(fun _ -> changerVue `VueMatrice)
@@ -823,9 +822,21 @@ module Accueil = struct
           ~style:Style.[
             justifyContent `Center; color (Color.rgb 255. 120. 10.);
             position `Absolute; bottom 50; right 10] ()
+      in let bouton_langue =
+        let src = "drapeau_" ^ (I18n.obtenir_lang ()) ^ ".png"
+        and style =
+          Style.[position `Absolute; top 10; right 10; height 25; width 38]
+        and onMouseUp _ =
+          let nouvelle_langue =
+            match I18n.obtenir_lang () with
+              "fr" -> I18n.Anglais
+            | "eng" -> I18n.Francais
+            | _ -> failwith "langue non reconnu"
+          in dispatch (ChangerLangue nouvelle_langue)
+        in Image.createElement ~src ~style ~onMouseUp ~children:[] ()
       in
      (hooks, View.createElement ~style:containerStyle ~children:[
-        Image.createElement ~src:"drapeau_fr.png" ~style:Style.[position `Absolute; top 10; right 10; height 25; width 38] ~children:[] ();
+        bouton_langue;
         Image.createElement
           ~onMouseUp:(fun _ -> changerVue `VueBonus) ~src:"pi.png" ~style:imageStyle2 ~children:[] ();
         Image.createElement ~src:"camel.png" ~style:imageStyle1 ~children:[] ();
@@ -869,7 +880,7 @@ module Application = struct
       message = "";
     };
     accueil = {
-      nothing = ();
+      lang = I18n.Francais;
     };
   }
 

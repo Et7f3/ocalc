@@ -203,7 +203,7 @@ let expression_principale l =
         else
           Erreur ("membre de gauche non assignable", [])
       )
-  | Vide, l -> Erreur ("Erreur de syntaxe", l)
+  | Vide, l -> Erreur (I18n.erreur_de_syntaxe (), l)
   | e, [] -> Expression e
   | _, l -> Erreur ("caracteres restant", l)
 

@@ -165,4 +165,4 @@ let evaluate_with_history s context =
         let e = eval e in
         a, e) l
     in let () = List.iter (fun (a, e) -> Hashtbl.add def a e) l in
-    "definition valide", (history, def)
+    I18n.definition_valide (), (history, def)

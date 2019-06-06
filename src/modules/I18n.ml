@@ -72,6 +72,16 @@ let mauvais_parenthesage () =
     Francais -> "Vérifiez vos parenthèses !!!"
   | Anglais -> "Some parenthesis mismatch !!!"
 
+let erreur_de_syntaxe () =
+  match !lang with
+    Francais -> "Erreur de syntaxe"
+  | Anglais -> "Syntax error"
+
+let definition_valide () =
+  match !lang with
+    Francais -> "Définition valide"
+  | Anglais -> "Definition valid"
+
 let retour () =
   match !lang with
     Francais -> "Retour"
@@ -96,6 +106,11 @@ let menu_accueil () =
   match !lang with
     Francais -> "Accueil"
   | Anglais -> "Home"
+
+let menu_calcul () =
+  match !lang with
+    Francais -> "Calcul"
+  | Anglais -> "Calculus"
 
 let menu_matrices () =
   match !lang with

@@ -17,7 +17,7 @@ let evaluer_fichier fichier contexte =
             let sortie, f =
               try
                 Noyau.Moteur.evaluate_with_history entree f
-              with Division_by_zero -> "Division par zéro", f
+              with Division_by_zero -> (I18n.division_par_zero ()), f
             in let hist = Printf.sprintf "%s = %s" entree sortie in
             let () = liste_historique := hist :: !liste_historique in
             let () = print_endline hist in
@@ -28,10 +28,10 @@ let evaluer_fichier fichier contexte =
             f
         in boucle contexte
       with Sys_error _ ->
-        let () = prerr_string (fichier ^ " n'existe pas\n") in
+        let () = prerr_endline (I18n.fichier_inexistant fichier) in
         contexte
     else
-      let () = prerr_string (fichier ^ " n'as pas l'extension .math\n") in
+      let () = prerr_endline (I18n.fichier_pas_math fichier) in
       contexte
 
 let init_context =
@@ -86,5 +86,5 @@ let g =
 
 match g with
     `List l -> List.iter (function g -> Printf.printf "%s\n\n" (Yojson.Basic.to_string g)) l
-    | _ -> print_endline "can't laod versions"
+    | _ -> print_endline "can't load versions"
 *)

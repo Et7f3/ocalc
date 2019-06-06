@@ -44,7 +44,7 @@ module Generic_matrix (V : Value) = struct
             let () = foreach m1 (fun i j e -> mres.(i).(j) <- f e m2.(i).(j)) in
             mres
         else
-            failwith "taille mauvaise dimension"
+            failwith (I18n.matrice_mauvaise_dimension ())
     let __vide_vers_identite m =
         let h, w = size m in
         let () =

@@ -614,29 +614,25 @@ module Equation = struct
           React.Hooks.reducer ~initialState reducer hooks
         in let () = onUpdate (`Equation etat) in
         let bouton_acc =
-          Text.createElement ~text:(I18n.menu_accueil ())
+          Bouton.menu_accueil
             ~onMouseUp:(fun _ -> changerVue `VueAccueil)
-            ~style:Style.[fontSize 25; fontFamily "Roboto-Regular.ttf";
-              justifyContent `Center; position `Absolute; bottom 10; left 10]
-            ~children:[] ()
+            ~style:Style.[justifyContent `Center; position `Absolute; bottom 10; left 10] ()
         in let bouton_calc =
-          Text.createElement ~text:(I18n.calculer ())
-          ~onMouseUp:(fun _ -> dispatch (Calculer 1))
-          ~style:Style.[fontSize 25; fontFamily "Roboto-Regular.ttf";
-            position `Absolute; bottom 10; right 10]
-          ~children:[] ()
+          Bouton.calculer ~onMouseUp:(fun _ -> dispatch (Calculer 1))
+            ~style:Style.[position `Absolute; bottom 10; right 10] ()
         in let egal = Text.createElement ~text:"=" ~style:Style.[
                       fontSize 25; fontFamily "Roboto-Regular.ttf"; marginVertical 15] ~children:[] ()
-        in let boutton_mat = Text.createElement ~text:(I18n.menu_matrices ())
+        in let boutton_mat =
+         Bouton.menu_matrices
           ~onMouseUp:(fun _ -> changerVue `VueMatrice)
-          ~style:Style.[fontSize 25; fontFamily "Roboto-Regular.ttf";
-            justifyContent `Center; position `Absolute; bottom 90; left 10]
-          ~children:[] ()
-        in let boutton_cal = Text.createElement ~text:"Calculs simples"
-          ~onMouseUp:(fun _ -> changerVue `VueCalcul)
-          ~style:Style.[fontSize 25; fontFamily "Roboto-Regular.ttf";
-            justifyContent `Center; position `Absolute; bottom 50; left 10]
-          ~children:[] ()
+          ~style:Style.[justifyContent `Center; position `Absolute;
+            bottom 90; left 10] ()
+        in let boutton_cal =
+          Text.createElement ~text:"Calculs simples"
+            ~onMouseUp:(fun _ -> changerVue `VueCalcul)
+            ~style:Style.[fontSize 25; fontFamily "Roboto-Regular.ttf";
+              justifyContent `Center; position `Absolute; bottom 50; left 10]
+            ~children:[] ()
         in let rec inc_to_list = function
             [] -> []
           | e :: l -> (Text.createElement ~text:e ~style:Style.[
@@ -690,10 +686,9 @@ module Equation = struct
             etat.nbr_inc <- etat.nbr_inc - 1; etat.mat1 <- Array.make_matrix 1 etat.nbr_inc "0"
           end
         in let boutton_addinc =
-          Text.createElement ~text:"+" ~onMouseUp:(fun _ ->
+          Bouton.plus ~style:Style.[marginHorizontal 10] ~onMouseUp:(fun _ ->
           add_inc (); etat.mat1 <- Array.make_matrix etat.lines etat.nbr_inc "0";
-          dispatch(MiseAJour (0, 0, etat.mat1.(0).(0))))
-          ~style:Style.[fontSize 25; fontFamily "Roboto-Regular.ttf"; marginHorizontal 10] ~children:[] ()
+          dispatch(MiseAJour (0, 0, etat.mat1.(0).(0)))) ()
         in let boutton_mininc =
           Bouton.moins ~style:Style.[marginHorizontal 10]
             ~onMouseUp:(fun _ -> minus_inc ();
@@ -823,12 +818,11 @@ module Accueil = struct
           ]
           ~children:[] ()
       in let bouton_equa =
-        Text.createElement ~text:(I18n.menu_equations ())
+        Bouton.menu_equations
           ~onMouseUp:(fun _ -> changerVue `VueEquation)
           ~style:Style.[
-            fontSize 25; justifyContent `Center; fontFamily "Roboto-Regular.ttf"; color (Color.rgb 255. 120. 10.);
-            position `Absolute; bottom 50; right 10]
-          ~children:[] ()
+            justifyContent `Center; color (Color.rgb 255. 120. 10.);
+            position `Absolute; bottom 50; right 10] ()
       in
      (hooks, View.createElement ~style:containerStyle ~children:[
         Image.createElement ~src:"drapeau_fr.png" ~style:Style.[position `Absolute; top 10; right 10; height 25; width 38] ~children:[] ();

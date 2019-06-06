@@ -266,9 +266,10 @@ module Calcul = struct
           Input.createElement
             ~style:Style.[color (Color.rgb 25. 5. 5.); bottom 0; top 0;
               left 0; right 0; width (
-                if 200 + (String.length valeur) * 10 < dimensions.width / 2 - 20 then
-                  200 + (String.length valeur) * 10
-                  else
+                let taille = max 200 (String.length valeur * 10 + 20) in
+                if taille < dimensions.width / 2 - 20 then
+                  taille
+                else
                   dimensions.width / 2 - 20
               )]
             ~value:valeur ~placeholder:"Entrer votre calcul"

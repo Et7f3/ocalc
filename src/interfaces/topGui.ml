@@ -198,7 +198,8 @@ module Calcul = struct
           Noyau.Moteur.evaluate_with_history res etat.context
         with
           Failure msg -> msg, etat.context (* old context *)
-        | Division_by_zero -> I18n.division_par_zero (), etat.context (* old context *)
+        | Division_by_zero ->
+          I18n.division_par_zero (), etat.context (* old context *)
       in let res = etat.valeur ^ " = " ^ res in
       {
         liste_historique = res :: etat.liste_historique;
@@ -276,8 +277,8 @@ module Calcul = struct
             ~onChange:(fun {value; _} -> dispatch(MiseAJour value))
             ~children:[] ();
           Text.createElement ~text:res(* retour du moteur *) ~style:textStyle
-            ~children:[] (); sous_bout; bouton_acc; bouton_his; boutton_equ; boutton_mat
-          ] ()))
+            ~children:[] (); sous_bout; bouton_acc; bouton_his;
+            boutton_equ; boutton_mat] ()))
 end
 
 module Historique = struct
@@ -417,7 +418,8 @@ module Matrice = struct
             )
             ~children:[] ())
         in let op: Dropdown.items = [
-          {value = "+"; label = "+                             ";(* all this space are for a bug *)};
+          {value = "+"; label = "+                             ";
+          (* all this space are for a bug *)};
           {value = "-"; label = "-                             ";};
           {value = "*"; label = "*                             ";};
           (*{value = "resoudre"; label = "resoudre               ";};*)
@@ -462,7 +464,8 @@ module Matrice = struct
           Bouton.menu_calcul ~onMouseUp:(fun _ -> changerVue `VueCalcul)
           ~style:Style.[justifyContent `Center; position `Absolute;
             bottom 50; left 10] ()
-        in let children1 = [bouton_retour; bouton_calc; boutton_cal; boutton_equ]
+        in let children1 =
+          [bouton_retour; bouton_calc; boutton_cal; boutton_equ]
         in let chmttaille id c d (a, b) =
           match id with
             1 when d ->
@@ -502,15 +505,20 @@ module Matrice = struct
             | _ -> etat.matrice_res <- Array.make_matrix a b "0"
         (*in let squareu id signe =
           match id with
-            1 -> chmttaille 1 signe true etat.taille1; chmttaille 1 signe false etat.taille1; chmtmat 1 etat.taille1
-          | 2 -> chmttaille 2 signe true etat.taille2; chmttaille 2 signe false etat.taille2; chmtmat 2 etat.taille2
-          | _ -> chmttaille 3 signe true etat.taille_res; chmttaille 3 signe false etat.taille_res; chmtmat 3 etat.taille_res*)
+            1 -> chmttaille 1 signe true etat.taille1;
+              chmttaille 1 signe false etat.taille1; chmtmat 1 etat.taille1
+          | 2 -> chmttaille 2 signe true etat.taille2;
+            chmttaille 2 signe false etat.taille2; chmtmat 2 etat.taille2
+          | _ -> chmttaille 3 signe true etat.taille_res;
+            chmttaille 3 signe false etat.taille_res;
+              chmtmat 3 etat.taille_res*)
         in let mat1cou =
           Bouton.plus
             ~onMouseUp:(fun _ -> (*if etat.mode = `Multiplication then
               begin*)
               chmttaille 1 true true etat.taille1; chmtmat 1 etat.taille1;
-              (*chmttaille 3 true true etat.taille_res; chmtmat 3 etat.taille_res;*)
+              (*chmttaille 3 true true etat.taille_res;
+                chmtmat 3 etat.taille_res;*)
               dispatch(MiseAJour (1, 0, 0, etat.matrice1.(0).(0))) (*
             end
             else
@@ -522,7 +530,9 @@ module Matrice = struct
           Bouton.moins ~style:Style.[marginHorizontal 20]
             ~onMouseUp:(fun _ -> (*if etat.mode = `Multiplication then
               begin*)
-              chmttaille 1 false true etat.taille1; chmtmat 1 etat.taille1; (*chmttaille 3 false true etat.taille_res; chmtmat 3 etat.taille_res;*)
+              chmttaille 1 false true etat.taille1; chmtmat 1 etat.taille1;
+              (*chmttaille 3 false true etat.taille_res;
+              chmtmat 3 etat.taille_res;*)
               dispatch(MiseAJour (1, 0, 0, etat.matrice1.(0).(0))) (*
             end
             else
@@ -530,19 +540,32 @@ module Matrice = struct
               squareu 1 false; squareu 2 false; squareu 3 false;
               dispatch(MiseAJour (1, 0, 0, etat.matrice1.(0).(0)))
             end*)) ()
-        in let boutton_mat1c = View.createElement ~style:Style.[flexDirection `Row; flexGrow 2; marginHorizontal 50] ~children:[mat1cou; mat1cod] ()
+        in let boutton_mat1c =
+          View.createElement
+            ~style:Style.[flexDirection `Row; flexGrow 2;
+              marginHorizontal 50]
+            ~children:[mat1cou; mat1cod] ()
         in let mat2cou =
           Bouton.plus ~style:Style.[marginHorizontal 20]
-            ~onMouseUp:(fun _ -> chmttaille 2 true true etat.taille2; chmtmat 2 etat.taille2;
+            ~onMouseUp:(fun _ ->
+              chmttaille 2 true true etat.taille2; chmtmat 2 etat.taille2;
               dispatch(MiseAJour (2, 0, 0, etat.matrice2.(0).(0)))) ()
         in let mat2cod =
           Bouton.moins
-              ~onMouseUp:(fun _ -> chmttaille 2 false true etat.taille2; chmtmat 2 etat.taille2;
-               dispatch(MiseAJour (2, 0, 0, etat.matrice2.(0).(0)))) ()
-        in let boutton_mat2c = View.createElement ~style:Style.[flexDirection `RowReverse; marginHorizontal 50] ~children:((*if etat.mode = `Multiplication then*)
-          [mat2cou; mat2cod]
-          (*else [mat1cou; mat1cod]*)) ()
-        in let boutton_matc = View.createElement ~style:Style.[flexDirection`Row] ~children:[boutton_mat1c; boutton_mat2c] ()
+            ~onMouseUp:(fun _ ->
+              chmttaille 2 false true etat.taille2; chmtmat 2 etat.taille2;
+              dispatch(MiseAJour (2, 0, 0, etat.matrice2.(0).(0)))) ()
+        in let boutton_mat2c =
+          View.createElement
+            ~style:Style.[flexDirection `RowReverse; marginHorizontal 50]
+            ~children:(
+              (*if etat.mode = `Multiplication then*)
+                [mat2cou; mat2cod]
+              (*else
+                [mat1cou; mat1cod]*)) ()
+        in let boutton_matc =
+          View.createElement ~style:Style.[flexDirection`Row]
+            ~children:[boutton_mat1c; boutton_mat2c] ()
         in let mat1liu =
           Bouton.plus
           ~onMouseUp:(fun _ -> (*if etat.mode = `Multiplication then
@@ -566,22 +589,36 @@ module Matrice = struct
               squareu 1 false; squareu 2 false; squareu 3 false;
               dispatch(MiseAJour (1, 0, 0, etat.matrice1.(0).(0)))
             end*)) ()
-        in let boutton_mat1l = View.createElement ~children:[mat1liu; mat1lid] ()
+        in let boutton_mat1l =
+          View.createElement ~children:[mat1liu; mat1lid] ()
         in let mat2liu =
           Bouton.plus
-            ~onMouseUp:(fun _ -> chmttaille 2 true false etat.taille2; chmtmat 2 etat.taille2; (*chmttaille 3 true false etat.taille_res; chmtmat 3 etat.taille_res;*)
-              dispatch(MiseAJour (2, 0, 0, etat.matrice2.(0).(0)))) ()
+            ~onMouseUp:(fun _ ->
+                chmttaille 2 true false etat.taille2; chmtmat 2 etat.taille2;
+                (*chmttaille 3 true false etat.taille_res;
+                chmtmat 3 etat.taille_res;*)
+                dispatch(MiseAJour (2, 0, 0, etat.matrice2.(0).(0)))) ()
         in let mat2lid =
           Bouton.moins
-            ~onMouseUp:(fun _ -> chmttaille 2 false false etat.taille2; chmtmat 2 etat.taille2; (*chmttaille 3 false false etat.taille_res; chmtmat 3 etat.taille_res;*)
+            ~onMouseUp:(fun _ ->
+              chmttaille 2 false false etat.taille2; chmtmat 2 etat.taille2;
+              (*chmttaille 3 false false etat.taille_res;
+              chmtmat 3 etat.taille_res;*)
               dispatch(MiseAJour (2, 0, 0, etat.matrice2.(0).(0)))) ()
-        in let boutton_mat2l = View.createElement ~children:((*if etat.mode = `Multiplication then*)
-          [mat2liu; mat2lid]
-          (*else
-          [mat1liu; mat1lid]*)) ()
-        in let children = View.createElement ~style:Style.[flexDirection `Row] ~children:[boutton_mat1l; m1; dropdown; m2; boutton_mat2l] ()
-        in (hooks, View.createElement ~style:Style.[position `Absolute; alignItems `Center;
-        bottom 0; top 0; left 0; right 0] ~children:(boutton_matc :: children :: m_res :: children1) ()))
+        in let boutton_mat2l =
+          View.createElement
+            ~children:(
+              (*if etat.mode = `Multiplication then*)
+                [mat2liu; mat2lid]
+              (*else
+                [mat1liu; mat1lid]*)) ()
+        in let children =
+          View.createElement ~style:Style.[flexDirection `Row]
+            ~children:[boutton_mat1l; m1; dropdown; m2; boutton_mat2l] ()
+        in (hooks, View.createElement
+            ~style:Style.[position `Absolute; alignItems `Center; bottom 0;
+              top 0; left 0; right 0]
+            ~children:(boutton_matc :: children :: m_res :: children1) ()))
 end
 
 module Equation = struct
@@ -621,17 +658,19 @@ module Equation = struct
         let bouton_acc =
           Bouton.menu_accueil
             ~onMouseUp:(fun _ -> changerVue `VueAccueil)
-            ~style:Style.[justifyContent `Center; position `Absolute; bottom 10; left 10] ()
+            ~style:Style.[justifyContent `Center; position `Absolute;
+              bottom 10; left 10] ()
         in let bouton_calc =
           Bouton.calculer ~onMouseUp:(fun _ -> dispatch (Calculer 1))
             ~style:Style.[position `Absolute; bottom 10; right 10] ()
-        in let egal = Text.createElement ~text:"=" ~style:Style.[
-                      fontSize 25; fontFamily "Roboto-Regular.ttf"; marginVertical 15] ~children:[] ()
+        in let egal =
+          Text.createElement ~text:"=" ~style:Style.[fontSize 25;
+            fontFamily "Roboto-Regular.ttf"; marginVertical 15] ~children:[] ()
         in let boutton_mat =
-         Bouton.menu_matrices
-          ~onMouseUp:(fun _ -> changerVue `VueMatrice)
-          ~style:Style.[justifyContent `Center; position `Absolute;
-            bottom 90; left 10] ()
+          Bouton.menu_matrices
+            ~onMouseUp:(fun _ -> changerVue `VueMatrice)
+            ~style:Style.[justifyContent `Center; position `Absolute;
+              bottom 90; left 10] ()
         in let boutton_cal =
           Bouton.menu_calcul ~onMouseUp:(fun _ -> changerVue `VueCalcul)
             ~style:Style.[justifyContent `Center; position `Absolute;
@@ -657,26 +696,30 @@ module Equation = struct
             done
           in (View.createElement ~children:!input) ()
         in let m1 =
-          dessiner_matrice (etat.lines, etat.nbr_inc) (fun i j -> Input.createElement
-            ~style:Style.[color (Color.rgb 255. 255. 255.); width 100;
-              margin2 ~horizontal:40 ~vertical:10]
-            ~value:etat.mat1.(i).(j)
-            ~placeholder:etat.mat1.(i).(j)
-            ~onChange:(fun {value; _} -> dispatch(MiseAJour (i, j, value)))
-            ~children:[] ())
+          dessiner_matrice (etat.lines, etat.nbr_inc) (fun i j ->
+            Input.createElement
+              ~style:Style.[color (Color.rgb 255. 255. 255.); width 100;
+                margin2 ~horizontal:40 ~vertical:10]
+              ~value:etat.mat1.(i).(j)
+              ~placeholder:etat.mat1.(i).(j)
+              ~onChange:(fun {value; _} -> dispatch(MiseAJour (i, j, value)))
+              ~children:[] ())
         in let m2 =
           dessiner_matrice (etat.lines, 1) (fun i j -> Input.createElement
             ~style:Style.[color (Color.rgb 255. 255. 255.); width 100;
               margin2 ~horizontal:40 ~vertical:10]
             ~value:etat.mat2.(i).(j)
             ~placeholder:etat.mat2.(i).(j)
-            ~onChange:(fun {value; _} -> dispatch(MiseAJourVariable (i, j, value)))
+            ~onChange:(fun {value; _} ->
+              dispatch(MiseAJourVariable (i, j, value)))
             ~children:[] ())
         in let add_inc () =
           let suf = List.nth etat.inconnu (etat.nbr_inc - 1)
-          in let inc = (int_of_char suf.[0]) + 1 in
-          let inc = String.make 1 (char_of_int (if inc > 122 then inc - 26 else inc)) in
-          let inc = (
+          in let inc = 1 + int_of_char suf.[0] in
+          let inc =
+            let inc = if inc > 122 then inc - 26 else inc in
+            String.make 1 (char_of_int inc)
+          in let inc = (
             if (List.exists (fun a -> String.equal a inc) etat.inconnu) then
               String.make ((String.length (suf)) + 1) inc.[0]
             else
@@ -686,11 +729,13 @@ module Equation = struct
         in let minus_inc () = if etat.nbr_inc > 1 then
           begin
             let (_ :: l) = List.rev etat.inconnu in etat.inconnu <- List.rev l;
-            etat.nbr_inc <- etat.nbr_inc - 1; etat.mat1 <- Array.make_matrix 1 etat.nbr_inc "0"
+            etat.nbr_inc <- etat.nbr_inc - 1;
+            etat.mat1 <- Array.make_matrix 1 etat.nbr_inc "0"
           end
         in let boutton_addinc =
           Bouton.plus ~style:Style.[marginHorizontal 10] ~onMouseUp:(fun _ ->
-          add_inc (); etat.mat1 <- Array.make_matrix etat.lines etat.nbr_inc "0";
+          add_inc ();
+          etat.mat1 <- Array.make_matrix etat.lines etat.nbr_inc "0";
           dispatch(MiseAJour (0, 0, etat.mat1.(0).(0)))) ()
         in let boutton_mininc =
           Bouton.moins ~style:Style.[marginHorizontal 10]
@@ -702,7 +747,9 @@ module Equation = struct
             etat.mat1 <- Array.make_matrix etat.lines etat.nbr_inc "0";
             etat.mat2 <- Array.make_matrix etat.lines 1 "0";
             dispatch(MiseAJour (1, 0, 0, "0")))
-          ~style:Style.[fontSize 25; fontFamily "Roboto-Regular.ttf"; marginHorizontal 10] ~children:[] ()
+          ~style:Style.[fontSize 25; fontFamily "Roboto-Regular.ttf";
+            marginHorizontal 10]
+          ~children:[] ()
         in let boutton_minline =
           Bouton.moins ~onMouseUp:(fun _ ->
             if etat.lines > 1 then
@@ -712,14 +759,31 @@ module Equation = struct
               etat.mat2 <- Array.make_matrix etat.lines 1 "0";
               dispatch(MiseAJour (1, 0, 0, "0"))
               end )
-          ~style:Style.[fontSize 25; fontFamily "Roboto-Regular.ttf"; marginHorizontal 10] ~children:[] ()*)
-        in let children = View.createElement ~children:[boutton_addinc; boutton_mininc] ()
-        in let list_inc = View.createElement ~style:Style.[flexDirection `Row; alignSelf `FlexStart] ~children:(children :: (inc_to_list etat.inconnu)) ()
-        in let children = View.createElement ~style:Style.[flexDirection `Row; alignSelf `FlexStart] ~children:[m1; egal; m2] ()
-        (*in let line = View.createElement ~style:Style.[flexDirection `Row; alignSelf `FlexStart] ~children:[boutton_addline; boutton_minline] ()*)
-        in let resultat = Text.createElement ~text:etat.res ~style:Style.[fontSize 25; fontFamily "Roboto-Regular.ttf"] ~children:[] ()
-        in hooks, View.createElement ~style:Style.[position `Absolute; alignItems `Center;
-        bottom 0; top 0; left 0; right 0] ~children:[list_inc; children; resultat; (*line;*) bouton_acc; boutton_cal; boutton_mat; bouton_calc] ())
+          ~style:Style.[fontSize 25; fontFamily "Roboto-Regular.ttf";
+            marginHorizontal 10]
+          ~children:[] ()*)
+        in let children =
+          View.createElement ~children:[boutton_addinc; boutton_mininc] ()
+        in let list_inc =
+          View.createElement
+          ~style:Style.[flexDirection `Row; alignSelf `FlexStart]
+          ~children:(children :: (inc_to_list etat.inconnu)) ()
+        in let children =
+          View.createElement
+          ~style:Style.[flexDirection `Row; alignSelf `FlexStart]
+          ~children:[m1; egal; m2] ()
+        (*in let line = View.createElement
+          ~style:Style.[flexDirection `Row; alignSelf `FlexStart]
+          ~children:[boutton_addline; boutton_minline] ()*)
+        in let resultat =
+          Text.createElement ~text:etat.res
+            ~style:Style.[fontSize 25; fontFamily "Roboto-Regular.ttf"]
+            ~children:[] ()
+        in hooks, View.createElement
+          ~style:Style.[position `Absolute; alignItems `Center; bottom 0;
+            top 0; left 0; right 0]
+          ~children:[list_inc; children; resultat;
+            (*line;*) bouton_acc; boutton_cal; boutton_mat; bouton_calc] ())
 end
 
 module Accueil = struct
@@ -807,15 +871,14 @@ module Accueil = struct
         ]
       in let bouton_cal =
         Bouton.menu_calcul ~onMouseUp:(fun _ -> changerVue `VueCalcul)
-         ~style:Style.[justifyContent `Center; color (Color.rgb 255. 120. 10.);
-          position `Absolute; bottom 10; left 10] ()
+          ~style:Style.[justifyContent `Center; color (Color.rgb 255. 120. 10.);
+            position `Absolute; bottom 10; left 10] ()
       in let bouton_mat =
         Text.createElement ~text:(I18n.menu_matrices ())
           ~onMouseUp:(fun _ -> changerVue `VueMatrice)
-          ~style:Style.[
-            fontSize 25; justifyContent `Center; fontFamily "Roboto-Regular.ttf"; color (Color.rgb 255. 120. 10.);
-            position `Absolute; right 10; bottom 10;
-          ]
+          ~style:Style.[fontSize 25; justifyContent `Center;
+            fontFamily "Roboto-Regular.ttf"; color (Color.rgb 255. 120. 10.);
+            position `Absolute; right 10; bottom 10]
           ~children:[] ()
       in let bouton_equa =
         Bouton.menu_equations
@@ -835,14 +898,14 @@ module Accueil = struct
             | _ -> failwith "langue non reconnu"
           in dispatch (ChangerLangue nouvelle_langue)
         in Image.createElement ~src ~style ~onMouseUp ~children:[] ()
-      in
-     (hooks, View.createElement ~style:containerStyle ~children:[
+      in hooks, View.createElement ~style:containerStyle ~children:[
         bouton_langue;
         Image.createElement
-          ~onMouseUp:(fun _ -> changerVue `VueBonus) ~src:"pi.png" ~style:imageStyle2 ~children:[] ();
+          ~onMouseUp:(fun _ -> changerVue `VueBonus) ~src:"pi.png"
+          ~style:imageStyle2 ~children:[] ();
         Image.createElement ~src:"camel.png" ~style:imageStyle1 ~children:[] ();
         bouton_cal; bouton_equa; bouton_mat;
-      ] ()))
+      ] ())
 end
 
 module Application = struct
@@ -864,7 +927,8 @@ module Application = struct
     calcul = {
       valeur = "";
       res = " "(* trick to be displayed *);
-      liste_historique = !Commune.liste_historique; (* TODO: avoid this double list *)
+      liste_historique = !Commune.liste_historique;
+        (* TODO: avoid this double list *)
       context = Commune.init_context
     };
     historique = {
@@ -902,13 +966,19 @@ module Application = struct
       component
         (fun hooks ->
           let ({vue_courante}, dispatch, hooks) =
-            React.Hooks.reducer ~initialState:{vue_courante = `VueAccueil} reducer hooks
+            React.Hooks.reducer ~initialState:{vue_courante = `VueAccueil}
+              reducer hooks
           in let choisir_vue = function
-              `VueCalcul -> Calcul.createElement ~initialState:(!sauvegarde.calcul)
-            | `VueHistorique -> Historique.createElement !sauvegarde.calcul.liste_historique
-            | `VueMatrice -> Matrice.createElement ~initialState:(!sauvegarde.matrice)
-            | `VueAccueil -> Accueil.createElement ~initialState:(!sauvegarde.accueil)
-            | `VueEquation -> Equation.createElement ~initialState:(!sauvegarde.equation)
+              `VueCalcul -> Calcul.createElement
+                ~initialState:(!sauvegarde.calcul)
+            | `VueHistorique -> Historique.createElement
+              !sauvegarde.calcul.liste_historique
+            | `VueMatrice -> Matrice.createElement
+              ~initialState:(!sauvegarde.matrice)
+            | `VueAccueil -> Accueil.createElement
+              ~initialState:(!sauvegarde.accueil)
+            | `VueEquation -> Equation.createElement
+              ~initialState:(!sauvegarde.equation)
             | `VueBonus -> VueBonus.createElement
           in hooks, (choisir_vue vue_courante)
           ~changerVue:(fun v -> dispatch (ChangerVue v))
@@ -919,7 +989,8 @@ end
 (*
 let init app =
 let win = App.createWindow app "OCalc" in
-Input.createElement ~style:Style.[top (100); left (300); position `Absolute] ~children:[] () |>
+Input.createElement ~style:Style.[top (100); left (300); position `Absolute]
+  ~children:[] () |>
 UI.start win |> ignore
 
 let init app =
@@ -933,7 +1004,8 @@ let init app =
     {value = "+"; label = "+";};
     {value = "-"; label = "-";};
     {value = "*"; label = "*";};
-  ] in Dropdown.createElement ~items:op ~onItemSelected:(fun _ -> ()) ~children:[] () |>
+  ] in Dropdown.createElement ~items:op ~onItemSelected:(fun _ -> ())
+    ~children:[] () |>
   UI.start win |> ignore
 *)
 
@@ -943,9 +1015,10 @@ let init app =
     (Monitor.getPrimaryMonitor ()) |> Monitor.getSize in
   let windowWidth = dimensions.width / 2 in
   let windowHeight = dimensions.height / 2 in
-  let options_fen = WindowCreateOptions.create ~width:windowWidth
-                         ~height:windowHeight ~maximized ~icon:(Some "logo.png") ~backgroundColor:bgColor () in
-  let fen = App.createWindow ~createOptions:options_fen app "OCalc" in
+  let options_fen =
+    WindowCreateOptions.create ~width:windowWidth ~height:windowHeight
+      ~maximized ~icon:(Some "logo.png") ~backgroundColor:bgColor ()
+  in let fen = App.createWindow ~createOptions:options_fen app "OCalc" in
   let () =
     if not Environment.webGL then
       (let xPosition = (dimensions.width - windowWidth) / 2 in

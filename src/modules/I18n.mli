@@ -12,6 +12,8 @@ val separateur_unite : unit -> string
 
 val impossible_convertir_pas_affectable : unit -> string
 
+val impossible_convertir_vide : unit -> string
+
 val matrice_mauvaise_dimension : unit -> string
 
 val fichier_inexistant : string -> string
@@ -27,3 +29,17 @@ val sortir_1 : unit -> string
 val sortir_2 : unit -> string
 
 val mauvais_parenthesage : unit -> string
+
+val retour : unit -> string
+
+val calculer : unit -> string
+
+val effacer : unit -> string
+
+val menu_historique : unit -> string
+
+val menu_accueil : unit -> string
+
+val menu_matrices : unit -> string
+
+val menu_equations : unit -> string

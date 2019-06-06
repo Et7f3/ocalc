@@ -24,7 +24,7 @@ type affe =
 let rec expr_depuis_expression =
   let open Nouveau_parser in
   function
-    Vide -> failwith "impossible de convertir Vide"
+    Vide -> failwith (I18n.impossible_convertir_vide ())
   | Entier s -> N (GrandNum.E (GrandEntier.grandentier_depuis_texte s))
   | Reel s -> N (GrandNum.R (GrandReel.grandreel_depuis_texte s))
   | Variable ("pi" | "pI" | "Pi" | "PI") -> C Pi

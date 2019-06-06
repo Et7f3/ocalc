@@ -115,16 +115,62 @@ module VueParDefaut = struct
 end
 *)
 
+module Bouton = struct
+  let style_btn = Style.[fontSize 25; fontFamily "Roboto-Regular.ttf"]
+
+  let menu_retour ~onMouseUp ?(style=[]) () =
+    Text.createElement ~text:(I18n.retour ()) ~onMouseUp
+      ~style:(style @ style_btn)
+      ~children:[] ()
+
+  let calculer ~onMouseUp ?(style=[]) () =
+    Text.createElement ~text:(I18n.calculer ()) ~onMouseUp
+      ~style:(style @ style_btn)
+      ~children:[] ()
+
+  let effacer ~onMouseUp ?(style=[]) () =
+    Text.createElement ~text:(I18n.effacer ()) ~onMouseUp
+      ~style:(style @ style_btn)
+      ~children:[] ()
+
+  let menu_historique ~onMouseUp ?(style=[]) () =
+    Text.createElement ~text:(I18n.menu_historique ()) ~onMouseUp
+      ~style:(style @ style_btn)
+      ~children:[] ()
+
+  let menu_matrices ~onMouseUp ?(style=[]) () =
+    Text.createElement ~text:(I18n.menu_matrices ()) ~onMouseUp
+      ~style:(style @ style_btn)
+      ~children:[] ()
+
+  let menu_accueil ~onMouseUp ?(style=[]) () =
+    Text.createElement ~text:(I18n.menu_accueil ()) ~onMouseUp
+      ~style:(style @ style_btn)
+      ~children:[] ()
+
+  let menu_equations ~onMouseUp ?(style=[]) () =
+    Text.createElement ~text:(I18n.menu_equations ()) ~onMouseUp
+      ~style:(style @ style_btn)
+      ~children:[] ()
+
+  let plus ~onMouseUp ?(style=[]) () =
+    Text.createElement ~text:"+" ~onMouseUp
+      ~style:(style @ style_btn)
+      ~children:[] ()
+
+  let moins ~onMouseUp ?(style=[]) () =
+    Text.createElement ~text:"-" ~onMouseUp
+      ~style:(style @ style_btn)
+      ~children:[] ()
+end
+
 module VueBonus = struct
   let component = React.component "VueBonus"
 
   let createElement ~changerVue ~onUpdate:_ ~children:_ () =
     let retour_maison =
-      Text.createElement ~text:"Revenir à l'accueil"
-        ~onMouseUp:(fun _ -> changerVue `VueAccueil)
-        ~style:Style.[fontSize 25; fontFamily "Roboto-Regular.ttf";
-          position `Absolute; bottom 10; right 10]
-        ~children:[] ()
+      Bouton.menu_retour ~onMouseUp:(fun _ -> changerVue `VueAccueil)
+        ~style:Style.[position `Absolute; bottom 10; right 10] ()
     in Minesweeper_lib.MineSweeper.createElement ~children:[retour_maison] ()
 end
 
@@ -147,7 +193,7 @@ module Calcul = struct
           Noyau.Moteur.evaluate_with_history res etat.context
         with
           Failure msg -> msg, etat.context (* old context *)
-        | Division_by_zero -> "Division par zéro", etat.context (* old context *)
+        | Division_by_zero -> I18n.division_par_zero (), etat.context (* old context *)
       in let res = etat.valeur ^ " = " ^ res in
       {
         liste_historique = res :: etat.liste_historique;
@@ -182,37 +228,32 @@ module Calcul = struct
           React.Hooks.reducer ~initialState reducer hooks
         in let () = onUpdate (`Calcul etat) in
         let bouton_calc =
-          Text.createElement ~text:"Calculer"
-            ~style:Style.[fontSize 25; fontFamily "Roboto-Regular.ttf"]
-            ~onMouseUp:(fun _ -> dispatch Calculer) ~children:[] ()
+          Bouton.calculer ~style:[] ~onMouseUp:(fun _ -> dispatch Calculer) ()
         in let bouton_supp =
-          Text.createElement ~text:"Effacer"
-            ~style:Style.[fontSize 25; fontFamily "Roboto-Regular.ttf";
-              marginHorizontal 20]
-            ~onMouseUp:(fun _ -> dispatch Vider) ~children:[] ()
+          Bouton.effacer ~style:Style.[marginHorizontal 20]
+            ~onMouseUp:(fun _ -> dispatch Vider) ()
         in let sous_bout =
           View.createElement ~style:Style.[flexDirection `Row]
             ~children:[bouton_calc; bouton_supp] ()
         in let bouton_his =
-          Text.createElement ~text:"Accéder à l'historique"
-            ~style:Style.[fontSize 25; fontFamily "Roboto-Regular.ttf";
-              position `Absolute; left 10; bottom 10]
-              ~onMouseUp:(fun _  -> changerVue `VueHistorique) ~children:[] ()
+          Bouton.menu_historique
+            ~style:Style.[position `Absolute; left 10; bottom 10]
+            ~onMouseUp:(fun _  -> changerVue `VueHistorique) ()
         in let bouton_acc =
-          Text.createElement ~text:"Revenir à l'accueil"
-            ~style:Style.[fontSize 25; fontFamily "Roboto-Regular.ttf";
-              position `Absolute; bottom 10; right 10]
-              ~onMouseUp:(fun _  -> changerVue `VueAccueil) ~children:[] ()
-        in let boutton_mat = Text.createElement ~text:"Accéder aux matrices"
-          ~onMouseUp:(fun _ -> changerVue `VueMatrice)
-          ~style:Style.[fontSize 25; fontFamily "Roboto-Regular.ttf";
-            justifyContent `Center; position `Absolute; bottom 50; right 10;]
-          ~children:[] ()
-      in let boutton_equ = Text.createElement ~text:"Accéder aux équations"
+          Bouton.menu_accueil
+            ~style:Style.[position `Absolute; bottom 10; right 10]
+            ~onMouseUp:(fun _  -> changerVue `VueAccueil) ()
+        in let boutton_mat =
+          Bouton.menu_matrices
+            ~onMouseUp:(fun _ -> changerVue `VueMatrice)
+            ~style:Style.[justifyContent `Center;
+              position `Absolute; bottom 50; right 10]
+            ()
+      in let boutton_equ =
+        Bouton.menu_equations
         ~onMouseUp:(fun _ -> changerVue `VueEquation)
-        ~style:Style.[fontSize 25; fontFamily "Roboto-Regular.ttf";
-          justifyContent `Center; position `Absolute; bottom 90; right 10;]
-        ~children:[] ()
+        ~style:Style.[justifyContent `Center; position `Absolute;
+          bottom 90; right 10;] ()
       in let dimensions: Monitor.size =
         (Monitor.getPrimaryMonitor ()) |> Monitor.getSize in
       (hooks,
@@ -262,10 +303,8 @@ module Historique = struct
     in fun ~children:_ () ->
       component (fun hooks ->
         let bouton_retour =
-          Text.createElement ~text:"Revenir au mode de calcul simple"
-            ~style:Style.[fontSize 25; fontFamily "Roboto-Regular.ttf";
-              position `Absolute; bottom 10; right 10]
-            ~onMouseUp:(fun _  -> changerVue `VueCalcul) ~children:[] ()
+          Bouton.menu_retour ~onMouseUp:(fun _  -> changerVue `VueCalcul)
+            ~style:Style.[position `Absolute; bottom 10; right 10] ()
         in
         hooks,
           View.createElement ~style:containerStyle
@@ -402,23 +441,18 @@ module Matrice = struct
             ~value:etat.matrice_res.(i).(j)
             ~children:[] ())
         in let bouton_calc =
-          Text.createElement ~text:"Calculer le résultat"
+          Bouton.calculer
             ~onMouseUp:(fun _ -> dispatch (Calculer etat.mode))
-            ~style:Style.[fontSize 25; fontFamily "Roboto-Regular.ttf";
-              position `Absolute; bottom 10; right 10]
-            ~children:[] ()
+            ~style:Style.[position `Absolute; bottom 10; right 10] ()
         in let bouton_retour =
-          Text.createElement ~text:"Revenir à l'accueil"
+          Bouton.menu_retour
             ~onMouseUp:(fun _  -> changerVue `VueAccueil)
-            ~style:Style.[fontSize 25; fontFamily "Roboto-Regular.ttf";
-              position `Absolute; bottom 10; left 10]
-            ~children:[] ()
-        in let boutton_equ = Text.createElement ~text:"Accéder aux équations"
-          ~onMouseUp:(fun _ -> changerVue `VueEquation)
-          ~style:Style.[fontSize 25; fontFamily "Roboto-Regular.ttf";
-            justifyContent `Center; position `Absolute; bottom 90; left 10;]
-          ~children:[] ()
-        in let boutton_cal = Text.createElement ~text:"Accéder aux calculs simples"
+            ~style:Style.[position `Absolute; bottom 10; left 10] ()
+        in let boutton_equ =
+          Bouton.menu_equations ~onMouseUp:(fun _ -> changerVue `VueEquation)
+            ~style:Style.[justifyContent `Center; position `Absolute;
+              bottom 90; left 10;] ()
+        in let boutton_cal = Text.createElement ~text:"Calculs simples"
           ~onMouseUp:(fun _ -> changerVue `VueCalcul)
           ~style:Style.[fontSize 25; fontFamily "Roboto-Regular.ttf";
             justifyContent `Center; position `Absolute; bottom 50; left 10;]
@@ -467,7 +501,7 @@ module Matrice = struct
           | 2 -> chmttaille 2 signe true etat.taille2; chmttaille 2 signe false etat.taille2; chmtmat 2 etat.taille2
           | _ -> chmttaille 3 signe true etat.taille_res; chmttaille 3 signe false etat.taille_res; chmtmat 3 etat.taille_res*)
         in let mat1cou =
-          Text.createElement ~text:"+"
+          Bouton.plus
             ~onMouseUp:(fun _ -> (*if etat.mode = `Multiplication then
               begin*)
               chmttaille 1 true true etat.taille1; chmtmat 1 etat.taille1;
@@ -478,10 +512,9 @@ module Matrice = struct
             begin
               squareu 1 true; squareu 2 true; squareu 3 true;
               dispatch(MiseAJour (1, 0, 0, etat.matrice1.(0).(0)));
-            end*) )
-            ~style:Style.[fontSize 25; fontFamily "Roboto-Regular.ttf"] ~children:[] ()
+            end*) ) ~style:[] ()
         in let mat1cod =
-          Text.createElement ~text:"-"
+          Bouton.moins ~style:Style.[marginHorizontal 20]
             ~onMouseUp:(fun _ -> (*if etat.mode = `Multiplication then
               begin*)
               chmttaille 1 false true etat.taille1; chmtmat 1 etat.taille1; (*chmttaille 3 false true etat.taille_res; chmtmat 3 etat.taille_res;*)
@@ -491,22 +524,22 @@ module Matrice = struct
             begin
               squareu 1 false; squareu 2 false; squareu 3 false;
               dispatch(MiseAJour (1, 0, 0, etat.matrice1.(0).(0)))
-            end*) )
-            ~style:Style.[fontSize 25; fontFamily "Roboto-Regular.ttf"; marginHorizontal 20] ~children:[] ()
+            end*)) ()
         in let boutton_mat1c = View.createElement ~style:Style.[flexDirection `Row; flexGrow 2; marginHorizontal 50] ~children:[mat1cou; mat1cod] ()
-        in let mat2cou = Text.createElement ~text:"+"
+        in let mat2cou =
+          Bouton.plus ~style:Style.[marginHorizontal 20]
             ~onMouseUp:(fun _  -> chmttaille 2 true true etat.taille2; chmtmat 2 etat.taille2;
-              dispatch(MiseAJour (2, 0, 0, etat.matrice2.(0).(0))) )
-            ~style:Style.[fontSize 25; fontFamily "Roboto-Regular.ttf"; marginHorizontal 20] ~children:[] ()
-        in let mat2cod = Text.createElement ~text:"-"
+              dispatch(MiseAJour (2, 0, 0, etat.matrice2.(0).(0)))) ()
+        in let mat2cod =
+          Bouton.moins
               ~onMouseUp:(fun _  -> chmttaille 2 false true etat.taille2; chmtmat 2 etat.taille2;
-               dispatch(MiseAJour (2, 0, 0, etat.matrice2.(0).(0))) )
-              ~style:Style.[fontSize 25; fontFamily "Roboto-Regular.ttf"] ~children:[] ()
+               dispatch(MiseAJour (2, 0, 0, etat.matrice2.(0).(0)))) ()
         in let boutton_mat2c = View.createElement ~style:Style.[flexDirection `RowReverse; marginHorizontal 50] ~children:((*if etat.mode = `Multiplication then*)
           [mat2cou; mat2cod]
           (*else [mat1cou; mat1cod]*)) ()
         in let boutton_matc = View.createElement ~style:Style.[flexDirection`Row] ~children:[boutton_mat1c; boutton_mat2c] ()
-        in let mat1liu = Text.createElement ~text:"+"
+        in let mat1liu =
+          Bouton.plus
           ~onMouseUp:(fun _ -> (*if etat.mode = `Multiplication then
             begin*)
             chmttaille 1 true false etat.taille1; chmtmat 1 etat.taille1;
@@ -516,9 +549,8 @@ module Matrice = struct
           begin
             squareu 1 true; squareu 2 true; squareu 3 true;
             dispatch(MiseAJour (1, 0, 0, etat.matrice1.(0).(0)))
-          end*) )
-          ~style:Style.[fontSize 25; fontFamily "Roboto-Regular.ttf"] ~children:[] ()
-        in let mat1lid = Text.createElement ~text:"-"
+          end*)) ()
+        in let mat1lid = Bouton.moins
             ~onMouseUp:(fun _ ->(*if etat.mode = `Multiplication then
               begin*)
               chmttaille 1 false false etat.taille1; chmtmat 1 etat.taille1;
@@ -528,17 +560,16 @@ module Matrice = struct
             begin
               squareu 1 false; squareu 2 false; squareu 3 false;
               dispatch(MiseAJour (1, 0, 0, etat.matrice1.(0).(0)))
-            end*) )
-            ~style:Style.[fontSize 25; fontFamily "Roboto-Regular.ttf"] ~children:[] ()
+            end*)) ()
         in let boutton_mat1l = View.createElement ~children:[mat1liu; mat1lid] ()
-        in let mat2liu = Text.createElement ~text:"+"
-          ~onMouseUp:(fun _  -> chmttaille 2 true false etat.taille2; chmtmat 2 etat.taille2; (*chmttaille 3 true false etat.taille_res; chmtmat 3 etat.taille_res;*)
-           dispatch(MiseAJour (2, 0, 0, etat.matrice2.(0).(0))) )
-          ~style:Style.[fontSize 25; fontFamily "Roboto-Regular.ttf"] ~children:[] ()
-        in let mat2lid = Text.createElement ~text:"-"
+        in let mat2liu =
+          Bouton.plus
+            ~onMouseUp:(fun _  -> chmttaille 2 true false etat.taille2; chmtmat 2 etat.taille2; (*chmttaille 3 true false etat.taille_res; chmtmat 3 etat.taille_res;*)
+              dispatch(MiseAJour (2, 0, 0, etat.matrice2.(0).(0)))) ()
+        in let mat2lid =
+          Bouton.moins
             ~onMouseUp:(fun _  -> chmttaille 2 false false etat.taille2; chmtmat 2 etat.taille2; (*chmttaille 3 false false etat.taille_res; chmtmat 3 etat.taille_res;*)
-            dispatch(MiseAJour (2, 0, 0, etat.matrice2.(0).(0))) )
-            ~style:Style.[fontSize 25; fontFamily "Roboto-Regular.ttf"] ~children:[] ()
+              dispatch(MiseAJour (2, 0, 0, etat.matrice2.(0).(0)))) ()
         in let boutton_mat2l = View.createElement ~children:((*if etat.mode = `Multiplication then*)
           [mat2liu; mat2lid]
           (*else
@@ -583,25 +614,25 @@ module Equation = struct
           React.Hooks.reducer ~initialState reducer hooks
         in let () = onUpdate (`Equation etat) in
         let bouton_acc =
-          Text.createElement ~text:"Accéder à l'accueil"
+          Text.createElement ~text:(I18n.menu_accueil ())
             ~onMouseUp:(fun _  -> changerVue `VueAccueil)
             ~style:Style.[fontSize 25; fontFamily "Roboto-Regular.ttf";
               justifyContent `Center; position `Absolute; bottom 10; left 10;]
             ~children:[] ()
         in let bouton_calc =
-          Text.createElement ~text:"Calculer le résultat"
+          Text.createElement ~text:(I18n.calculer ())
           ~onMouseUp:(fun _ -> dispatch (Calculer 1))
           ~style:Style.[fontSize 25; fontFamily "Roboto-Regular.ttf";
             position `Absolute; bottom 10; right 10]
           ~children:[] ()
         in let egal = Text.createElement ~text:"=" ~style:Style.[
                       fontSize 25; fontFamily "Roboto-Regular.ttf"; marginVertical 15;] ~children:[] ()
-        in let boutton_mat = Text.createElement ~text:"Accéder aux matrices"
+        in let boutton_mat = Text.createElement ~text:(I18n.menu_matrices ())
           ~onMouseUp:(fun _ -> changerVue `VueMatrice)
           ~style:Style.[fontSize 25; fontFamily "Roboto-Regular.ttf";
             justifyContent `Center; position `Absolute; bottom 90; left 10;]
           ~children:[] ()
-        in let boutton_cal = Text.createElement ~text:"Accéder aux calculs simples"
+        in let boutton_cal = Text.createElement ~text:"Calculs simples"
           ~onMouseUp:(fun _ -> changerVue `VueCalcul)
           ~style:Style.[fontSize 25; fontFamily "Roboto-Regular.ttf";
             justifyContent `Center; position `Absolute; bottom 50; left 10;]
@@ -664,10 +695,9 @@ module Equation = struct
           dispatch(MiseAJour (0, 0, etat.mat1.(0).(0))))
           ~style:Style.[fontSize 25; fontFamily "Roboto-Regular.ttf"; marginHorizontal 10;] ~children:[] ()
         in let boutton_mininc =
-          Text.createElement ~text:"-" ~onMouseUp:(fun _ ->
-            minus_inc ();
-            dispatch(MiseAJour (0, 0, etat.mat1.(0).(0))) )
-          ~style:Style.[fontSize 25; fontFamily "Roboto-Regular.ttf"; marginHorizontal 10;] ~children:[] ()
+          Bouton.moins ~style:Style.[marginHorizontal 10]
+            ~onMouseUp:(fun _ -> minus_inc ();
+            dispatch(MiseAJour (0, 0, etat.mat1.(0).(0)))) ()
       (*in let boutton_addline =
           Text.createElement ~text:"+" ~onMouseUp:(fun _ ->
             etat.lines <- etat.lines + 1;
@@ -676,7 +706,7 @@ module Equation = struct
             dispatch(MiseAJour (1, 0, 0, "0")))
           ~style:Style.[fontSize 25; fontFamily "Roboto-Regular.ttf"; marginHorizontal 10;] ~children:[] ()
         in let boutton_minline =
-          Text.createElement ~text:"-" ~onMouseUp:(fun _ ->
+          Bouton.moins ~onMouseUp:(fun _ ->
             if etat.lines > 1 then
               begin
               etat.lines <- etat.lines - 1;
@@ -777,7 +807,7 @@ module Accueil = struct
         ]
       in
       let bouton_cal =
-        Text.createElement ~text:"Accéder aux calculs simples"
+        Text.createElement ~text:"Calculs simples"
          ~onMouseUp:(fun _ -> changerVue `VueCalcul)
          ~style:Style.[
           fontSize 25; fontFamily "Roboto-Regular.ttf"; justifyContent `Center; color (Color.rgb 255. 120. 10.);
@@ -785,7 +815,7 @@ module Accueil = struct
         ]
          ~children:[] ()
       in let bouton_mat =
-        Text.createElement ~text:"Accéder à matrice"
+        Text.createElement ~text:(I18n.menu_matrices ())
           ~onMouseUp:(fun _  -> changerVue `VueMatrice)
           ~style:Style.[
             fontSize 25; justifyContent `Center; fontFamily "Roboto-Regular.ttf"; color (Color.rgb 255. 120. 10.);
@@ -793,7 +823,7 @@ module Accueil = struct
           ]
           ~children:[] ()
       in let bouton_equa =
-        Text.createElement ~text:"Accéder à Équation"
+        Text.createElement ~text:(I18n.menu_equations ())
           ~onMouseUp:(fun _ -> changerVue `VueEquation)
           ~style:Style.[
             fontSize 25; justifyContent `Center; fontFamily "Roboto-Regular.ttf"; color (Color.rgb 255. 120. 10.);

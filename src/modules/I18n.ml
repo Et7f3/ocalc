@@ -27,6 +27,11 @@ let impossible_convertir_pas_affectable () =
     Francais -> "Impossible de convertir Pas_affectable"
   | Anglais -> "We can't convert Pas_affectable"
 
+let impossible_convertir_vide () =
+  match !lang with
+    Francais -> "Impossible de convertir Vide"
+  | Anglais -> "We can't convert Vide"
+
 let matrice_mauvaise_dimension () =
   match !lang with
     Francais -> "matrice de mauvaise dimension"
@@ -66,3 +71,38 @@ let mauvais_parenthesage () =
   match !lang with
     Francais -> "Vérifiez vos parenthèses !!!"
   | Anglais -> "Some parenthesis mismatch !!!"
+
+let retour () =
+  match !lang with
+    Francais -> "Retour"
+  | Anglais -> "Back"
+
+let calculer () =
+  match !lang with
+    Francais -> "Calculer"
+  | Anglais -> "Compute"
+
+let effacer () =
+  match !lang with
+    Francais -> "Effacer"
+  | Anglais -> "Erase"
+
+let menu_historique () =
+  match !lang with
+    Francais -> "Historique"
+  | Anglais -> "History"
+
+let menu_accueil () =
+  match !lang with
+    Francais -> "Accueil"
+  | Anglais -> "Home"
+
+let menu_matrices () =
+  match !lang with
+    Francais -> "Matrices"
+  | Anglais -> "Matrix"
+
+let menu_equations () =
+  match !lang with
+    Francais -> "Équations"
+  | Anglais -> "Solver"

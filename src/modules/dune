@@ -2,3 +2,8 @@
  (name Modules)
  (wrapped true)
  (modules GrandNum_on GrandEntier_on GrandReel_on GrandRationnel_on Matrix))
+
+(library
+  (name I18n)
+  (wrapped true)
+  (modules I18n))

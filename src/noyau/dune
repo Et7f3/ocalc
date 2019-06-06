@@ -1,4 +1,4 @@
 (library
  (name Noyau)
  (modules Lien Type Utils Lexer Parser Moteur Nouveau_type Nouveau_lexer Nouveau_parser Ancien_moteur)
- (libraries Modules))
+ (libraries Modules I18n))

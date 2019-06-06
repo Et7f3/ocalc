@@ -41,6 +41,6 @@ let rec expr_depuis_expression =
 let affe_depuis_affectable =
   let open Nouveau_parser in
   function
-    Pas_affectable -> failwith "impossible de convertir Pas_affectable"
+    Pas_affectable -> failwith (I18n.impossible_convertir_pas_affectable ())
   | Definition_Variable s -> Def_Var s
   | Definition_fonction (f, n, l) -> Def_Fx (f, n, l)

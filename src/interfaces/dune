@@ -8,7 +8,7 @@
  (modules TopCmd)
  (public_name topCmd)
  (package OCalc)
- (libraries Commune Noyau))
+ (libraries Commune Noyau I18n))
 
 (executable
  (name topTest)

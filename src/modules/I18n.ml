@@ -46,3 +46,18 @@ let bienvenue () =
   match !lang with
     Francais -> "Bienvenue chez OCalc"
   | Anglais -> "Walcome at OCalc"
+
+let sortir_msg () =
+  match !lang with
+    Francais -> "tapez sortir ou quitter pour quitter"
+  | Anglais -> "type exit or quit to quit"
+
+let sortir_1 () =
+  match !lang with
+    Francais -> "sortir"
+  | Anglais -> "exit"
+
+let sortir_2 () =
+  match !lang with
+    Francais -> "quitter"
+  | Anglais -> "quit"

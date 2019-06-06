@@ -1,7 +1,7 @@
 let corp_principal contexte =
   let ps1 = "# " in
   let () = print_endline (I18n.bienvenue ()) in
-  let () = print_endline "type exit to extit" in
+  let () = print_endline (I18n.sortir_msg ()) in
   let rec evalue_en_boucle ancienne_ligne contexte =
     let () = print_string ps1 in
     let ligne = ancienne_ligne ^ read_line () in
@@ -10,7 +10,7 @@ let corp_principal contexte =
         let taille = String.length ligne - 2 in
         String.sub ligne 0 taille
       in
-      if ligne <> "exit" || ligne <> "quit" then
+      if ligne <> I18n.sortir_1 () || ligne <> I18n.sortir_2 () then
         let sortie, contexte =
           if Noyau.Utils.parenthese_correcte ligne then
             try

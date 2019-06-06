@@ -19,3 +19,9 @@ val fichier_inexistant : string -> string
 val fichier_pas_math : string -> string
 
 val bienvenue : unit -> string
+
+val sortir_msg : unit -> string
+
+val sortir_1 : unit -> string
+
+val sortir_2 : unit -> string

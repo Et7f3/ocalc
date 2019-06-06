@@ -61,3 +61,8 @@ let sortir_2 () =
   match !lang with
     Francais -> "quitter"
   | Anglais -> "quit"
+
+let mauvais_parenthesage () =
+  match !lang with
+    Francais -> "Vérifiez vos parenthèses !!!"
+  | Anglais -> "Some parenthesis mismatch !!!"

@@ -17,7 +17,7 @@ let corp_principal contexte =
               Noyau.Moteur.evaluate_with_history ligne contexte
             with Division_by_zero -> (I18n.division_par_zero ()), contexte
           else
-            "vérifiez vos parenthèses !!!", contexte
+            I18n.mauvais_parenthesage (), contexte
       in let () = print_endline sortie in
       evalue_en_boucle "" contexte
     else

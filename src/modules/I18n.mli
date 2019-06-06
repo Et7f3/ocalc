@@ -25,3 +25,5 @@ val sortir_msg : unit -> string
 val sortir_1 : unit -> string
 
 val sortir_2 : unit -> string
+
+val mauvais_parenthesage : unit -> string

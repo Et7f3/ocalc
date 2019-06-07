@@ -53,3 +53,5 @@ val menu_equations : unit -> string
 val contractition_presente : unit -> string
 
 val definition_non_autorise : unit -> string
+
+val champ_variable_vide : unit -> string

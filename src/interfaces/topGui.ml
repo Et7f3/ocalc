@@ -856,9 +856,14 @@ module Equation = struct
     | Calculer ->
       let open Noyau.Moteur.Expr_matrix in
       let e =
-        try
-          solveur etat.coef etat.nbr_inc etat.nbr_ligne etat.inconnus
-        with Failure s -> Erreur s
+        if Array.for_all ((<>) "") etat.inconnus then
+          let coef =
+            Array.map (Array.map (fun e -> if e = "" then "0" else e)) etat.coef
+          in try
+            solveur coef etat.nbr_inc etat.nbr_ligne etat.inconnus
+          with Failure s -> Erreur s
+        else
+          Erreur (I18n.champ_variable_vide ())
       in {
         etat with
         resultat = Some e;
@@ -951,9 +956,30 @@ module Equation = struct
           Bouton.menu_calcul ~onMouseUp:(fun _ -> changerVue `VueCalcul)
             ~style:Style.[justifyContent `Center; position `Absolute;
               bottom 50; left 10] ()
+        in let resultat =
+          let open Noyau.Moteur.Expr_matrix in
+          match etat.resultat with
+            None -> None
+          | Some (Erreur text) ->
+            let style =
+              Style.[color (Color.hex "#f00"); fontSize 25;
+                fontFamily "Roboto-Regular.ttf"]
+            in Some (Text.createElement ~text ~style ~children:[] ())
+          | Some (Solution_systeme l) ->
+            let style = Style.[fontSize 25; fontFamily "Roboto-Regular.ttf"] in
+            let text_gen (variable, valeur) =
+              let valeur = Noyau.Moteur.texte_depuis_expr valeur in
+              let text = variable ^ " = " ^ valeur in
+              Text.createElement ~text ~style ~children:[] ()
+            in let children = List.map text_gen l in
+            Some (View.createElement ~children ())
+        in let children = [boutton_cal; boutton_mat; bouton_calc] in
+        let children =
+          match resultat with
+            None -> children
+          | Some e -> e :: children
         in let children =
-          [inc; coef; modifier_ligne; bouton_acc; boutton_cal; boutton_mat;
-            bouton_calc]
+          inc :: coef ::  modifier_ligne :: bouton_acc :: children
         in hooks,
           View.createElement
             ~style:Style.[position `Absolute; bottom 0;

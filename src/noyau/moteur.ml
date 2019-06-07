@@ -183,7 +183,7 @@ module Expr = struct
           let e = Nouveau_type.expr_depuis_expression e in
           eval e
       | Erreur (s, _ (* TODO: convert l *)) ->
-        failwith (I18n.erreur_de_syntaxe ())
+        failwith (s)
       | _ -> failwith (I18n.definition_non_autorise ())
     let vers_texte = texte_depuis_expr
     let additioner a b = eval (Op (`Addition, [a; b]))

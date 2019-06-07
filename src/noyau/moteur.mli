@@ -1,6 +1,7 @@
 type context
 
 val empty_context: context
+val texte_depuis_expr : Nouveau_type.expr -> string
 val evaluate_with_history: string -> context -> string * context
 
 

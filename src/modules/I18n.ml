@@ -121,3 +121,8 @@ let menu_equations () =
   match !lang with
     Francais -> "Équations"
   | Anglais -> "Solver"
+
+let contractition_presente () =
+  match !lang with
+    Francais -> "il y a une contractition presente"
+  | Anglais -> "Solution don't exist"

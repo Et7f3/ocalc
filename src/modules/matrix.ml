@@ -17,6 +17,9 @@ end
 
 module Generic_matrix (V : Value) = struct
     type t = V.t array array
+    type solution_equation =
+        Erreur of string
+      | Solution_systeme of (string * V.t) list
 
     let print = V.print
     let init n p = Array.make_matrix n p V.zero
@@ -194,6 +197,14 @@ module Generic_matrix (V : Value) = struct
       let mat = nomalise mat w in
       let mat = remonte mat w in
       mat, w, h, inc
+
+    let solveur mat w h inc =
+      let mat = Array.map (Array.map V.depuis_texte) mat in
+      let mat, w, h, inc = resoudre_sys mat w h inc in
+        if contractition_presente mat w h then
+          Erreur (I18n.contractition_presente ())
+        else
+          Solution_systeme ((Array.mapi (fun i e -> (e, mat.(i).(w))) inc) |> Array.to_list)
 end
 
 module Test_int = struct

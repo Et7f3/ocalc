@@ -49,3 +49,5 @@ val menu_calcul : unit -> string
 val menu_matrices : unit -> string
 
 val menu_equations : unit -> string
+
+val contractition_presente : unit -> string

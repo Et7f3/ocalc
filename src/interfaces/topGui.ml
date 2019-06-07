@@ -876,7 +876,8 @@ module Equation = struct
           let () =
             for i = pred len downto 0 do
               let e =
-                Input.createElement ~value:arr.(i) ~placeholder:etat.inconnus.(i)
+                Input.createElement ~value:arr.(i)
+                  ~placeholder:etat.inconnus.(i)
                   ~style:Style.[color (Color.hex "#fff"); width 100;
                     marginHorizontal 20]
                   ~onChange:(fun {value; _} ->
@@ -884,12 +885,18 @@ module Equation = struct
                   ~children:[] ()
                 in ret := e :: !ret
             done
-          in View.createElement ~style:Style.[flexDirection `Row] ~children:!ret ()
+          in
+          View.createElement ~style:Style.[flexDirection `Row] ~children:!ret ()
         in let coef = Array.mapi (dessiner_ligne_coef etat.nbr_inc) etat.coef in
-        let coef = View.createElement ~style:Style.[flexDirection `Column] ~children:(Array.to_list coef) () in
-        let inc = View.createElement ~style:Style.[flexDirection `Row] ~children:(children @ [ajouter_inconnu; enlever_inconnu]) () in
-        let children = inc :: coef :: [] in
-        hooks, View.createElement ~style:Style.[flexDirection `Column] ~children ()
+        let coef =
+          View.createElement ~style:Style.[flexDirection `Column]
+          ~children:(Array.to_list coef) ()
+        in let inc =
+          View.createElement ~style:Style.[flexDirection `Row]
+            ~children:(children @ [ajouter_inconnu; enlever_inconnu]) ()
+        in let children = inc :: coef :: [] in
+        hooks,
+          View.createElement ~style:Style.[flexDirection `Column] ~children ()
       )
 end
 

@@ -3,7 +3,7 @@ module type Value =
     type t
     val zero : t
     val unit : t
-    val symb : t
+    val symb : string -> t
     val neg : t -> t
     val est_zero : t -> bool
     val depuis_texte : string -> t
@@ -53,7 +53,7 @@ module Test_int :
     type t = int
     val zero : int
     val unit : int
-    val symb : int
+    val symb : string -> t
     val neg : int -> int
     val est_zero : int -> bool
     val depuis_texte : string -> int
@@ -105,13 +105,14 @@ module Test_int_matrix :
         val affecter_ligne : 'a array -> int -> 'a -> unit
       end
     val inverser : Test_int.t array array -> Test_int.t array array
+    val solveur : string array array -> int -> int -> string array -> solution_equation
   end
 module Test_float :
   sig
     type t = float
-    val zero : float
-    val unit : float
-    val symb : float
+    val zero : t
+    val unit : t
+    val symb : string -> t
     val neg : float -> float
     val est_zero : float -> bool
     val depuis_texte : string -> float
@@ -163,4 +164,5 @@ module Test_float_matrix :
         val affecter_ligne : 'a array -> int -> 'a -> unit
       end
     val inverser : Test_float.t array array -> Test_float.t array array
+    val solveur : string array array -> int -> int -> string array -> solution_equation
   end

@@ -166,3 +166,31 @@ let evaluate_with_history s context =
         a, e) l
     in let () = List.iter (fun (a, e) -> Hashtbl.add def a e) l in
     I18n.definition_valide (), (history, def)
+
+
+module Expr = struct
+    open Nouveau_type
+    type t = expr
+
+    let zero = N (GrandNum.zero)
+    let unit = N (GrandNum.unit)
+    let symb s = Var s
+    let neg e = eval (Neg e)
+    let est_zero a = a = N (GrandNum.zero)
+    let depuis_texte s =
+      match Nouveau_parser.parse s with
+        Expression e ->
+          let e = Nouveau_type.expr_depuis_expression e in
+          eval e
+      | Erreur (s, _ (* TODO: convert l *)) ->
+        failwith (I18n.erreur_de_syntaxe ())
+      | _ -> failwith (I18n.definition_non_autorise ())
+    let vers_texte = texte_depuis_expr
+    let additioner a b = eval (Op (`Addition, [a; b]))
+    let soustraire a b = eval (Op (`Addition, [a; Neg b]))
+    let diviser a b = eval (Op (`Multiplication, [a; Inv b]))
+    let multiplier a b = eval (Op (`Multiplication, [a; b]))
+    let print e = print_endline (texte_depuis_expr e)
+end
+
+module Expr_matrix = Modules.Matrix.Generic_matrix(Expr)

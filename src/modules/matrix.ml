@@ -3,7 +3,7 @@ module type Value = sig
 
     val zero : t
     val unit : t
-    val symb : t
+    val symb : string -> t
     val neg : t -> t
     val est_zero : t -> bool
     val depuis_texte : string -> t
@@ -105,7 +105,7 @@ module Generic_matrix (V : Value) = struct
         let ajouter_ligne mat i w h =
           let l = Array.make (w + 1) V.zero in
           let () = l.(i) <- V.unit in
-          let () = l.(w) <- V.symb in
+          let () = l.(w) <- V.symb "variable libre" in
           let () = mat := Array.append !mat [| l |] in
           incr h
     end
@@ -212,7 +212,7 @@ module Test_int = struct
 
     let zero = 0
     let unit = 1
-    let symb = unit
+    let symb _ = unit
     let neg = ( ~- )
     let est_zero = (=) 0
     let depuis_texte = int_of_string
@@ -231,7 +231,7 @@ module Test_float = struct
 
     let zero = 0.
     let unit = 1.
-    let symb = unit
+    let symb _ = unit
     let neg = ( ~-. )
     let est_zero a = -0.0001 < a && a < 0.0001
     let depuis_texte = float_of_string

@@ -124,5 +124,10 @@ let menu_equations () =
 
 let contractition_presente () =
   match !lang with
-    Francais -> "il y a une contractition presente"
+    Francais -> "Il y a une contradiction présente"
   | Anglais -> "Solution don't exist"
+
+let definition_non_autorise () =
+  match !lang with
+    Francais -> "Vous ne pouvez pas définir de variable ici"
+  | Anglais -> "You can't define value here"

@@ -67,12 +67,16 @@ type matrice_state =
 
 type equation_state =
   {
+    (*
     mutable inconnu: string list;
     mutable nbr_inc: int;
     mutable lines: int;
     mutable mat1: string array array;
     mutable mat2: string array array;
     res: string;
+    *)
+    inconnus: string array;
+    nbr_inc: int;
   }
 
 type accueil_state =
@@ -621,7 +625,8 @@ module Matrice = struct
             ~children:(boutton_matc :: children :: m_res :: children1) ())
 end
 
-module Equation = struct
+(*
+module Equation_old = struct
 
   let component = React.component "Equation"
 
@@ -785,6 +790,25 @@ module Equation = struct
             ~children:[list_inc; children; resultat;
               (*line;*) bouton_acc; boutton_cal; boutton_mat; bouton_calc] ())
 end
+*)
+module Equation = struct
+  let reducer _ (* action *) etat = etat
+
+  let component = React.component "Equation"
+
+  let createElement ~initialState ~changerVue:_ ~onUpdate =
+    fun ~children:_ () ->
+      component (fun hooks ->
+        let (etat (* nouvel etat *), _ (* dispatch *), hooks) =
+          React.Hooks.reducer ~initialState reducer hooks
+        in let () = onUpdate (`Equation etat) in
+        let children =
+          Array.map (fun value ->
+            Input.createElement ~value ~children:[] ()) etat.inconnus
+        in let children = Array.to_list children in
+        hooks, View.createElement  ~children ()
+      )
+end
 
 module Accueil = struct
   let component = React.component "Accueil"
@@ -915,12 +939,16 @@ module Application = struct
     ref {
       equation =
       {
+        (*
         inconnu = ["x"];
         nbr_inc = 1;
         lines = 1;
         mat1 = Array.make_matrix 1 1 "0";
         mat2 = Array.make_matrix 1 1 "0";
         res = "";
+        *)
+        inconnus = Array.make 1 "";
+        nbr_inc = 1;
       };
       calcul = {
         valeur = "";

@@ -78,6 +78,8 @@ and multiplier acc liste_expr =
   let open Nouveau_type in
   match acc, liste_expr with
     acc, Op (`Multiplication, l) :: l' -> multiplier acc (l @ l')
+  | N e :: _, _ when e = GrandNum.zero -> [N (GrandNum.zero)]
+  | _, N e :: _ when e = GrandNum.zero -> [N (GrandNum.zero)]
   | N n1 :: acc, N n2 :: l ->
     let n = GrandNum.multiplier (n1, n2) in
     multiplier acc ((N n) :: l)

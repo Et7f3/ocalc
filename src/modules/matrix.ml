@@ -102,10 +102,10 @@ module Generic_matrix (V : Value) = struct
           Array.mapi (fun k e ->
             V.additioner (V.multiplier a e) (V.multiplier b mat.(j).(k)))
             mat.(i)
-        let ajouter_ligne mat i w h =
+        let ajouter_ligne inc mat i w h =
           let l = Array.make (w + 1) V.zero in
           let () = l.(i) <- V.unit in
-          let () = l.(w) <- V.symb "variable libre" in
+          let () = l.(w) <- V.symb inc.(i) in
           let () = mat := Array.append !mat [| l |] in
           incr h
     end
@@ -144,14 +144,14 @@ module Generic_matrix (V : Value) = struct
         in let () = print m in
         mres
 
-    let triangle_superieur mat h w =
+    let triangle_superieur inc mat h w =
       let mat = ref mat
       and h = ref h in
       let () =
         for i = 0 to pred w do
           let () =
             if i > pred !h then
-              Operation_elementaires.ajouter_ligne mat i w h
+              Operation_elementaires.ajouter_ligne inc mat i w h
           in let () =
             if V.est_zero !mat.(i).(i) then
               let () =
@@ -160,7 +160,7 @@ module Generic_matrix (V : Value) = struct
                     Operation_elementaires.echanger_ligne !mat i i
                 done
               in if V.est_zero !mat.(i).(i) then
-                let () = Operation_elementaires.ajouter_ligne mat i w h in
+                let () = Operation_elementaires.ajouter_ligne inc mat i w h in
                 Operation_elementaires.echanger_ligne !mat (pred !h) i
           in for j = i + 1 to pred !h do
             !mat.(j) <- Operation_elementaires.comb_lineaire !mat (!mat.(j).(i), i) (V.neg (!mat.(i).(i)), j)
@@ -193,7 +193,7 @@ module Generic_matrix (V : Value) = struct
       in !resultat
 
     let resoudre_sys mat w h inc =
-      let mat, h = triangle_superieur mat h w in
+      let mat, h = triangle_superieur inc mat h w in
       let mat = nomalise mat w in
       let mat = remonte mat w in
       mat, w, h, inc

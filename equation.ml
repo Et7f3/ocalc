@@ -127,20 +127,23 @@ let sauvegarder_resultat mat w h inc fichier =
       Array.iteri (fun i e -> Printf.fprintf fichier "%s = %f\n" e mat.(i).(w)) inc in
   close_out fichier
 
-let resoudre_sys nom_fichier sortie_fichier =
-  let mat, w, h, inc = lire_sys nom_fichier in
-  (*let () = Printf.printf "On a lu le systeme et on a w: %d, h: %d\n" w h in*)
+let resoudre_sys mat w h inc =
   let mat, h = triangle_superieur (* inc *) mat h w in
   let mat = nomalise (* inc *) mat h w in
   let mat = remonte (* inc *) mat w in
-  let () = sauvegarder_resultat mat w h inc sortie_fichier in
   mat, w, h, inc;;
 
+let resoudre_sys_depuis_fichier nom_fichier sortie_fichier =
+  let mat, w, h, inc = lire_sys nom_fichier in
+  (*let () = Printf.printf "On a lu le systeme et on a w: %d, h: %d\n" w h in*)
+  let mat, w, h, inc = resoudre_sys mat w h inc in
+  sauvegarder_resultat mat w h inc sortie_fichier
+
 (** examples files*)
-let res = resoudre_sys "equation0.equ" "solution0.res";;
-let res = resoudre_sys "equation1.equ" "solution1.res";;
-let res = resoudre_sys "equation2.equ" "solution2.res";;
-let res = resoudre_sys "equation3.equ" "solution3.res";;
-let res = resoudre_sys "equation4.equ" "solution4.res";;
-let res = resoudre_sys "equation5.equ" "solution5.res";;
-let res = resoudre_sys "equation6.equ" "solution6.res";;
+let res = resoudre_sys_depuis_fichier "equation0.equ" "solution0.res";;
+let res = resoudre_sys_depuis_fichier "equation1.equ" "solution1.res";;
+let res = resoudre_sys_depuis_fichier "equation2.equ" "solution2.res";;
+let res = resoudre_sys_depuis_fichier "equation3.equ" "solution3.res";;
+let res = resoudre_sys_depuis_fichier "equation4.equ" "solution4.res";;
+let res = resoudre_sys_depuis_fichier "equation5.equ" "solution5.res";;
+let res = resoudre_sys_depuis_fichier "equation6.equ" "solution6.res";;

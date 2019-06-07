@@ -825,7 +825,9 @@ module Equation = struct
         in let () = onUpdate (`Equation etat) in
         let children =
           Array.mapi (fun i value ->
-            Input.createElement ~value ~style:Style.[color (Color.hex "#fff")]
+            Input.createElement ~value
+              ~style:Style.[color (Color.hex "#fff"); width 100;
+                marginHorizontal 20]
               ~onChange:(fun {value; _} -> dispatch(Editer_inconnu(i, value)))
               ~children:[] ()) etat.inconnus
         in let children = Array.to_list children in

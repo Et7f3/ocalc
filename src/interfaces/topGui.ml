@@ -75,7 +75,7 @@ type equation_state =
     mutable mat2: string array array;
     res: string;
     *)
-    inconnus: string array;
+    inconnues: string array;
     nbr_inc: int;
     coef: string array array;
     nbr_ligne: int;
@@ -805,9 +805,9 @@ module Equation = struct
   let reducer action etat =
     match action with
       Editer_inconnu (i, v) ->
-        let inconnus = etat.inconnus in
-        let () = inconnus.(i) <- v in
-        {etat with inconnus}
+        let inconnues = etat.inconnues in
+        let () = inconnues.(i) <- v in
+        {etat with inconnues}
     | Editer_coefficient (j, i, v) ->
       let coef = etat.coef in
       let () = coef.(j).(i) <- v in
@@ -815,7 +815,7 @@ module Equation = struct
     | Ajouter_inconnu ->
       {
         etat with
-        inconnus = Array.append etat.inconnus [| "" |];
+        inconnues = Array.append etat.inconnues [| "" |];
         coef =
           Array.map (fun inc ->
             let l = Array.append inc [| "" |] in
@@ -828,7 +828,7 @@ module Equation = struct
       if etat.nbr_inc > 1 then
         {
           etat with
-          inconnus = Array.sub etat.inconnus 0 (etat.nbr_inc - 1);
+          inconnues = Array.sub etat.inconnues 0 (etat.nbr_inc - 1);
           coef =
             Array.map (fun inc ->
               let l = Array.sub inc 0 etat.nbr_inc in
@@ -856,11 +856,11 @@ module Equation = struct
     | Calculer ->
       let open Noyau.Moteur.Expr_matrix in
       let e =
-        if Array.for_all ((<>) "") etat.inconnus then
+        if Array.for_all ((<>) "") etat.inconnues then
           let coef =
             Array.map (Array.map (fun e -> if e = "" then "0" else e)) etat.coef
           in try
-            solveur coef etat.nbr_inc etat.nbr_ligne etat.inconnus
+            solveur coef etat.nbr_inc etat.nbr_ligne etat.inconnues
           with Failure s -> Erreur s
         else
           Erreur (I18n.champ_variable_vide ())
@@ -883,7 +883,7 @@ module Equation = struct
               ~style:Style.[color (Color.hex "#fff"); width 100;
                 marginHorizontal 20]
               ~onChange:(fun {value; _} -> dispatch(Editer_inconnu(i, value)))
-              ~children:[] ()) etat.inconnus
+              ~children:[] ()) etat.inconnues
         in let children = Array.to_list children in
         let ajouter_inconnu =
           Bouton.plus
@@ -911,7 +911,7 @@ module Equation = struct
             for i = pred len downto 0 do
               let e =
                 Input.createElement ~value:arr.(i)
-                  ~placeholder:etat.inconnus.(i)
+                  ~placeholder:etat.inconnues.(i)
                   ~style:Style.[color (Color.hex "#fff"); width 100;
                     marginHorizontal 20]
                   ~onChange:(fun {value; _} ->
@@ -1125,7 +1125,7 @@ module Application = struct
         mat2 = Array.make_matrix 1 1 "0";
         res = "";
         *)
-        inconnus = Array.make 1 "";
+        inconnues = Array.make 1 "";
         nbr_inc = 1;
         coef = Array.make_matrix 1 2 "";
         nbr_ligne = 1;

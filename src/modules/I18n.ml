@@ -134,5 +134,5 @@ let definition_non_autorise () =
 
 let champ_variable_vide () =
   match !lang with
-    Francais -> "Vous devez donner un nom a toutes les inconnus"
+    Francais -> "Vous devez donner un nom a toutes les inconnues"
   | Anglais -> "You must give a name for all unknown"

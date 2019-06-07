@@ -799,6 +799,7 @@ module Equation = struct
     | Enlever_inconnu
     | Ajouter_ligne
     | Enlever_ligne
+    | Calculer
 
   let reducer action etat =
     match action with
@@ -851,10 +852,11 @@ module Equation = struct
         }
       else
         etat
+    | Calculer -> etat
 
   let component = React.component "Equation"
 
-  let createElement ~initialState ~changerVue:_ ~onUpdate =
+  let createElement ~initialState ~changerVue ~onUpdate =
     fun ~children:_ () ->
       component (fun hooks ->
         let (etat (* nouvel etat *), dispatch, hooks) =
@@ -922,9 +924,31 @@ module Equation = struct
         in let modifier_ligne =
           View.createElement ~style:Style.[flexDirection `Row]
             ~children:[ajouter_ligne; enlever_ligne] ()
-        in let children = inc :: coef :: modifier_ligne :: [] in
-        hooks,
-          View.createElement ~style:Style.[flexDirection `Column] ~children ()
+        in let bouton_acc =
+          Bouton.menu_accueil
+            ~onMouseUp:(fun _ -> changerVue `VueAccueil)
+            ~style:Style.[justifyContent `Center; position `Absolute;
+              bottom 10; left 10] ()
+        in let bouton_calc =
+          Bouton.calculer ~onMouseUp:(fun _ -> dispatch Calculer)
+            ~style:Style.[position `Absolute; bottom 10; right 10] ()
+        in let boutton_mat =
+          Bouton.menu_matrices
+            ~onMouseUp:(fun _ -> changerVue `VueMatrice)
+            ~style:Style.[justifyContent `Center; position `Absolute;
+              bottom 90; left 10] ()
+        in let boutton_cal =
+          Bouton.menu_calcul ~onMouseUp:(fun _ -> changerVue `VueCalcul)
+            ~style:Style.[justifyContent `Center; position `Absolute;
+              bottom 50; left 10] ()
+        in let children =
+          [inc; coef; modifier_ligne; bouton_acc; boutton_cal; boutton_mat;
+            bouton_calc]
+        in hooks,
+          View.createElement
+            ~style:Style.[position `Absolute; bottom 0;
+              top 0; left 0; right 0; flexDirection `Column]
+            ~children ()
       )
 end
 

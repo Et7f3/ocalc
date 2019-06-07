@@ -174,8 +174,6 @@ module Bouton = struct
 end
 
 module VueBonus = struct
-  let component = React.component "VueBonus"
-
   let createElement ~changerVue ~onUpdate:_ ~children:_ () =
     let retour_maison =
       Bouton.menu_retour ~onMouseUp:(fun _ -> changerVue `VueAccueil)
@@ -850,7 +848,7 @@ module Accueil = struct
   type action =
     ChangerLangue of I18n.lang
 
-  let reducer action etat =
+  let reducer action _ (* etat *) =
     match action with
       ChangerLangue lang ->
         let () = I18n.definir_lang lang in

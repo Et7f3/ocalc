@@ -794,6 +794,7 @@ end
 module Equation = struct
   type action =
       Editer_inconnu of int * string
+    | Editer_coefficient of int * int * string
     | Ajouter_inconnu
     | Enlever_inconnu
 
@@ -803,6 +804,10 @@ module Equation = struct
         let inconnus = etat.inconnus in
         let () = inconnus.(i) <- v in
         {etat with inconnus}
+    | Editer_coefficient (j, i, v) ->
+      let coef = etat.coef in
+      let () = coef.(j).(i) <- v in
+      {etat with coef}
     | Ajouter_inconnu ->
       {
         etat with
@@ -823,7 +828,7 @@ module Equation = struct
           coef =
             Array.map (fun inc ->
               let l = Array.sub inc 0 etat.nbr_inc in
-              let () = l.(etat.nbr_inc - 2) <- inc.(etat.nbr_inc - 1) in
+              let () = l.(etat.nbr_inc - 1) <- inc.(etat.nbr_inc) in
               l) etat.coef;
           nbr_inc = etat.nbr_inc - 1;
         }
@@ -859,11 +864,13 @@ module Equation = struct
             ~style:Style.[fontSize 25; fontFamily "Roboto-Regular.ttf";
               marginHorizontal 10]
             ~children:[] ()
-        in let dessiner_ligne_coef len arr =
+        in let dessiner_ligne_coef len j arr =
           let res =
             Input.createElement ~value:arr.(len) ~placeholder:"Résultat"
               ~style:Style.[color (Color.hex "#fff"); width 100;
                 marginHorizontal 20]
+                ~onChange:(fun {value; _} ->
+                  dispatch(Editer_coefficient(j, len, value)))
               ~children:[] ()
           in let ret = ref [egal; res] in
           let () =
@@ -872,11 +879,13 @@ module Equation = struct
                 Input.createElement ~value:arr.(i) ~placeholder:etat.inconnus.(i)
                   ~style:Style.[color (Color.hex "#fff"); width 100;
                     marginHorizontal 20]
+                  ~onChange:(fun {value; _} ->
+                    dispatch(Editer_coefficient(j, i, value)))
                   ~children:[] ()
                 in ret := e :: !ret
             done
           in View.createElement ~style:Style.[flexDirection `Row] ~children:!ret ()
-        in let coef = Array.map (dessiner_ligne_coef etat.nbr_inc) etat.coef in
+        in let coef = Array.mapi (dessiner_ligne_coef etat.nbr_inc) etat.coef in
         let coef = View.createElement ~style:Style.[flexDirection `Column] ~children:(Array.to_list coef) () in
         let inc = View.createElement ~style:Style.[flexDirection `Row] ~children:(children @ [ajouter_inconnu; enlever_inconnu]) () in
         let children = inc :: coef :: [] in

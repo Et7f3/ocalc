@@ -797,6 +797,8 @@ module Equation = struct
     | Editer_coefficient of int * int * string
     | Ajouter_inconnu
     | Enlever_inconnu
+    | Ajouter_ligne
+    | Enlever_ligne
 
   let reducer action etat =
     match action with
@@ -831,6 +833,21 @@ module Equation = struct
               let () = l.(etat.nbr_inc - 1) <- inc.(etat.nbr_inc) in
               l) etat.coef;
           nbr_inc = etat.nbr_inc - 1;
+        }
+      else
+        etat
+    | Ajouter_ligne ->
+      {
+        etat with
+        coef = Array.append etat.coef [| Array.make (etat.nbr_inc + 1) "" |];
+        nbr_ligne = etat.nbr_ligne + 1;
+      }
+    | Enlever_ligne ->
+      if etat.nbr_ligne > 1 then
+        {
+          etat with
+          coef = Array.sub etat.coef 0 (etat.nbr_ligne - 1);
+          nbr_ligne = etat.nbr_ligne - 1;
         }
       else
         etat
@@ -894,7 +911,18 @@ module Equation = struct
         in let inc =
           View.createElement ~style:Style.[flexDirection `Row]
             ~children:(children @ [ajouter_inconnu; enlever_inconnu]) ()
-        in let children = inc :: coef :: [] in
+        in let ajouter_ligne =
+          Bouton.plus
+            ~style:Style.[marginHorizontal 20]
+            ~onMouseUp:(fun _ -> dispatch Ajouter_ligne) ()
+        in let enlever_ligne =
+          Bouton.moins
+            ~style:Style.[marginHorizontal 20]
+            ~onMouseUp:(fun _ -> dispatch Enlever_ligne) ()
+        in let modifier_ligne =
+          View.createElement ~style:Style.[flexDirection `Row]
+            ~children:[ajouter_ligne; enlever_ligne] ()
+        in let children = inc :: coef :: modifier_ligne :: [] in
         hooks,
           View.createElement ~style:Style.[flexDirection `Column] ~children ()
       )

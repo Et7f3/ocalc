@@ -86,7 +86,7 @@ let triangle_superieur (* inc *) mat h w =
     done
   in !mat, !h
 
-let nomalise (* inc *) mat h w =
+let nomalise (* inc *) mat w =
   let () =
     for i = 0 to pred w do
       (*let () =
@@ -128,7 +128,7 @@ let sauvegarder_resultat mat w h inc fichier =
 
 let resoudre_sys mat w h inc =
   let mat, h = triangle_superieur (* inc *) mat h w in
-  let mat = nomalise (* inc *) mat h w in
+  let mat = nomalise (* inc *) mat w in
   let mat = remonte (* inc *) mat w in
   mat, w, h, inc;;
 

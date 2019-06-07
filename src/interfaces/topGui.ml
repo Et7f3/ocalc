@@ -793,7 +793,9 @@ end
 *)
 module Equation = struct
   type action =
-    Editer_inconnu of int * string
+      Editer_inconnu of int * string
+    | Ajouter_inconnu
+    | Enlever_inconnu
 
   let reducer action etat =
     match action with
@@ -801,6 +803,19 @@ module Equation = struct
         let inconnus = etat.inconnus in
         let () = inconnus.(i) <- v in
         {etat with inconnus}
+    | Ajouter_inconnu ->
+      {
+        inconnus = Array.append etat.inconnus [| "" |];
+        nbr_inc = etat.nbr_inc + 1;
+      }
+    | Enlever_inconnu ->
+      if etat.nbr_inc > 1 then
+        {
+          inconnus = Array.sub etat.inconnus 0 (etat.nbr_inc - 1);
+          nbr_inc = etat.nbr_inc - 1;
+        }
+      else
+        etat
 
   let component = React.component "Equation"
 
@@ -816,7 +831,16 @@ module Equation = struct
               ~onChange:(fun {value; _} -> dispatch(Editer_inconnu(i, value)))
               ~children:[] ()) etat.inconnus
         in let children = Array.to_list children in
-        hooks, View.createElement  ~children ()
+        let ajouter_inconnu =
+          Bouton.plus
+            ~style:Style.[marginHorizontal 20]
+            ~onMouseUp:(fun _ -> dispatch Ajouter_inconnu) ()
+        in let enlever_inconnu =
+          Bouton.moins
+            ~style:Style.[marginHorizontal 20]
+            ~onMouseUp:(fun _ -> dispatch Enlever_inconnu) ()
+        in let children = ajouter_inconnu :: enlever_inconnu :: children in
+        hooks, View.createElement ~style:Style.[flexDirection `Row] ~children ()
       )
 end
 

@@ -17,20 +17,19 @@ let lire_sys nom_fichier =
   let h = Array.length mat in
   mat, w, h, inc
 
-let addition_ligne mat ligne j =
-  Array.mapi (fun i e -> e +. mat.(j).(i)) ligne
+let addition_ligne ligne lignej =
+  Array.mapi (fun i -> (+.) lignej.(i)) ligne
 
-let multiplication_ligne mat ligne j =
+let multiplication_ligne ligne j =
   Array.mapi (fun _ e -> e *. j) ligne
 
 let comb_lineaire mat (a, i) (b, j) =
   Array.mapi (fun k e -> a *. e +. b *. mat.(j).(k)) mat.(i)
 
-let inverser_ligne mat i j =
+let echanger_ligne mat i j =
   let l = mat.(i) in
   let () = mat.(i) <- mat.(j) in
-  let () = mat.(j) <- l in
-  mat
+  mat.(j) <- l
 
 let ajouter_ligne mat i w h =
   let l = Array.make (w + 1) 0. in
@@ -69,13 +68,13 @@ let triangle_superieur (* inc *) mat h w =
           let () =
             for k = i + 1 to pred !h do
               if not (zero !mat.(k).(i)) then
-                mat := inverser_ligne !mat i i
+                echanger_ligne !mat i i
             done
           in(* let () = print_mat inc mat in*)
           if zero !mat.(i).(i) then
             (*let () = Printf.printf "on n'a pas de remplacant\n" in*)
             let () = ajouter_ligne mat i w h in
-            (*let () = *)mat := inverser_ligne !mat (pred !h) i(* in
+            (*let () = *)echanger_ligne !mat (pred !h) i(* in
             print_mat inc mat*)
       in for j = i + 1 to pred !h do
         (*let () = Printf.printf "on traite la ligne j: %d\n" j in
@@ -93,7 +92,7 @@ let nomalise (* inc *) mat h w =
       (*let () =
         Printf.printf "On reduit la ligne i: %d selon le pivot (%d, %d): %f\n"
         i i i mat.(i).(i)
-      in let () = *)mat.(i) <- multiplication_ligne mat mat.(i) (1. /. mat.(i).(i))(* in
+      in let () = *)mat.(i) <- multiplication_ligne mat.(i) (1. /. mat.(i).(i))(* in
       print_mat inc (ref mat)*)
     done
   in mat

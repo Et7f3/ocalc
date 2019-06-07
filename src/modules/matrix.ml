@@ -3,7 +3,11 @@ module type Value = sig
 
     val zero : t
     val unit : t
+    val symb : t
     val neg : t -> t
+    val est_zero : t -> bool
+    val depuis_texte : string -> t
+    val vers_texte : t -> string
     val additioner : t -> t -> t
     val soustraire : t -> t -> t
     val diviser : t -> t -> t
@@ -91,6 +95,14 @@ module Generic_matrix (V : Value) = struct
             m.(j) <- tmp
         let affecter_ligne m i l =
             m.(i) <- l
+        let comb_lineaire mat (a, i) (b, j) =
+          Array.mapi (fun k e -> V.additioner (V.multiplier a e) (V.multiplier b mat.(j).(k))) mat.(i)
+        let ajouter_ligne mat i w h =
+          let l = Array.make (w + 1) V.zero in
+          let () = l.(i) <- V.unit in
+          let () = l.(w) <- V.symb in
+          let () = mat := Array.append !mat [| l |] in
+          incr h
     end
     let inverser m' =
         let h, w = size m' in
@@ -134,7 +146,11 @@ module Test_int = struct
 
     let zero = 0
     let unit = 1
+    let symb = unit
     let neg = ( ~- )
+    let est_zero = (=) 0
+    let depuis_texte = int_of_string
+    let vers_texte = string_of_int
     let additioner = ( + )
     let soustraire = ( - )
     let diviser = ( / )
@@ -149,7 +165,11 @@ module Test_float = struct
 
     let zero = 0.
     let unit = 1.
+    let symb = unit
     let neg = ( ~-. )
+    let est_zero a = -0.0001 < a && a < 0.0001
+    let depuis_texte = float_of_string
+    let vers_texte = string_of_float
     let additioner = ( +. )
     let soustraire = ( -. )
     let diviser = ( /. )

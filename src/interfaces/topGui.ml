@@ -79,6 +79,7 @@ type equation_state =
     nbr_inc: int;
     coef: string array array;
     nbr_ligne: int;
+    resultat: Noyau.Moteur.Expr_matrix.solution_equation option
   }
 
 type accueil_state =
@@ -852,7 +853,16 @@ module Equation = struct
         }
       else
         etat
-    | Calculer -> etat
+    | Calculer ->
+      let open Noyau.Moteur.Expr_matrix in
+      let e =
+        try
+          solveur etat.coef etat.nbr_inc etat.nbr_ligne etat.inconnus
+        with Failure s -> Erreur s
+      in {
+        etat with
+        resultat = Some e;
+      }
 
   let component = React.component "Equation"
 
@@ -1093,6 +1103,7 @@ module Application = struct
         nbr_inc = 1;
         coef = Array.make_matrix 1 2 "";
         nbr_ligne = 1;
+        resultat = None;
       };
       calcul = {
         valeur = "";

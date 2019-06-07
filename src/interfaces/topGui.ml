@@ -792,19 +792,29 @@ module Equation_old = struct
 end
 *)
 module Equation = struct
-  let reducer _ (* action *) etat = etat
+  type action =
+    Editer_inconnu of int * string
+
+  let reducer action etat =
+    match action with
+      Editer_inconnu (i, v) ->
+        let inconnus = etat.inconnus in
+        let () = inconnus.(i) <- v in
+        {etat with inconnus}
 
   let component = React.component "Equation"
 
   let createElement ~initialState ~changerVue:_ ~onUpdate =
     fun ~children:_ () ->
       component (fun hooks ->
-        let (etat (* nouvel etat *), _ (* dispatch *), hooks) =
+        let (etat (* nouvel etat *), dispatch, hooks) =
           React.Hooks.reducer ~initialState reducer hooks
         in let () = onUpdate (`Equation etat) in
         let children =
-          Array.map (fun value ->
-            Input.createElement ~value ~children:[] ()) etat.inconnus
+          Array.mapi (fun i value ->
+            Input.createElement ~value ~style:Style.[color (Color.hex "#fff")]
+              ~onChange:(fun {value; _} -> dispatch(Editer_inconnu(i, value)))
+              ~children:[] ()) etat.inconnus
         in let children = Array.to_list children in
         hooks, View.createElement  ~children ()
       )

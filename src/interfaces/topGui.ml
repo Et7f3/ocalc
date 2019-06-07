@@ -77,6 +77,8 @@ type equation_state =
     *)
     inconnus: string array;
     nbr_inc: int;
+    coef: string array array;
+    nbr_ligne: int;
   }
 
 type accueil_state =
@@ -803,12 +805,14 @@ module Equation = struct
         {etat with inconnus}
     | Ajouter_inconnu ->
       {
+        etat with
         inconnus = Array.append etat.inconnus [| "" |];
         nbr_inc = etat.nbr_inc + 1;
       }
     | Enlever_inconnu ->
       if etat.nbr_inc > 1 then
         {
+          etat with
           inconnus = Array.sub etat.inconnus 0 (etat.nbr_inc - 1);
           nbr_inc = etat.nbr_inc - 1;
         }
@@ -983,6 +987,8 @@ module Application = struct
         *)
         inconnus = Array.make 1 "";
         nbr_inc = 1;
+        coef = Array.make_matrix 1 2 "";
+        nbr_ligne = 1;
       };
       calcul = {
         valeur = "";
